@@ -11,7 +11,6 @@ public class WorldRenderer {
     private World world;
     private Box2DDebugRenderer debugRenderer;
     private OrthographicCamera camera;
-    private float aspectRatio;
     
     public WorldRenderer(WorldManager worldManager) {
         this.worldManager = worldManager;
@@ -25,11 +24,6 @@ public class WorldRenderer {
     }
 
     public void resize(int width, int height) {
-        aspectRatio = (float)width / height;
-        camera.setToOrtho(false, 100 * aspectRatio, 100);
-        worldManager.setRatio(height / 100.0f);
     }
-    
-    
     
 }

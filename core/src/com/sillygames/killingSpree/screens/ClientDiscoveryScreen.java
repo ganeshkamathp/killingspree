@@ -1,5 +1,7 @@
 package com.sillygames.killingSpree.screens;
 
+import java.io.IOException;
+import java.net.InetAddress;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
@@ -11,13 +13,16 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.Listener;
 import com.sillygames.killingSpree.InputController;
 import com.sillygames.killingSpree.KillingSpree;
 import com.sillygames.killingSpree.networking.MyClient;
 import com.sillygames.killingSpree.networking.MyServer;
+import com.sillygames.killingSpree.networking.messages.ConnectMessage;
 import com.sillygames.killingSpree.screens.helpers.MyButton;
 
-public class MainMenuScreen extends AbstractScreen {
+public class ClientDiscoveryScreen extends AbstractScreen {
 
     private BitmapFont font;
     private SpriteBatch batch;
@@ -25,26 +30,25 @@ public class MainMenuScreen extends AbstractScreen {
     private FitViewport viewport;
     private ArrayList<MyButton> buttons;
     private MyButton currentButton;
-    private MyButton startGameButton;
-    private MyButton joinGameButton;
-    private MyButton optionsButton;
-    private MyButton exitButton;
+    private MyButton backButton;
+    private MyButton refreshButton;
+    private ArrayList<MyButton> ipAddresses;
+    private boolean markForDispose;
     
-    public MainMenuScreen(KillingSpree game) {
+    public ClientDiscoveryScreen(KillingSpree game) {
         super(game);
         show();
     }
-
+    
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        processInput();
         renderButtons(delta);
         batch.end();
-        
+        processInput();
     }
 
     @Override
@@ -58,7 +62,7 @@ public class MainMenuScreen extends AbstractScreen {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator
                 (Gdx.files.internal("fonts/splash.ttf"));
         FreeTypeFontParameter parameter = new FreeTypeFontParameter();
-        parameter.size = 170;
+        parameter.size = 120;
         font = generator.generateFont(parameter);
         generator.dispose();
         batch = new SpriteBatch();
@@ -66,7 +70,10 @@ public class MainMenuScreen extends AbstractScreen {
         viewport = new FitViewport(1280, 720, camera);
         camera.setToOrtho(false, 1280, 720);
         buttons = new ArrayList<MyButton>();
+        ipAddresses = new ArrayList<MyButton>();
+        markForDispose = false;
         addAllButtons();
+        addIpButtons();
     }
 
     @Override
@@ -83,13 +90,18 @@ public class MainMenuScreen extends AbstractScreen {
 
     @Override
     public void dispose() {
+        ipAddresses.clear();
+        buttons.clear();
         batch.dispose();
         font.dispose();
+        ipAddresses = null;
+        buttons = null;
+        font = null;
     }
     
     public void processInput() {
         currentButton = currentButton.process();
-        if (InputController.instance.buttonA()){
+        if (InputController.instance.buttonA() || markForDispose){
             processButton();
             return;
         }
@@ -99,22 +111,19 @@ public class MainMenuScreen extends AbstractScreen {
     }
     
     private void processButton() {
-        buttons.clear();
-        if (currentButton == startGameButton) {
+        if (currentButton == backButton) {
+            game.setScreen(new MainMenuScreen(game));
+        } else if (currentButton == refreshButton) {
+            addIpButtons();
+        } else {
+            String address = currentButton.getText();
             LobbyScreen lobbyScreen = new LobbyScreen(game);
-            lobbyScreen.setServer(true);
+            lobbyScreen.setHost(address);
+            lobbyScreen.setServer(false);
             game.setScreen(lobbyScreen);
-        } else if (currentButton == joinGameButton) {
-            ClientDiscoveryScreen clientDiscoveryScreen = 
-                    new ClientDiscoveryScreen(game);
-            game.setScreen(clientDiscoveryScreen);
-        } else if (currentButton == optionsButton) {
-            
-        } else if (currentButton == exitButton) {
-            Gdx.app.exit();
         }
     }
-
+    
     private void processTouched() {
         Vector2 touchVector = viewport.unproject(new Vector2(Gdx.input.getX(),
                 Gdx.input.getY()));
@@ -125,8 +134,15 @@ public class MainMenuScreen extends AbstractScreen {
                 return;
             }
         }
+        for (MyButton button: ipAddresses) {
+            if(button.isPressed(touchVector, font)) {
+                currentButton = button;
+                processButton();
+                return;
+            }
+        }
     }
-    
+
     public MyButton addButton(String text, float x, float y) {
         MyButton button = new MyButton(text, x, y);
         buttons.add(button);
@@ -134,23 +150,38 @@ public class MainMenuScreen extends AbstractScreen {
     }
     
     private void renderButtons(float delta) {
-        for (MyButton button: buttons) {
+        for (MyButton button : buttons) {
+            button.render(batch, font, delta);
+        }
+        for (MyButton button : ipAddresses) {
             button.render(batch, font, delta);
         }
     }
     
     private void addAllButtons() {
-        startGameButton = addButton("Start game", 100, 750);
-        joinGameButton = addButton("Join game", 100, 550);
-        optionsButton = addButton("Options", 100, 350);
-        exitButton = addButton("Exit", 100, 150);
-        startGameButton.setActive(true);
-        currentButton = startGameButton;
-        joinGameButton.setNorth(startGameButton);
-        optionsButton.setNorth(joinGameButton);
-        optionsButton.setSouth(exitButton);
-        startGameButton.setNorth(exitButton);
-        Gdx.app.log("test", MyClient.instance.getName());
+        refreshButton = addButton("Refresh", 300, 720);
+        backButton = addButton("Back", 700, 720);
+        currentButton = refreshButton;
+        currentButton.setActive(true);
+        refreshButton.setWest(backButton);
     }
+    
+    private void addIpButtons() {
+        refreshButton.south = null;
+        backButton.south = null;
+        ipAddresses.clear();
+        MyButton previousButton = refreshButton;
+        float y = 580;
+        for (InetAddress address : 
+            MyClient.instance.client.discoverHosts(3000, 500)) {
+            MyButton button = new MyButton(address.getHostName(), 300, y);
+            ipAddresses.add(button);
+            previousButton.setSouth(button);
+            previousButton = button;
+            y -= 150;
+        }
+        
+    }
+    
 
 }

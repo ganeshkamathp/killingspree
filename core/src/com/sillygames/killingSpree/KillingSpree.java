@@ -3,6 +3,8 @@ package com.sillygames.killingSpree;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.sillygames.killingSpree.networking.MyClient;
+import com.sillygames.killingSpree.networking.MyServer;
 import com.sillygames.killingSpree.screens.SplashScreen;
 
 public class KillingSpree extends ApplicationAdapter {
@@ -44,6 +46,8 @@ public class KillingSpree extends ApplicationAdapter {
     @Override
     public void dispose() {
         currentScreen.dispose();
+        MyServer.instance.dispose();
+        MyClient.instance.dispose();
     }
     
     public void setScreen(Screen screen){
