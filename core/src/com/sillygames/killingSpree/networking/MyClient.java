@@ -1,6 +1,5 @@
 package com.sillygames.killingSpree.networking;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import com.badlogic.gdx.Gdx;

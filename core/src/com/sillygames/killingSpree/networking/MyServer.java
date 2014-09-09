@@ -4,9 +4,9 @@ import java.io.IOException;
 
 import com.badlogic.gdx.Gdx;
 import com.esotericsoftware.kryonet.Connection;
-import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 import com.sillygames.killingSpree.networking.messages.ConnectMessage;
+import com.sillygames.killingSpree.pooler.ObjectPool;
 
 public class MyServer {
     
@@ -45,11 +45,16 @@ public class MyServer {
                     .getRemoteAddressTCP().getHostName());
         }
         server.sendToAllTCP(message);
+        ObjectPool.instance.connectMessagePool.free(message);
     }
 
     public void dispose() {
         server.stop();
         server = null;
+    }
+
+    public void startGame() {
+        server.sendToAllTCP("start");
     }
     
 }

@@ -1,4 +1,4 @@
-package com.sillygames.killingSpree;
+package com.sillygames.killingSpree.controls;
 
 import com.badlogic.gdx.controllers.Controllers;
 

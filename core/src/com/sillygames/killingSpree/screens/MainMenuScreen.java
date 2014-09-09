@@ -1,7 +1,6 @@
 package com.sillygames.killingSpree.screens;
 
 import java.util.ArrayList;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -11,10 +10,9 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.sillygames.killingSpree.InputController;
 import com.sillygames.killingSpree.KillingSpree;
+import com.sillygames.killingSpree.controls.InputController;
 import com.sillygames.killingSpree.networking.MyClient;
-import com.sillygames.killingSpree.networking.MyServer;
 import com.sillygames.killingSpree.screens.helpers.MyButton;
 
 public class MainMenuScreen extends AbstractScreen {

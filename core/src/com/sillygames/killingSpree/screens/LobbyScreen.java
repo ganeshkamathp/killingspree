@@ -1,6 +1,5 @@
 package com.sillygames.killingSpree.screens;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -13,11 +12,12 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
-import com.sillygames.killingSpree.InputController;
 import com.sillygames.killingSpree.KillingSpree;
+import com.sillygames.killingSpree.controls.InputController;
 import com.sillygames.killingSpree.networking.MyClient;
 import com.sillygames.killingSpree.networking.MyServer;
 import com.sillygames.killingSpree.networking.messages.ConnectMessage;
+import com.sillygames.killingSpree.pooler.ObjectPool;
 import com.sillygames.killingSpree.screens.helpers.MyButton;
 
 public class LobbyScreen extends AbstractScreen {
@@ -35,6 +35,7 @@ public class LobbyScreen extends AbstractScreen {
     public LobbyClientListener clientListener;
     public LobbyServerListener serverListener;
     private boolean markForDispose;
+    private boolean startGame;
     private String host; 
     
     public LobbyScreen(KillingSpree game) {
@@ -77,6 +78,7 @@ public class LobbyScreen extends AbstractScreen {
         clientListener = new LobbyClientListener();
         MyClient.instance.client.addListener(clientListener);
         markForDispose = false;
+        startGame = false;
         host = "127.0.0.1";
     }
 
@@ -92,7 +94,7 @@ public class LobbyScreen extends AbstractScreen {
             MyServer.instance.server.addListener(serverListener);
         }
         try {
-            Thread.currentThread().sleep(500);
+//            Thread.currentThread().sleep(500);
             MyClient.instance.client.connect(5000, host, 2000, 3000);
         } catch (Exception e) {
             e.printStackTrace();
@@ -129,6 +131,12 @@ public class LobbyScreen extends AbstractScreen {
     
     public void processInput() {
         currentButton = currentButton.process();
+        if (startGame) {
+            GameScreen gameScreen = new GameScreen(game);
+            gameScreen.loadLevel("maps/retro.tmx", server);
+            game.setScreen(gameScreen);
+            return;
+        }
         if (InputController.instance.buttonA() || markForDispose){
             processButton();
             return;
@@ -145,6 +153,8 @@ public class LobbyScreen extends AbstractScreen {
                 MyServer.instance.stop();
             }
             MyClient.instance.stop();
+        } else if (server && currentButton == startGameButton) {
+            MyServer.instance.startGame();
         }
     }
     
@@ -194,13 +204,19 @@ public class LobbyScreen extends AbstractScreen {
         @Override
         public void disconnected(Connection connection) {
             currentButton = backButton;
-            markForDispose = true;
+            startGame = true;
         }
 
         @Override
         public void received(Connection connection, Object object) {
-            if(object instanceof ConnectMessage) {
+            if (object instanceof ConnectMessage) {
                 ipAddresses = ((ConnectMessage) object).hosts;
+                ObjectPool.instance.connectMessagePool.
+                free((ConnectMessage) object);
+            } else if (object instanceof String) {
+                if(((String)object).matches("start")) {
+                    startGame = true;
+                }
             }
         }
         
