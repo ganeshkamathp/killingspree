@@ -1,10 +1,13 @@
 package com.sillygames.killingSpree;
 
+import java.io.IOException;
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.sillygames.killingSpree.networking.MyClient;
 import com.sillygames.killingSpree.networking.MyServer;
+import com.sillygames.killingSpree.screens.GameScreen;
 import com.sillygames.killingSpree.screens.SplashScreen;
 
 public class KillingSpree extends ApplicationAdapter {
@@ -16,7 +19,16 @@ public class KillingSpree extends ApplicationAdapter {
     
 	@Override
 	public void create () {
-	    currentScreen = new SplashScreen(this);
+	    GameScreen gameScreen = new GameScreen(this);
+        gameScreen.loadLevel("maps/retro.tmx", true);
+        MyServer.instance.start();
+        try {
+            MyClient.instance.client.connect(5000, "localhost", 2000, 3000);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        currentScreen = gameScreen;
 	    currentScreen.show();
 	}
 

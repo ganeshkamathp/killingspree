@@ -1,17 +1,28 @@
-package com.sillygames.killingSpree.screens.managers;
+package com.sillygames.killingSpree.managers;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.maps.objects.PolygonMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.sillygames.killingSpree.controls.ControlsMessage;
 import com.sillygames.killingSpree.controls.InputController;
-import com.sillygames.killingSpree.managers.WorldManager;
 import com.sillygames.killingSpree.networking.MyClient;
 import com.sillygames.killingSpree.pooler.ObjectPool;
 
@@ -28,6 +39,7 @@ public class WorldRenderer {
     private TiledMap map;
     private boolean server;
     public final static float SCALE = 10;
+    SpriteBatch batch;
     
     public WorldRenderer(WorldManager worldManager) {
         this.worldManager = worldManager;
@@ -36,43 +48,51 @@ public class WorldRenderer {
             box2dRenderer = new Box2DDebugRenderer();
         }
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 600, 450);
+        camera.setToOrtho(false, 615, 450);
         box2dCamera = new OrthographicCamera();
-        box2dCamera.setToOrtho(false, 600/SCALE, 450/SCALE);
-        viewport = new FitViewport(600, 450, camera);
-        box2dViewport = new FitViewport(600/SCALE, 450/SCALE, box2dCamera);
+        box2dCamera.setToOrtho(false, 615/SCALE, 450/SCALE);
+        viewport = new FitViewport(615, 450, camera);
+        box2dViewport = new FitViewport(615/SCALE, 450/SCALE, box2dCamera);
+        batch = new SpriteBatch();
     }
 
     public void loadLevel(String level, boolean server) {
         this.server = server;
         map = new TmxMapLoader().load(level);
-        TiledMapTileLayer collision = (TiledMapTileLayer) map.
+        MapLayer collision =  map.
                 getLayers().get("collision");
-        collision.setVisible(false);
-        
-        if (server) {
-            for (int x = 0; x < collision.getWidth(); x++) {
-                for (int y = 0; y < collision.getHeight(); y++) {
-                    if(collision.getCell(x, y) != null) {
-                        worldManager.addBox(7.5f/SCALE, 
-                                7.5f/SCALE,
-                                (x * 15f + 7.5f)/SCALE,
-                                (y * 15f + 7.5f)/SCALE,
-                                BodyType.StaticBody);
-                    }
-                }
-            }
+        for(MapObject object: collision.getObjects()) {
+            worldManager.createWorldObject(object);
         }
+        
+//        if (server) {
+//            for (int x = 0; x < collision.getWidth(); x++) {
+//                for (int y = 0; y < collision.getHeight(); y++) {
+//                    if(collision.getCell(x, y) != null) {
+//                        worldManager.addBox(7.5f/SCALE, 
+//                                7.5f/SCALE,
+//                                (x * 15f + 7.5f)/SCALE,
+//                                (y * 15f + 7.5f)/SCALE,
+//                                BodyType.StaticBody);
+//                    }
+//                }
+//            }
+//        }
         renderer = new OrthogonalTiledMapRenderer(map);
     }
 
-    public void render() {
+    public void render(float delta) {
         renderer.setView(camera);
-        renderer.render();
         if (server) {
-            box2dRenderer.render(world, box2dCamera.combined);
+            renderer.render();
+            batch.setProjectionMatrix(camera.combined);
+            batch.begin();
+            worldManager.player.updateAndRender(delta, batch);
+            batch.end();
+//            box2dRenderer.render(world, box2dCamera.combined);
         }
-        processControls();
+        if(Gdx.app.getType() == ApplicationType.Android)
+            processControls();
     }
 
     private void processControls() {

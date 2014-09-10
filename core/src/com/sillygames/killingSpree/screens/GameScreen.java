@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.sillygames.killingSpree.KillingSpree;
 import com.sillygames.killingSpree.managers.WorldManager;
-import com.sillygames.killingSpree.screens.managers.WorldRenderer;
+import com.sillygames.killingSpree.managers.WorldRenderer;
 
 public class GameScreen extends AbstractScreen {
     public static final String TAG = "GameScreen";
@@ -25,7 +25,7 @@ public class GameScreen extends AbstractScreen {
         if (server) {
             world.update(delta);
         }
-        renderer.render();
+        renderer.render(delta);
     }
 
     @Override

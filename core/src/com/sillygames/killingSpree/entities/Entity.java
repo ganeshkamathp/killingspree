@@ -1,5 +1,6 @@
 package com.sillygames.killingSpree.entities;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 
 public abstract class Entity {
@@ -19,6 +20,6 @@ public abstract class Entity {
         return position;
     }
     
-    public abstract void update();
+    public abstract void updateAndRender(float delta, SpriteBatch batch);
 
 }

@@ -1,5 +1,12 @@
 package com.sillygames.killingSpree.managers;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.maps.objects.PolygonMapObject;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
+import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -21,11 +28,10 @@ import com.sillygames.killingSpree.pooler.ObjectPool;
 public class WorldManager {
     
     World world;
-    
+    public final Player player = new Player(0, 0);
     public WorldManager(){
-        world = new World(new Vector2(0, -50f), false);
-        final Player player = new Player(0, 0);
-        player.setBody(addBox(1f, 1f, 20, 30, BodyType.DynamicBody));
+        world = new World(new Vector2(0, -70f), false);
+        player.setBody(addBox(0.8f, 1f, 20, 30, BodyType.DynamicBody));
         MyServer.instance.server.addListener(new Listener() {
             @Override
             public void received(Connection connection, Object object) {
@@ -53,9 +59,9 @@ public class WorldManager {
         return createBody(x, y, type, circle);
     }
     
-    public Body addBox(float h, float w, float x, float y, BodyType type){
+    public Body addBox(float w, float h, float x, float y, BodyType type){
         PolygonShape square = new PolygonShape();
-        square.setAsBox(h, w);
+        square.setAsBox(w, h);
         return createBody(x, y, type, square);
     }
     
@@ -73,6 +79,39 @@ public class WorldManager {
         body.setFixedRotation(true);
         shape.dispose();
         return body;
+    }
+    
+    public void createWorldObject(MapObject object) {
+        Gdx.app.log("test", "test");
+        FixtureDef fixture = new FixtureDef();
+        BodyDef bodyDef = new BodyDef();
+        MapProperties properties = object.getProperties();
+        bodyDef.position.x = (Float) properties.get("x") /WorldRenderer.SCALE;
+        bodyDef.position.y = (Float) properties.get("y") /WorldRenderer.SCALE;
+        Body body = world.createBody(bodyDef);
+        PolygonShape shape = new PolygonShape();
+        if (object instanceof PolygonMapObject) {
+            Polygon polygon = ((PolygonMapObject) object).getPolygon();
+            
+            polygon.setPosition(polygon.getX() / WorldRenderer.SCALE - body.getPosition().x,
+                    polygon.getY() /WorldRenderer.SCALE - body.getPosition().y);
+            polygon.setScale(1f/WorldRenderer.SCALE, 1f/WorldRenderer.SCALE);
+            ((PolygonShape) shape).set(polygon.getTransformedVertices());
+            
+        } else if (object instanceof RectangleMapObject) {
+            Gdx.app.log("test", "rectangle");
+            Rectangle rectangle = ((RectangleMapObject) object).getRectangle();
+            rectangle.x /= WorldRenderer.SCALE;
+            rectangle.y /= WorldRenderer.SCALE;
+            rectangle.width /= WorldRenderer.SCALE;
+            rectangle.height /= WorldRenderer.SCALE;
+            ((PolygonShape) shape).setAsBox(rectangle.width / 2, rectangle.height / 2, 
+                    new Vector2(rectangle.x - body.getPosition().x + rectangle.width / 2, 
+                            rectangle.y - body.getPosition().y + rectangle.height / 2), 
+                            body.getAngle());
+        }
+        fixture.shape = shape;
+        body.createFixture(fixture);
     }
 
 }

@@ -21,6 +21,7 @@ public class ControlsMessage implements Poolable{
     // 2 - jump
     // 3 - shoot and jump
     public byte action = 0;
+    
     @Override
     public void reset() {
         action = 0;

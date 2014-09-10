@@ -1,17 +1,24 @@
 package com.sillygames.killingSpree.entities;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.sillygames.killingSpree.controls.ControlsMessage;
-import com.sillygames.killingSpree.screens.managers.WorldRenderer;
+import com.sillygames.killingSpree.managers.WorldRenderer;
 
 public class Player extends Entity{
 
     private Body body;
+    Sprite sprite;
     
     public Player(float x, float y) {
         super(x, y);
+        Texture texture = new Texture(Gdx.files.internal("sprites/player.png"));
+        sprite = new Sprite(texture);
+        sprite.setSize(2 * WorldRenderer.SCALE, 2 * WorldRenderer.SCALE);
     }
     
     public Body getBody() {
@@ -23,7 +30,24 @@ public class Player extends Entity{
     }
     
     @Override
-    public void update() {
+    public void updateAndRender(float delta, SpriteBatch batch) {
+        // Server
+        if(body != null) {
+            processPlayer();
+            position = body.getPosition();
+        }
+        renderPlayer(batch);
+        
+    }
+
+    private void renderPlayer(SpriteBatch batch) {
+        sprite.setPosition(position.x * WorldRenderer.SCALE - sprite.getWidth() / 2,
+                position.y * WorldRenderer.SCALE - sprite.getHeight() / 2);
+        sprite.draw(batch);
+    }
+
+    private void processPlayer() {
+        // TODO Auto-generated method stub
         
     }
 
@@ -60,7 +84,6 @@ public class Player extends Entity{
             body.applyLinearImpulse(0, 100f, 0, 0, true);
         }
         if (x!=0 || y!=0){
-            Gdx.app.log(Float.toString(x), Float.toString(y));
             body.setLinearVelocity(x * 10, body.getLinearVelocity().y);
         } else {
             Vector2 velocity = body.getLinearVelocity();
@@ -87,6 +110,9 @@ public class Player extends Entity{
             body.setTransform(position, 0);
         }
         
+        if (body.getLinearVelocity().y < -30f) {
+            body.setLinearVelocity(body.getLinearVelocity().x, -20f);;
+        }
         
     }
     
