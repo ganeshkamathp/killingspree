@@ -5,8 +5,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.sillygames.killingSpree.KillingSpree;
 
 public class SplashScreen extends AbstractScreen {
@@ -28,9 +26,9 @@ public class SplashScreen extends AbstractScreen {
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
         font.drawMultiLine(batch, "Silly\ngames", Gdx.graphics.getWidth()/2-200,
-                Gdx.graphics.getHeight()-120);
+                Gdx.graphics.getHeight() - 120);
         batch.end();
-        if (totalTime < 0){
+        if (totalTime < 0f){
             totalTime += delta;
         } else {
             game.setScreen(new MainMenuScreen(game));
@@ -46,11 +44,7 @@ public class SplashScreen extends AbstractScreen {
 
     @Override
     public void show() {
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/splash.ttf"));
-        FreeTypeFontParameter parameter = new FreeTypeFontParameter();
-        parameter.size = 200;
-        font = generator.generateFont(parameter);
-        generator.dispose();
+        font = game.getFont(200);
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
     }

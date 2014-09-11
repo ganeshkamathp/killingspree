@@ -1,24 +1,25 @@
 package com.sillygames.killingSpree.screens;
 
 import java.util.ArrayList;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import com.esotericsoftware.kryonet.Server;
 import com.sillygames.killingSpree.KillingSpree;
 import com.sillygames.killingSpree.controls.InputController;
-import com.sillygames.killingSpree.networking.MyClient;
-import com.sillygames.killingSpree.networking.MyServer;
+import com.sillygames.killingSpree.networking.NetworkRegisterer;
 import com.sillygames.killingSpree.networking.messages.ConnectMessage;
 import com.sillygames.killingSpree.pooler.ObjectPool;
 import com.sillygames.killingSpree.screens.helpers.MyButton;
+import com.sillygames.killingSpree.screens.settings.Constants;
 
 public class LobbyScreen extends AbstractScreen {
 
@@ -30,13 +31,15 @@ public class LobbyScreen extends AbstractScreen {
     private MyButton currentButton;
     private MyButton startGameButton;
     private MyButton backButton;
-    private boolean server;
+    private boolean isServer;
     private ArrayList<String> ipAddresses;
     public LobbyClientListener clientListener;
     public LobbyServerListener serverListener;
     private boolean markForDispose;
     private boolean startGame;
     private String host; 
+    private Client client;
+    private Server server;
     
     public LobbyScreen(KillingSpree game) {
         super(game);
@@ -45,6 +48,7 @@ public class LobbyScreen extends AbstractScreen {
     
     @Override
     public void render(float delta) {
+//        Gdx.app.log("rendering", "lobby");
         Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.setProjectionMatrix(camera.combined);
@@ -62,21 +66,14 @@ public class LobbyScreen extends AbstractScreen {
 
     @Override
     public void show() {
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator
-                (Gdx.files.internal("fonts/splash.ttf"));
-        FreeTypeFontParameter parameter = new FreeTypeFontParameter();
-        parameter.size = 120;
-        font = generator.generateFont(parameter);
-        generator.dispose();
+        font = game.getFont(120);
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
         viewport = new FitViewport(1280, 720, camera);
         camera.setToOrtho(false, 1280, 720);
         buttons = new ArrayList<MyButton>();
-        server = false;
+        isServer = false;
         ipAddresses = new ArrayList<String>();
-        clientListener = new LobbyClientListener();
-        MyClient.instance.client.addListener(clientListener);
         markForDispose = false;
         startGame = false;
         host = "127.0.0.1";
@@ -86,17 +83,31 @@ public class LobbyScreen extends AbstractScreen {
         this.host = host;
     }
     
-    public void setServer(boolean server) {
-        this.server = server;
-        if (server) {
-            MyServer.instance.start();
-            serverListener = new LobbyServerListener();
-            MyServer.instance.server.addListener(serverListener);
-        }
+    public void setServer(boolean isServer) {
+        this.isServer = isServer;
         try {
-//            Thread.currentThread().sleep(500);
-            MyClient.instance.client.connect(5000, host, 2000, 3000);
+            if (isServer) {
+                server = new Server();
+                NetworkRegisterer.register(server);
+                serverListener = new LobbyServerListener();
+                server.addListener(serverListener);
+                server.start();
+                server.bind(Constants.DISCOVERY_TCP_PORT,
+                            Constants.DISCOVERY_UDP_PORT);
+                Thread.currentThread().sleep(200);
+            }
+            
+            client = new Client();
+            NetworkRegisterer.register(client);
+            client.start();
+            clientListener = new LobbyClientListener();
+            client.addListener(clientListener);
+            client.connect(5000, host, 
+                    Constants.DISCOVERY_TCP_PORT,
+                    Constants.DISCOVERY_UDP_PORT);
         } catch (Exception e) {
+            currentButton = backButton;
+            markForDispose = true;
             e.printStackTrace();
         }
         addAllButtons();
@@ -117,10 +128,12 @@ public class LobbyScreen extends AbstractScreen {
     @Override
     public void dispose() {
         ipAddresses.clear();
-        MyClient.instance.client.removeListener(clientListener);
-        if (server) {
-            MyServer.instance.server.removeListener(serverListener);
+        client.removeListener(clientListener);
+        if (isServer) {
+            server.removeListener(serverListener);
+            server.stop();
         }
+        client.stop();
         buttons.clear();
         batch.dispose();
         font.dispose();
@@ -133,11 +146,14 @@ public class LobbyScreen extends AbstractScreen {
         currentButton = currentButton.process();
         if (startGame) {
             GameScreen gameScreen = new GameScreen(game);
-            gameScreen.loadLevel("maps/retro.tmx", server);
+            if(isServer) {
+                gameScreen.startServer();
+            }
+            gameScreen.loadLevel("maps/retro.tmx", host);
             game.setScreen(gameScreen);
             return;
         }
-        if (InputController.instance.buttonA() || markForDispose){
+        if (InputController.instance.buttonA() || markForDispose) {
             processButton();
             return;
         }
@@ -149,12 +165,12 @@ public class LobbyScreen extends AbstractScreen {
     private void processButton() {
         if (currentButton == backButton) {
             game.setScreen(new MainMenuScreen(game));
-            if(server){
-                MyServer.instance.stop();
+            if(isServer){
+                server.stop();
             }
-            MyClient.instance.stop();
-        } else if (server && currentButton == startGameButton) {
-            MyServer.instance.startGame();
+            client.stop();
+        } else if (isServer && currentButton == startGameButton) {
+            server.sendToAllTCP("start");
         }
     }
     
@@ -192,7 +208,7 @@ public class LobbyScreen extends AbstractScreen {
         backButton = addButton("Back", 700, 720);
         currentButton = backButton;
         currentButton.setActive(true);
-        if (server) {
+        if (isServer) {
             startGameButton = addButton("Start", 300, 720);
             startGameButton.setWest(backButton);
             startGameButton.setEast(backButton);
@@ -204,7 +220,7 @@ public class LobbyScreen extends AbstractScreen {
         @Override
         public void disconnected(Connection connection) {
             currentButton = backButton;
-            startGame = true;
+            markForDispose = true;
         }
 
         @Override
@@ -222,16 +238,26 @@ public class LobbyScreen extends AbstractScreen {
         
     }
     
-    public class LobbyServerListener extends Listener{
+    public class LobbyServerListener extends Listener {
         
         @Override
         public void connected(Connection connection) {
-            MyServer.instance.sendHosts();
+            sendHosts();
         };
         
         @Override
         public void disconnected(Connection connection) {
-            MyServer.instance.sendHosts();
+            sendHosts();
+        }
+        
+        public void sendHosts() {
+            ConnectMessage message = new ConnectMessage();
+            for(Connection connection : server.getConnections()) {
+                message.insertNewHost(connection
+                        .getRemoteAddressTCP().getHostName());
+            }
+            server.sendToAllTCP(message);
+            ObjectPool.instance.connectMessagePool.free(message);
         }
     }
 

@@ -6,24 +6,15 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.MapProperties;
-import com.badlogic.gdx.maps.objects.PolygonMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.esotericsoftware.kryonet.Client;
 import com.sillygames.killingSpree.controls.ControlsMessage;
 import com.sillygames.killingSpree.controls.InputController;
-import com.sillygames.killingSpree.networking.MyClient;
 import com.sillygames.killingSpree.pooler.ObjectPool;
 
 public class WorldRenderer {
@@ -37,11 +28,12 @@ public class WorldRenderer {
     private FitViewport box2dViewport;
     private Box2DDebugRenderer box2dRenderer;
     private TiledMap map;
-    private boolean server;
+    private boolean isServer;
     public final static float SCALE = 10;
     SpriteBatch batch;
+    Client client;
     
-    public WorldRenderer(WorldManager worldManager) {
+    public WorldRenderer(WorldManager worldManager, Client client) {
         this.worldManager = worldManager;
         if (worldManager != null) {
             world = worldManager.getWorld();
@@ -54,42 +46,32 @@ public class WorldRenderer {
         viewport = new FitViewport(615, 450, camera);
         box2dViewport = new FitViewport(615/SCALE, 450/SCALE, box2dCamera);
         batch = new SpriteBatch();
+        this.client = client;
     }
 
-    public void loadLevel(String level, boolean server) {
-        this.server = server;
+    public void loadLevel(String level, boolean isServer) {
+        this.isServer = isServer;
         map = new TmxMapLoader().load(level);
-        MapLayer collision =  map.
-                getLayers().get("collision");
-        for(MapObject object: collision.getObjects()) {
-            worldManager.createWorldObject(object);
-        }
-        
-//        if (server) {
-//            for (int x = 0; x < collision.getWidth(); x++) {
-//                for (int y = 0; y < collision.getHeight(); y++) {
-//                    if(collision.getCell(x, y) != null) {
-//                        worldManager.addBox(7.5f/SCALE, 
-//                                7.5f/SCALE,
-//                                (x * 15f + 7.5f)/SCALE,
-//                                (y * 15f + 7.5f)/SCALE,
-//                                BodyType.StaticBody);
-//                    }
-//                }
-//            }
-//        }
         renderer = new OrthogonalTiledMapRenderer(map);
+
+        if (isServer) {
+            MapLayer collision =  map.
+                    getLayers().get("collision");
+            for(MapObject object: collision.getObjects()) {
+                worldManager.createWorldObject(object);
+            }
+        }
     }
 
     public void render(float delta) {
         renderer.setView(camera);
-        if (server) {
-            renderer.render();
+        renderer.render();
+        if (isServer) {
             batch.setProjectionMatrix(camera.combined);
             batch.begin();
             worldManager.player.updateAndRender(delta, batch);
             batch.end();
-//            box2dRenderer.render(world, box2dCamera.combined);
+            box2dRenderer.render(world, box2dCamera.combined);
         }
         if(Gdx.app.getType() == ApplicationType.Android)
             processControls();
@@ -111,7 +93,7 @@ public class WorldRenderer {
             message.action += 1;
         }
         
-        MyClient.instance.client.sendTCP(message);
+        client.sendTCP(message);
         ObjectPool.instance.
                 controlsMessagePool.free(message);
     }

@@ -6,13 +6,10 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.sillygames.killingSpree.KillingSpree;
 import com.sillygames.killingSpree.controls.InputController;
-import com.sillygames.killingSpree.networking.MyClient;
 import com.sillygames.killingSpree.screens.helpers.MyButton;
 
 public class MainMenuScreen extends AbstractScreen {
@@ -53,12 +50,7 @@ public class MainMenuScreen extends AbstractScreen {
 
     @Override
     public void show() {
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator
-                (Gdx.files.internal("fonts/splash.ttf"));
-        FreeTypeFontParameter parameter = new FreeTypeFontParameter();
-        parameter.size = 170;
-        font = generator.generateFont(parameter);
-        generator.dispose();
+        font = game.getFont(170);
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
         viewport = new FitViewport(1280, 720, camera);
@@ -148,7 +140,6 @@ public class MainMenuScreen extends AbstractScreen {
         optionsButton.setNorth(joinGameButton);
         optionsButton.setSouth(exitButton);
         startGameButton.setNorth(exitButton);
-        Gdx.app.log("test", MyClient.instance.getName());
     }
 
 }

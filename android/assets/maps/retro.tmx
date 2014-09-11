@@ -30,13 +30,6 @@
   </data>
  </layer>
  <objectgroup name="collision" width="41" height="30">
-  <object x="105" y="165" width="135" height="30"/>
-  <object x="375" y="165" width="135" height="30"/>
-  <object x="570" y="150" width="45" height="180"/>
-  <object x="0" y="150" width="45" height="180"/>
-  <object x="120" y="345" width="120" height="15"/>
-  <object x="375" y="345" width="120" height="15"/>
-  <object x="210" y="420" width="195" height="15"/>
   <object x="195" y="435" width="225" height="15"/>
   <object x="195" y="435">
    <polygon points="0,0 -15,15 0,15"/>
@@ -64,8 +57,6 @@
   </object>
   <object x="195" y="0" width="225" height="15"/>
   <object x="210" y="15" width="195" height="30"/>
-  <object x="0" y="120" width="15" height="15"/>
-  <object x="600" y="120" width="15" height="15"/>
   <object x="540" y="420" width="75" height="15"/>
   <object x="525" y="435" width="90" height="15"/>
   <object x="0" y="420" width="75" height="15"/>
@@ -86,21 +77,10 @@
   <object x="420" y="300" width="30" height="30"/>
   <object x="285" y="210" width="45" height="15"/>
   <object x="255" y="225" width="105" height="15"/>
-  <object x="225" y="255" width="165" height="30"/>
   <object x="225" y="90" width="165" height="15"/>
   <object x="60" y="30">
    <polygon points="0,0 15,0 0,15"/>
   </object>
-  <object x="0" y="136" width="41" height="13"/>
-  <object x="107" y="150" width="131" height="15"/>
-  <object x="377" y="150" width="131" height="15"/>
-  <object x="227" y="239" width="161" height="15"/>
-  <object x="377" y="330" width="116" height="14"/>
-  <object x="122" y="329" width="116" height="14"/>
-  <object x="1" y="106" width="12" height="14"/>
-  <object x="603" y="105" width="12" height="14"/>
-  <object x="573" y="137" width="43" height="13"/>
-  <object x="601" y="332" width="14" height="11"/>
   <object x="0" y="405" width="60" height="15"/>
   <object x="555" y="405" width="60" height="15"/>
   <object x="60" y="405">
@@ -113,7 +93,17 @@
    <polygon points="0,0 15,0 0,15"/>
   </object>
   <object x="0" y="330" width="15" height="15"/>
-  <object x="212" y="405" width="190" height="14"/>
   <object x="270" y="390" width="75" height="15"/>
+  <object x="0" y="135" width="45" height="195"/>
+  <object x="0" y="105" width="15" height="30"/>
+  <object x="570" y="135" width="45" height="195"/>
+  <object x="600" y="105" width="15" height="30"/>
+  <object x="375" y="150" width="135" height="45"/>
+  <object x="105" y="150" width="135" height="45"/>
+  <object x="120" y="330" width="120" height="30"/>
+  <object x="375" y="330" width="120" height="30"/>
+  <object x="225" y="240" width="165" height="45"/>
+  <object x="210" y="405" width="195" height="30"/>
+  <object x="600" y="330" width="15" height="15"/>
  </objectgroup>
 </map>

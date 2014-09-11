@@ -8,13 +8,11 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.esotericsoftware.kryonet.Client;
 import com.sillygames.killingSpree.KillingSpree;
 import com.sillygames.killingSpree.controls.InputController;
-import com.sillygames.killingSpree.networking.MyClient;
 import com.sillygames.killingSpree.screens.helpers.MyButton;
 
 public class ClientDiscoveryScreen extends AbstractScreen {
@@ -29,6 +27,7 @@ public class ClientDiscoveryScreen extends AbstractScreen {
     private MyButton refreshButton;
     private ArrayList<MyButton> ipAddresses;
     private boolean markForDispose;
+    private Client client;
     
     public ClientDiscoveryScreen(KillingSpree game) {
         super(game);
@@ -54,12 +53,9 @@ public class ClientDiscoveryScreen extends AbstractScreen {
 
     @Override
     public void show() {
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator
-                (Gdx.files.internal("fonts/splash.ttf"));
-        FreeTypeFontParameter parameter = new FreeTypeFontParameter();
-        parameter.size = 120;
-        font = generator.generateFont(parameter);
-        generator.dispose();
+        client = new Client();
+        client.start();
+        font = game.getFont(120);
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
         viewport = new FitViewport(1280, 720, camera);
@@ -168,7 +164,7 @@ public class ClientDiscoveryScreen extends AbstractScreen {
         MyButton previousButton = refreshButton;
         float y = 580;
         for (InetAddress address : 
-            MyClient.instance.client.discoverHosts(3000, 500)) {
+            client.discoverHosts(3000, 500)) {
             MyButton button = new MyButton(address.getHostName(), 300, y);
             ipAddresses.add(button);
             previousButton.setSouth(button);
