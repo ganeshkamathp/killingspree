@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="35" height="25" tilewidth="15" tileheight="15">
+ <tileset firstgid="1" name="megacommando" tilewidth="15" tileheight="15" spacing="1">
+  <image source="megacommando.png" width="1024" height="1280"/>
+ </tileset>
+ <tileset firstgid="5121" name="shadow" tilewidth="15" tileheight="15" spacing="1">
+  <image source="shadow.png" width="16" height="16"/>
+ </tileset>
+ <tileset firstgid="5122" name="black" tilewidth="15" tileheight="15" spacing="1">
+  <image source="black.png" width="21" height="21"/>
+ </tileset>
+ <tileset firstgid="5123" name="black" tilewidth="15" tileheight="15">
+  <image source="black.png" width="21" height="21"/>
+ </tileset>
+ <layer name="black" width="35" height="25">
+  <data encoding="base64" compression="zlib">
+   eJztwzEJAAAMA7BSDfOvtTZ2JJBeUlVVVV8dhZ5LMw==
+  </data>
+ </layer>
+ <layer name="background" width="35" height="25">
+  <data encoding="base64" compression="zlib">
+   eJzt1ctKAnEYhvEPJDUbTb2Kzgltq30ZdQmuOwdty/YJdR2eBbdpe72GLsCz0Dajx+1U0mcz/4bwhd9K9HtAmBExt2xAJIc8CiiihDIqAYMhrMW9Njroooc+BhgablkOiqxgFWtYxwY2kQjqfy/l/zn7jrl3glOc4RwXuMTVhJY3S2SEd0vf+92y3MshjwKKKKGMyoSW7bDIDnbDnz9rxESaMX1Li3ttdNBFD30MMJziP5qPi4SwACuu/76T2+P+PpI4+OOW8e5pyHigY7wGHU0XW5Z87v229u5/bakqnklut7x6qGXri+ejpuVlzrmW61+2OLmqomW22TSL8C5ZtL1PbqIit0jjLmqu5ZCOI1vLE/drqOPZYMsDHY8eeed7dR+yqzxO
+  </data>
+ </layer>
+ <layer name="shadow" width="35" height="25">
+  <data encoding="base64" compression="zlib">
+   eJztwzENAAAMA6DWw/xrrY0dkNBLqqqq6qsDH/1HyA==
+  </data>
+ </layer>
+ <layer name="terrain" width="35" height="25">
+  <data encoding="base64" compression="zlib">
+   eJztVUFqwzAQFBiK6aFpySW36ux+wr/oNWf1E/uC5As6J3mE6CN61lMyiqqiqNqyKrHBkIEheLWaHSdhR6lrvPVq+wEeQVXB0Neq1T6q1aHroe8xx1fOKCc0tgY8MF6M0IthvEDX48xjjsc8lfN5XedqzWpd7p36X++R6pfnA+NlFfWpRtlbXuPrRVa7Yxo8PeA3jaRAPNMStO+IeO3aqLs2fewCh13gJL3vj0ptGoh+kuhi/ggfI/axM3Iv46aB6BfpmuhjRC64QehlKgzRRyBxOTajl5DJCt8NlTn22f2Q6rf/h6CXmNdN9KFqOZZ5uSk4LylvmTuzevkLO+zpfSSV3An39i00vnXGfaQriTM3l8aSMdV/a2leUnac4qfLmOquJeNyFHohDzR2j4aWrvWH7JDochkHXYszizk2+U8se7GLNXagPjJeBqEXLuOga6FvMceWZ2fMSqja
+  </data>
+ </layer>
+ <objectgroup name="collision" width="35" height="25">
+  <object x="180" y="0" width="165" height="45"/>
+  <object x="420" y="0" width="105" height="30"/>
+  <object x="0" y="0" width="105" height="30"/>
+  <object x="0" y="150" width="30" height="90"/>
+  <object x="75" y="255" width="120" height="30"/>
+  <object x="330" y="255" width="120" height="30"/>
+  <object x="165" y="150" width="195" height="30"/>
+  <object x="180" y="330" width="165" height="45"/>
+  <object x="420" y="345" width="105" height="30"/>
+  <object x="0" y="345" width="105" height="30"/>
+  <object x="495" y="150" width="30" height="90"/>
+  <object x="240" y="300" width="45" height="30"/>
+  <object x="60" y="90" width="75" height="15"/>
+  <object x="405" y="90" width="75" height="15"/>
+  <object x="75" y="210" width="45" height="45"/>
+  <object x="405" y="210" width="45" height="45"/>
+ </objectgroup>
+</map>

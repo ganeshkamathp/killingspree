@@ -94,7 +94,7 @@ public class LobbyScreen extends AbstractScreen {
                 server.start();
                 server.bind(Constants.DISCOVERY_TCP_PORT,
                             Constants.DISCOVERY_UDP_PORT);
-                Thread.currentThread().sleep(200);
+//                Thread.currentThread().sleep(200);
             }
             
             client = new Client();
@@ -149,7 +149,7 @@ public class LobbyScreen extends AbstractScreen {
             if(isServer) {
                 gameScreen.startServer();
             }
-            gameScreen.loadLevel("maps/retro.tmx", host);
+            gameScreen.loadLevel("maps/retro-small.tmx", host);
             game.setScreen(gameScreen);
             return;
         }

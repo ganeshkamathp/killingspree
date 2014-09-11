@@ -30,6 +30,8 @@ public class WorldRenderer {
     private TiledMap map;
     private boolean isServer;
     public final static float SCALE = 10;
+    public final static float VIEWPORT_WIDTH = 525;
+    public final static float VIEWPORT_HEIGHT = 375;
     SpriteBatch batch;
     Client client;
     
@@ -40,11 +42,13 @@ public class WorldRenderer {
             box2dRenderer = new Box2DDebugRenderer();
         }
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 615, 450);
+        camera.setToOrtho(false, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
         box2dCamera = new OrthographicCamera();
-        box2dCamera.setToOrtho(false, 615/SCALE, 450/SCALE);
-        viewport = new FitViewport(615, 450, camera);
-        box2dViewport = new FitViewport(615/SCALE, 450/SCALE, box2dCamera);
+        box2dCamera.setToOrtho(false, VIEWPORT_WIDTH / SCALE,
+                VIEWPORT_HEIGHT/  SCALE);
+        viewport = new FitViewport(VIEWPORT_WIDTH, VIEWPORT_HEIGHT, camera);
+        box2dViewport = new FitViewport(VIEWPORT_WIDTH / SCALE,
+                VIEWPORT_HEIGHT / SCALE, box2dCamera);
         batch = new SpriteBatch();
         this.client = client;
     }
@@ -71,7 +75,7 @@ public class WorldRenderer {
             batch.begin();
             worldManager.player.updateAndRender(delta, batch);
             batch.end();
-            box2dRenderer.render(world, box2dCamera.combined);
+//            box2dRenderer.render(world, box2dCamera.combined);
         }
         if(Gdx.app.getType() == ApplicationType.Android)
             processControls();

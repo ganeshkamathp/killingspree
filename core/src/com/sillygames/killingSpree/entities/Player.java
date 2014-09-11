@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.sillygames.killingSpree.controls.ControlsMessage;
 import com.sillygames.killingSpree.managers.WorldRenderer;
+import com.sillygames.killingSpree.screens.helpers.Utils;
 
 public class Player extends Entity{
 
@@ -52,68 +53,29 @@ public class Player extends Entity{
     }
 
     public void processControls(ControlsMessage controls) {
-        byte direction = controls.direction;
-        float x = 0, y = 0;
-        switch (direction) {
-            case 1:
-                x = 0; y = 1f;
-                break;
-            case 2:
-                x = 0.71f; y = 0.71f;
-                break;
-            case 3:
-                x = 1f; y = 0;
-                break;
-            case 4:
-                x = 0.71f; y = -0.71f;
-                break;
-            case 5:
-                x = 0; y = -1f;
-                break;
-            case 6:
-                x = -0.71f; y = -0.71f;
-                break;
-            case 7:
-                x = -1f; y = 0f;
-                break;
-            case 8:
-                x = -0.71f; y = 0.71f;
-                break;
-        }
-        if (controls.action > 1 && body.getLinearVelocity().y == 0) {
-            body.applyLinearImpulse(0, 100f, 0, 0, true);
-        }
-        if (x!=0 || y!=0){
-            body.setLinearVelocity(x * 10, body.getLinearVelocity().y);
-        } else {
-            Vector2 velocity = body.getLinearVelocity();
-            velocity.x += -0.1f * velocity.x;
-            body.setLinearVelocity(velocity);
-        }
+        Vector2 direction = Utils.parseDirections(controls);
+        Vector2 velocity = body.getLinearVelocity();
         Vector2 position = body.getPosition();
-        boolean wrap = false;
-        if (position.x > 600/WorldRenderer.SCALE) {
-            wrap = true;
-            position.x -= 600/WorldRenderer.SCALE;
-        } else if (position.x < 0) {
-            wrap = true;
-            position.x += 600/WorldRenderer.SCALE;
+
+        if (velocity.y < -20f) {
+            velocity.y = -20f;
         }
-        if (position.y > 450/WorldRenderer.SCALE) {
-            wrap = true;
-            position.y -= 450/WorldRenderer.SCALE;
-        } else if (position.y < 0) {
-            wrap = true;
-            position.y += 450/WorldRenderer.SCALE;
+
+        if (direction.x!=0){
+            velocity.x = Math.signum(direction.x) * 10;
+        } else {
+            velocity.x += -0.1f * velocity.x;
         }
-        if (wrap) {
+        
+        body.setLinearVelocity(velocity);
+
+        if (Utils.wrapBody(position)) {
             body.setTransform(position, 0);
         }
-        
-        if (body.getLinearVelocity().y < -30f) {
-            body.setLinearVelocity(body.getLinearVelocity().x, -20f);;
+
+        if (controls.action > 1 && velocity.y == 0) {
+            body.applyLinearImpulse(0, 100f, 0, 0, true);
         }
-        
     }
     
 }

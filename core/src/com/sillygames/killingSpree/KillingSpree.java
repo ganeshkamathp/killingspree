@@ -27,7 +27,7 @@ public class KillingSpree extends ApplicationAdapter {
 //      currentScreen = new SplashScreen(this);
 	    GameScreen gameScreen = new GameScreen(this);
         gameScreen.startServer();
-        gameScreen.loadLevel("maps/retro.tmx", "localhost");
+        gameScreen.loadLevel("maps/retro-small.tmx", "localhost");
         currentScreen = gameScreen;
 	}
 
