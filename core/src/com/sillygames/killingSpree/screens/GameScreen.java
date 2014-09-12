@@ -13,7 +13,6 @@ import com.sillygames.killingSpree.networking.NetworkRegisterer;
 import com.sillygames.killingSpree.screens.settings.Constants;
 
 public class GameScreen extends AbstractScreen {
-    public static final String TAG = "GameScreen";
     private WorldManager world;
     private WorldRenderer renderer;
     private boolean isServer;
@@ -60,17 +59,17 @@ public class GameScreen extends AbstractScreen {
     public void loadLevel(String level, String host) {
         if (isServer) {
             world = new WorldManager(server);
-        }
-        
-        client = new Client();
-        NetworkRegisterer.register(client);
-        client.start();
-        try {
-            client.connect(Constants.TIMEOUT, host,
-                    Constants.GAME_TCP_PORT,
-                    Constants.GAME_UDP_PORT);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } else {
+            client = new Client();
+            NetworkRegisterer.register(client);
+            client.start();
+            try {
+                client.connect(Constants.TIMEOUT, host,
+                        Constants.GAME_TCP_PORT,
+                        Constants.GAME_UDP_PORT);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         
         renderer = new WorldRenderer(world, client);

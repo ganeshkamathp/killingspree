@@ -1,19 +1,18 @@
 package com.sillygames.killingSpree.pooler;
 
 import com.badlogic.gdx.utils.Pool;
-import com.sillygames.killingSpree.controls.ControlsMessage;
 import com.sillygames.killingSpree.networking.messages.ConnectMessage;
+import com.sillygames.killingSpree.networking.messages.ControlsMessage;
 
 public class ObjectPool {
     
     public static ObjectPool instance = new ObjectPool();
     public ConnectMessagePool connectMessagePool;
     public ControlsMessagePool controlsMessagePool;
-//    private int count = 0;
     
     public ObjectPool() {
         connectMessagePool = new ConnectMessagePool();
-        controlsMessagePool = new ControlsMessagePool(2, 32);
+        controlsMessagePool = new ControlsMessagePool(32);
         
     }
     
@@ -26,29 +25,23 @@ public class ObjectPool {
         
     }
     
-    public class ControlsMessagePool extends Pool<ControlsMessage> {
+    public class ControlsMessagePool {
         
-        public ControlsMessagePool(int initial, int max) {
-            super(initial, max);
+        private int max;
+        private int current;
+        private ControlsMessage[] controlsMessages; 
+        
+        public ControlsMessagePool(int max) {
+            this.max = max;
+            current = 0;
+            controlsMessages = new ControlsMessage[max];
+            for (int i=0; i < max; i++) {
+                controlsMessages[i] = new ControlsMessage();
+            }
         }
 
-        @Override
-        protected ControlsMessage newObject() {
-            return new ControlsMessage();
-        }
-        
-        @Override
         public ControlsMessage obtain() {
-//            count++;
-//            Gdx.app.log("obtain", Integer.toString(count));
-            return super.obtain();
-        }
-        
-        @Override
-        public void free(ControlsMessage object) {
-//            count--;
-//            Gdx.app.log("free", Integer.toString(count));
-            super.free(object);
+            return controlsMessages[current % max];
         }
         
     }

@@ -1,24 +1,31 @@
 package com.sillygames.killingSpree.managers;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Application.ApplicationType;
+import java.util.ArrayList;
+
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.esotericsoftware.kryonet.Client;
-import com.sillygames.killingSpree.controls.ControlsMessage;
-import com.sillygames.killingSpree.controls.InputController;
-import com.sillygames.killingSpree.pooler.ObjectPool;
+import com.sillygames.killingSpree.entities.Entity;
+import com.sillygames.killingSpree.entities.Player;
+import com.sillygames.killingSpree.networking.ControlsSender;
+import com.sillygames.killingSpree.networking.messages.ControlsMessage;
+import com.sillygames.killingSpree.networking.messages.EntityState;
+import com.sillygames.killingSpree.networking.messages.StateProcessor;
 
 public class WorldRenderer {
     
+    public final static float SCALE = 10;
+    public static float VIEWPORT_WIDTH = 525;
+    public static float VIEWPORT_HEIGHT = 375;
     private WorldManager worldManager;
     private World world;
     private OrthographicCamera camera;
@@ -29,33 +36,45 @@ public class WorldRenderer {
     private Box2DDebugRenderer box2dRenderer;
     private TiledMap map;
     private boolean isServer;
-    public final static float SCALE = 10;
-    public final static float VIEWPORT_WIDTH = 525;
-    public final static float VIEWPORT_HEIGHT = 375;
-    SpriteBatch batch;
-    Client client;
+    private SpriteBatch batch;
+    private Client client;
+    private int count;
+    private ControlsSender controlsSender;
+    private StateProcessor stateProcessor;
+    private Player player;
+    private ArrayList<Entity> entities;
     
     public WorldRenderer(WorldManager worldManager, Client client) {
         this.worldManager = worldManager;
         if (worldManager != null) {
             world = worldManager.getWorld();
             box2dRenderer = new Box2DDebugRenderer();
+            entities = worldManager.getEntities();
+        } else {
+            entities = new ArrayList<Entity>();
+            this.client = client;
+            stateProcessor = new StateProcessor(client);
         }
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
         box2dCamera = new OrthographicCamera();
-        box2dCamera.setToOrtho(false, VIEWPORT_WIDTH / SCALE,
-                VIEWPORT_HEIGHT/  SCALE);
-        viewport = new FitViewport(VIEWPORT_WIDTH, VIEWPORT_HEIGHT, camera);
-        box2dViewport = new FitViewport(VIEWPORT_WIDTH / SCALE,
-                VIEWPORT_HEIGHT / SCALE, box2dCamera);
         batch = new SpriteBatch();
-        this.client = client;
+        controlsSender = new ControlsSender();
+        player = new Player(0, 0);
+        player.loadAssets();
     }
 
     public void loadLevel(String level, boolean isServer) {
         this.isServer = isServer;
         map = new TmxMapLoader().load(level);
+        TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("terrain");
+        VIEWPORT_WIDTH = layer.getTileWidth() * layer.getWidth();
+        VIEWPORT_HEIGHT = layer.getTileHeight() * layer.getHeight();
+        camera.setToOrtho(false, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
+        box2dCamera.setToOrtho(false, VIEWPORT_WIDTH / SCALE,
+                VIEWPORT_HEIGHT/  SCALE);
+        viewport = new FitViewport(VIEWPORT_WIDTH, VIEWPORT_HEIGHT, camera);
+        box2dViewport = new FitViewport(VIEWPORT_WIDTH / SCALE,
+                VIEWPORT_HEIGHT / SCALE, box2dCamera);
         renderer = new OrthogonalTiledMapRenderer(map);
 
         if (isServer) {
@@ -68,38 +87,50 @@ public class WorldRenderer {
     }
 
     public void render(float delta) {
+        // Temp experiment to check GC
+        count++;
+        if(count % 100 == 0) {
+            System.gc();
+        }
         renderer.setView(camera);
         renderer.render();
+        batch.setProjectionMatrix(camera.combined);
+        batch.begin();
         if (isServer) {
-            batch.setProjectionMatrix(camera.combined);
-            batch.begin();
-            worldManager.player.updateAndRender(delta, batch);
-            batch.end();
+            renderLocalObjects(delta);
+        } else {
+            renderNetworkObjects(delta);
+        }
+        batch.end();
+        if (isServer) {
 //            box2dRenderer.render(world, box2dCamera.combined);
         }
-        if(Gdx.app.getType() == ApplicationType.Android)
-            processControls();
+        processControls();
+    }
+
+    private void renderLocalObjects(float delta) {
+        for (Entity entity: entities) {
+            entity.render(delta, batch);
+        }
+    }
+
+    private void renderNetworkObjects(float delta) {
+        for (EntityState state : stateProcessor.
+                getCurrentStates().states) {
+            player.setPosition(state.x, state.y);
+            player.render(delta, batch);
+        }
     }
 
     private void processControls() {
-        ControlsMessage message = ObjectPool.instance.
-                controlsMessagePool.obtain();
-        message.direction = 0;
-        if (InputController.instance.axisRight()) {
-            message.direction = 3;
-        } else if (InputController.instance.axisLeft()) {
-            message.direction = 7;
-        }
-        if (InputController.instance.buttonA()) {
-            message.action = 2;
-        }
-        if (InputController.instance.buttonX()) {
-            message.action += 1;
-        }
+
+        ControlsMessage message = controlsSender.sendControls();
         
-        client.sendTCP(message);
-        ObjectPool.instance.
-                controlsMessagePool.free(message);
+        if(isServer) {
+            worldManager.player.setCurrentControls(message);
+        } else {
+            client.sendUDP(message);
+        }
     }
 
     public void resize(int width, int height) {

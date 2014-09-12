@@ -8,8 +8,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Registration;
 import com.esotericsoftware.kryonet.EndPoint;
-import com.sillygames.killingSpree.controls.ControlsMessage;
 import com.sillygames.killingSpree.networking.messages.ConnectMessage;
+import com.sillygames.killingSpree.networking.messages.ControlsMessage;
+import com.sillygames.killingSpree.networking.messages.EntityState;
+import com.sillygames.killingSpree.networking.messages.GameStateMessage;
 import com.sillygames.killingSpree.pooler.ObjectPool;
 
 public class NetworkRegisterer {
@@ -26,13 +28,16 @@ public class NetworkRegisterer {
         });
         
         registration = kryo.register(ControlsMessage.class);
-        registration.setInstantiator(new 
-                ObjectInstantiator<ControlsMessage>() {
-            @Override
-            public ControlsMessage newInstance() {
-                return ObjectPool.instance.controlsMessagePool.obtain();
-            }
-        });
+//        registration.setInstantiator(new 
+//                ObjectInstantiator<ControlsMessage>() {
+//            @Override
+//            public ControlsMessage newInstance() {
+//                return ObjectPool.instance.controlsMessagePool.obtain();
+//            }
+//        });
+        
+        kryo.register(EntityState.class);
+        kryo.register(GameStateMessage.class);
         
         kryo.register(ArrayList.class);
         kryo.register(Vector2.class);

@@ -1,5 +1,8 @@
 package com.sillygames.killingSpree.managers;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.PolygonMapObject;
@@ -18,34 +21,58 @@ import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
-import com.sillygames.killingSpree.controls.ControlsMessage;
+import com.sillygames.killingSpree.entities.Blob;
+import com.sillygames.killingSpree.entities.Entity;
 import com.sillygames.killingSpree.entities.Player;
-import com.sillygames.killingSpree.pooler.ObjectPool;
+import com.sillygames.killingSpree.networking.messages.ControlsMessage;
+import com.sillygames.killingSpree.networking.messages.EntityState;
+import com.sillygames.killingSpree.networking.messages.GameStateMessage;
 
-public class WorldManager {
+public class WorldManager{
     
     World world;
-    public final Player player = new Player(0, 0);
     Server server;
+    private HashMap<Integer, Player> playerList;
+    private ArrayList<Entity> entities;
+    private WorldManager worldManager = this;
+    public Player player;
     
     public WorldManager(Server server){
+        
+        playerList = new HashMap<Integer, Player>();
+        
         world = new World(new Vector2(0, -70f), false);
-        player.setBody(addBox(0.8f, 1f, 20, 30, BodyType.DynamicBody));
-        server.addListener(new Listener() {
-            @Override
-            public void received(Connection connection, Object object) {
-                if (object instanceof ControlsMessage) {
-                    player.processControls((ControlsMessage)object);
-                    ObjectPool.instance.controlsMessagePool.
-                    free((ControlsMessage) object);
-                }
-            }
-            
-        });
+        
+        server.addListener(new WorldManagerServerListener());
+        
+        this.server = server;
+        
+        entities = new ArrayList<Entity>();
+        
+        Blob blob = new Blob(40, 50);
+        blob.createBody(this);
+        entities.add(blob);
+
+        player = new Player(40, 51);
+        player.createBody(worldManager);
+        entities.add(player);
+        playerList.put(-1, player);
     }
 
     public void update(float delta) {
+        for(Entity entity: entities) {
+            entity.update(delta);
+        }
         world.step(delta, 1, 1);
+        GameStateMessage gameStateMessage = new GameStateMessage();
+        for(Entity entity: entities) {
+            EntityState state = new EntityState();
+            state.x = entity.getPosition().x;
+            state.y = entity.getPosition().y;
+            gameStateMessage.addNewState(state);
+        }
+        server.sendToAllUDP(gameStateMessage);
+        
     }
 
     public World getWorld() {
@@ -116,4 +143,39 @@ public class WorldManager {
         body.createFixture(fixture);
     }
 
+    public ArrayList<Entity> getEntities() {
+        return entities;
+    }
+
+    private class WorldManagerServerListener extends Listener {
+        @Override
+        public void connected(Connection connection) {
+            Player player = new Player(20,100);
+            player.createBody(worldManager);
+            playerList.put(connection.getID(), player);
+            entities.add(player);
+        }
+        
+        @Override
+        public void received(Connection connection, Object object) {
+            if (object instanceof ControlsMessage) {
+                playerList.get(connection.getID()).
+                setCurrentControls((ControlsMessage) object);
+            }
+        }
+        
+        @Override
+        public void disconnected(Connection connection) {
+            Player player = playerList.get(connection.getID());
+            player.markForDispose();
+            playerList.remove(connection.getID());
+            entities.remove(player);
+        }
+    }
+
+    public void setCurrentControls() {
+        // TODO Auto-generated method stub
+        
+    }
 }
+

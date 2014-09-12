@@ -5,21 +5,28 @@ import com.badlogic.gdx.math.Vector2;
 
 public abstract class Entity {
     
-    Vector2 position;
+    protected boolean toLoadAssets;
+    protected final Vector2 position;
     
     public Entity(float x, float y){
         position = new Vector2(x, y);
+        toLoadAssets = true;
     }
+
+    public abstract void loadAssets();
     
-    public void setPosition(float x, float y){
-        position.x = x;
-        position.y = y;
-    }
+    public abstract void update(float delta);
+
+    public abstract void render(float delta, SpriteBatch batch);
     
-    public Vector2 getPosition(){
+    public abstract void dispose();
+
+    public Vector2 getPosition() {
         return position;
     }
-    
-    public abstract void updateAndRender(float delta, SpriteBatch batch);
+
+    public void setPosition(float x, float y) {
+        this.position.set(x, y);
+    }
 
 }

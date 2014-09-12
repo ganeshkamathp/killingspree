@@ -1,5 +1,7 @@
 package com.sillygames.killingSpree.controls;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.controllers.Controllers;
 
 public class InputController {
@@ -12,12 +14,14 @@ public class InputController {
 
     public boolean axisLeft() {
         return (controllerEnabled() && Controllers
-                .getControllers().get(0).getAxis(8) == -1);
+                .getControllers().get(0).getAxis(8) == -1
+                || Gdx.input.isKeyPressed(Keys.LEFT));
     }
 
     public boolean axisRight() {
         return (controllerEnabled() && Controllers
-                .getControllers().get(0).getAxis(8) == 1);
+                .getControllers().get(0).getAxis(8) == 1
+                || Gdx.input.isKeyPressed(Keys.RIGHT));
     }
 
     public boolean axisUp() {
@@ -32,7 +36,8 @@ public class InputController {
 
     public boolean buttonA() {
         return (controllerEnabled() && Controllers
-                .getControllers().get(0).getButton(96));
+                .getControllers().get(0).getButton(96) ||
+                Gdx.input.isKeyPressed(Keys.SPACE));
     }
 
     public boolean buttonB() {

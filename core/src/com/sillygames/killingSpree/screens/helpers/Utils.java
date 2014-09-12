@@ -1,15 +1,15 @@
 package com.sillygames.killingSpree.screens.helpers;
 
 import com.badlogic.gdx.math.Vector2;
-import com.sillygames.killingSpree.controls.ControlsMessage;
 import com.sillygames.killingSpree.managers.WorldRenderer;
+import com.sillygames.killingSpree.networking.messages.ControlsMessage;
 
 public class Utils {
     
     private static final Vector2 vector= new Vector2();
     
     public static Vector2 parseDirections(ControlsMessage controls) {
-        byte direction = controls.direction;
+        int direction = controls.direction;
         float x = 0, y = 0;
         switch (direction) {
             case 1:

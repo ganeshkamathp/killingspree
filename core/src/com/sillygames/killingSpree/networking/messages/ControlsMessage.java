@@ -1,8 +1,6 @@
-package com.sillygames.killingSpree.controls;
+package com.sillygames.killingSpree.networking.messages;
 
-import com.badlogic.gdx.utils.Pool.Poolable;
-
-public class ControlsMessage implements Poolable{
+public class ControlsMessage{
     
     // Using byte for directional controls to save bandwidth
     // 0 - none
@@ -21,11 +19,4 @@ public class ControlsMessage implements Poolable{
     // 2 - jump
     // 3 - shoot and jump
     public byte action = 0;
-    
-    @Override
-    public void reset() {
-        action = 0;
-        direction = 0;
-    }
-
 }

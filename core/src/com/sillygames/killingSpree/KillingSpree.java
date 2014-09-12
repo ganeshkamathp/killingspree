@@ -24,11 +24,11 @@ public class KillingSpree extends ApplicationAdapter {
 	            (Gdx.files.internal("fonts/splash.ttf"));
 	    parameter = new FreeTypeFontParameter();
 	    
-//      currentScreen = new SplashScreen(this);
-	    GameScreen gameScreen = new GameScreen(this);
-        gameScreen.startServer();
-        gameScreen.loadLevel("maps/retro-small.tmx", "localhost");
-        currentScreen = gameScreen;
+      currentScreen = new SplashScreen(this);
+//	    GameScreen gameScreen = new GameScreen(this);
+//        gameScreen.startServer();
+//        gameScreen.loadLevel("maps/retro-small.tmx", "localhost");
+//        currentScreen = gameScreen;
 	}
 
 	@Override
