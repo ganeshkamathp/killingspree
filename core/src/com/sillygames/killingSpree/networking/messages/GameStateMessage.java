@@ -1,8 +1,9 @@
 package com.sillygames.killingSpree.networking.messages;
 
 import java.util.ArrayList;
+import com.sillygames.killingSpree.pool.Poolable;
 
-public class GameStateMessage {
+public class GameStateMessage implements Poolable{
     
     public ArrayList<EntityState> states;
     
@@ -12,6 +13,11 @@ public class GameStateMessage {
     
     public void addNewState(EntityState state) {
         states.add(state);
+    }
+
+    @Override
+    public void reset() {
+        states.clear();
     }
 
 }

@@ -2,12 +2,12 @@ package com.sillygames.killingSpree.networking;
 
 import com.sillygames.killingSpree.controls.InputController;
 import com.sillygames.killingSpree.networking.messages.ControlsMessage;
-import com.sillygames.killingSpree.pooler.ObjectPool;
+import com.sillygames.killingSpree.pool.MessageObjectPool;
 
 public class ControlsSender {
     
     public ControlsMessage sendControls() {
-        ControlsMessage message = ObjectPool.instance.
+        ControlsMessage message = MessageObjectPool.instance.
                 controlsMessagePool.obtain();
         message.direction = 0;
         message.action = 0;

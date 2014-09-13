@@ -27,6 +27,7 @@ import com.sillygames.killingSpree.entities.Player;
 import com.sillygames.killingSpree.networking.messages.ControlsMessage;
 import com.sillygames.killingSpree.networking.messages.EntityState;
 import com.sillygames.killingSpree.networking.messages.GameStateMessage;
+import com.sillygames.killingSpree.pool.MessageObjectPool;
 
 public class WorldManager{
     
@@ -36,6 +37,7 @@ public class WorldManager{
     private ArrayList<Entity> entities;
     private WorldManager worldManager = this;
     public Player player;
+    public GameStateMessage currentGameState;
     
     public WorldManager(Server server){
         
@@ -43,7 +45,9 @@ public class WorldManager{
         
         world = new World(new Vector2(0, -70f), false);
         
-        server.addListener(new WorldManagerServerListener());
+        if  (server != null) {
+            server.addListener(new WorldManagerServerListener());
+        }
         
         this.server = server;
         
@@ -57,6 +61,9 @@ public class WorldManager{
         player.createBody(worldManager);
         entities.add(player);
         playerList.put(-1, player);
+        
+        currentGameState = MessageObjectPool.instance.
+                            gameStateMessagePool.obtain();
     }
 
     public void update(float delta) {
@@ -64,14 +71,19 @@ public class WorldManager{
             entity.update(delta);
         }
         world.step(delta, 1, 1);
-        GameStateMessage gameStateMessage = new GameStateMessage();
+        
+        currentGameState = MessageObjectPool.instance.
+                                            gameStateMessagePool.obtain();
         for(Entity entity: entities) {
-            EntityState state = new EntityState();
+            EntityState state = MessageObjectPool.instance.
+                                    entityStatePool.obtain();
             state.x = entity.getPosition().x;
             state.y = entity.getPosition().y;
-            gameStateMessage.addNewState(state);
+            currentGameState.addNewState(state);
         }
-        server.sendToAllUDP(gameStateMessage);
+        if (server != null) {
+            server.sendToAllUDP(currentGameState);
+        }
         
     }
 

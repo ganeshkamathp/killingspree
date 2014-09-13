@@ -19,7 +19,7 @@
  </layer>
  <layer name="background" width="30" height="20">
   <data encoding="base64" compression="zlib">
-   eJztwTEBAAAAwqD1T20JT6AAAHgaCWAAAQ==
+   eJzdlDtuwkAURZ9SgBMGm4GKLjtJkyJ8RGo6tkA2QAQdSEkbOraQZAEoSQG2oeZTsZPkWnLgMTK2MzYucqUjzcfjo/G8MdH5Ui3+fc3QyMabk0R5YMjjcVvS4wxjnHkI3rwtD94XQTQWenvXzQq+NdiArTie62fgD9tro0LXvN83iQZmOt52ce+YhHk/4PsEX77XwXm5Ul0RP+OYXjVXZaICEGU97+0FdfCtdx5R3qm/1xpcddAATTBDfcxZjdhoO8AFC7BU6kdxTKK83+xsh/CN2F6NE3UiIu5KHO+NdWg7cLrMe8feX0O77vebKXh7lvpE8sTxTjPynjPdEtFDKXhO/W9dSuqk5X2F8w28n3DzGBpeE7Vnad7x3+Q1vC047xN6cwFefmeC8gTnc0Lvf80Ptjk/eA==
   </data>
  </layer>
  <layer name="shadow" width="30" height="20">

@@ -19,6 +19,7 @@ import com.sillygames.killingSpree.entities.Player;
 import com.sillygames.killingSpree.networking.ControlsSender;
 import com.sillygames.killingSpree.networking.messages.ControlsMessage;
 import com.sillygames.killingSpree.networking.messages.EntityState;
+import com.sillygames.killingSpree.networking.messages.GameStateMessage;
 import com.sillygames.killingSpree.networking.messages.StateProcessor;
 
 public class WorldRenderer {
@@ -66,7 +67,8 @@ public class WorldRenderer {
     public void loadLevel(String level, boolean isServer) {
         this.isServer = isServer;
         map = new TmxMapLoader().load(level);
-        TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("terrain");
+        TiledMapTileLayer layer = (TiledMapTileLayer) map.
+                                    getLayers().get("terrain");
         VIEWPORT_WIDTH = layer.getTileWidth() * layer.getWidth();
         VIEWPORT_HEIGHT = layer.getTileHeight() * layer.getHeight();
         camera.setToOrtho(false, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
@@ -97,9 +99,9 @@ public class WorldRenderer {
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
         if (isServer) {
-            renderLocalObjects(delta);
+            renderObjects(delta, worldManager.currentGameState);
         } else {
-            renderNetworkObjects(delta);
+            renderObjects(delta, stateProcessor.getCurrentStates());
         }
         batch.end();
         if (isServer) {
@@ -108,15 +110,8 @@ public class WorldRenderer {
         processControls();
     }
 
-    private void renderLocalObjects(float delta) {
-        for (Entity entity: entities) {
-            entity.render(delta, batch);
-        }
-    }
-
-    private void renderNetworkObjects(float delta) {
-        for (EntityState state : stateProcessor.
-                getCurrentStates().states) {
+    private void renderObjects(float delta, GameStateMessage currentGameState) {
+        for (EntityState state : currentGameState.states) {
             player.setPosition(state.x, state.y);
             player.render(delta, batch);
         }

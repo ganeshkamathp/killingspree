@@ -12,7 +12,7 @@ import com.sillygames.killingSpree.networking.messages.ConnectMessage;
 import com.sillygames.killingSpree.networking.messages.ControlsMessage;
 import com.sillygames.killingSpree.networking.messages.EntityState;
 import com.sillygames.killingSpree.networking.messages.GameStateMessage;
-import com.sillygames.killingSpree.pooler.ObjectPool;
+import com.sillygames.killingSpree.pool.MessageObjectPool;
 
 public class NetworkRegisterer {
     
@@ -23,21 +23,42 @@ public class NetworkRegisterer {
         registration.setInstantiator(new ObjectInstantiator<ConnectMessage>() {
             @Override
             public ConnectMessage newInstance() {
-                return ObjectPool.instance.connectMessagePool.obtain();
+                return MessageObjectPool.instance.connectMessagePool.obtain();
             }
         });
         
         registration = kryo.register(ControlsMessage.class);
-//        registration.setInstantiator(new 
-//                ObjectInstantiator<ControlsMessage>() {
-//            @Override
-//            public ControlsMessage newInstance() {
-//                return ObjectPool.instance.controlsMessagePool.obtain();
-//            }
-//        });
+        registration.setInstantiator(new 
+                ObjectInstantiator<ControlsMessage>() {
+            
+            @Override
+            public ControlsMessage newInstance() {
+                return MessageObjectPool.instance.controlsMessagePool.obtain();
+            }
+            
+        });
         
-        kryo.register(EntityState.class);
-        kryo.register(GameStateMessage.class);
+        registration = kryo.register(EntityState.class);
+        registration.setInstantiator(new 
+                ObjectInstantiator<EntityState>() {
+            
+            @Override
+            public EntityState newInstance() {
+                return MessageObjectPool.instance.entityStatePool.obtain();
+            }
+            
+        });
+        
+        registration = kryo.register(GameStateMessage.class);
+        registration.setInstantiator(new 
+                ObjectInstantiator<GameStateMessage>() {
+            
+            @Override
+            public GameStateMessage newInstance() {
+                return MessageObjectPool.instance.gameStateMessagePool.obtain();
+            }
+            
+        });
         
         kryo.register(ArrayList.class);
         kryo.register(Vector2.class);

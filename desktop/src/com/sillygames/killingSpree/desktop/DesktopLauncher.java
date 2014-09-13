@@ -10,6 +10,8 @@ public class DesktopLauncher {
 		config.title = "Killing Spree";
 		config.height = 720;
 		config.width = 1280;
+		config.vSyncEnabled = true;
+//		config.fullscreen = true;
 		new LwjglApplication(new KillingSpree(), config);
 	}
 }

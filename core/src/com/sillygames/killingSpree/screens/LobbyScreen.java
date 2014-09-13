@@ -17,7 +17,7 @@ import com.sillygames.killingSpree.KillingSpree;
 import com.sillygames.killingSpree.controls.InputController;
 import com.sillygames.killingSpree.networking.NetworkRegisterer;
 import com.sillygames.killingSpree.networking.messages.ConnectMessage;
-import com.sillygames.killingSpree.pooler.ObjectPool;
+import com.sillygames.killingSpree.pool.MessageObjectPool;
 import com.sillygames.killingSpree.screens.helpers.MyButton;
 import com.sillygames.killingSpree.screens.settings.Constants;
 
@@ -147,7 +147,7 @@ public class LobbyScreen extends AbstractScreen {
         if (startGame) {
             GameScreen gameScreen = new GameScreen(game);
             if(isServer) {
-                gameScreen.startServer();
+                gameScreen.startServer(ipAddresses.size() == 1);
             }
             gameScreen.loadLevel("maps/retro-small.tmx", host);
             game.setScreen(gameScreen);
@@ -227,8 +227,6 @@ public class LobbyScreen extends AbstractScreen {
         public void received(Connection connection, Object object) {
             if (object instanceof ConnectMessage) {
                 ipAddresses = ((ConnectMessage) object).hosts;
-                ObjectPool.instance.connectMessagePool.
-                free((ConnectMessage) object);
             } else if (object instanceof String) {
                 if(((String)object).matches("start")) {
                     startGame = true;
@@ -257,7 +255,6 @@ public class LobbyScreen extends AbstractScreen {
                         .getRemoteAddressTCP().getHostName());
             }
             server.sendToAllTCP(message);
-            ObjectPool.instance.connectMessagePool.free(message);
         }
     }
 

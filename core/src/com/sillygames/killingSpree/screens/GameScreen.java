@@ -43,16 +43,18 @@ public class GameScreen extends AbstractScreen {
     public void show() {
     }
     
-    public void startServer() {
+    public void startServer(boolean lonely) {
         isServer = true;
-        server = new Server();
-        NetworkRegisterer.register(server);
-        server.start();
-        try {
-            server.bind(Constants.GAME_TCP_PORT,
-                    Constants.GAME_UDP_PORT);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (!lonely) {
+            server = new Server();
+            NetworkRegisterer.register(server);
+            server.start();
+            try {
+                server.bind(Constants.GAME_TCP_PORT,
+                        Constants.GAME_UDP_PORT);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
     
