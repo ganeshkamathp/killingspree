@@ -1,4 +1,4 @@
-package com.sillygames.killingSpree.screens.helpers;
+package com.sillygames.killingSpree.helpers;
 
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;

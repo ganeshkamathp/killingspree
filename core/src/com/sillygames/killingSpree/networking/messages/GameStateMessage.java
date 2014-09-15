@@ -6,6 +6,7 @@ import com.sillygames.killingSpree.pool.Poolable;
 public class GameStateMessage implements Poolable{
     
     public ArrayList<EntityState> states;
+    public long time;
     
     public GameStateMessage() {
         states = new ArrayList<EntityState>();

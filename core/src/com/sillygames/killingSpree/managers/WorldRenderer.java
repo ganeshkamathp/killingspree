@@ -1,7 +1,6 @@
 package com.sillygames.killingSpree.managers;
 
-import java.util.ArrayList;
-
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapLayer;
@@ -12,15 +11,16 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.esotericsoftware.kryonet.Client;
-import com.sillygames.killingSpree.entities.Entity;
-import com.sillygames.killingSpree.entities.Player;
+import com.sillygames.killingSpree.clientEntities.ClientPlayer;
+import com.sillygames.killingSpree.helpers.Event.State;
 import com.sillygames.killingSpree.networking.ControlsSender;
 import com.sillygames.killingSpree.networking.messages.ControlsMessage;
-import com.sillygames.killingSpree.networking.messages.EntityState;
 import com.sillygames.killingSpree.networking.messages.GameStateMessage;
 import com.sillygames.killingSpree.networking.messages.StateProcessor;
+import com.sillygames.killingSpree.pool.MessageObjectPool;
 
 public class WorldRenderer {
     
@@ -42,25 +42,23 @@ public class WorldRenderer {
     private int count;
     private ControlsSender controlsSender;
     private StateProcessor stateProcessor;
-    private Player player;
-    private ArrayList<Entity> entities;
+    private ClientPlayer player;
     
     public WorldRenderer(WorldManager worldManager, Client client) {
         this.worldManager = worldManager;
+        stateProcessor = new StateProcessor(client);
         if (worldManager != null) {
             world = worldManager.getWorld();
             box2dRenderer = new Box2DDebugRenderer();
-            entities = worldManager.getEntities();
+            worldManager.setOutgoingEventListener(stateProcessor);
         } else {
-            entities = new ArrayList<Entity>();
             this.client = client;
-            stateProcessor = new StateProcessor(client);
         }
         camera = new OrthographicCamera();
         box2dCamera = new OrthographicCamera();
         batch = new SpriteBatch();
         controlsSender = new ControlsSender();
-        player = new Player(0, 0);
+        player = new ClientPlayer(0, 0);
         player.loadAssets();
     }
 
@@ -91,18 +89,14 @@ public class WorldRenderer {
     public void render(float delta) {
         // Temp experiment to check GC
         count++;
-        if(count % 100 == 0) {
-            System.gc();
+        if(count % 60 == 0) {
+//            System.gc();
         }
         renderer.setView(camera);
         renderer.render();
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        if (isServer) {
-            renderObjects(delta, worldManager.currentGameState);
-        } else {
-            renderObjects(delta, stateProcessor.getCurrentStates());
-        }
+        renderObjects(delta);
         batch.end();
         if (isServer) {
 //            box2dRenderer.render(world, box2dCamera.combined);
@@ -110,11 +104,31 @@ public class WorldRenderer {
         processControls();
     }
 
-    private void renderObjects(float delta, GameStateMessage currentGameState) {
-        for (EntityState state : currentGameState.states) {
-            player.setPosition(state.x, state.y);
+    private void renderObjects(float delta) {
+        long currentTime = TimeUtils.nanoTime();
+        stateProcessor.processStateQueue(currentTime);
+        GameStateMessage nextStateMessage = stateProcessor.getNextState();
+        GameStateMessage previousStateMessage = stateProcessor.getPreviousState();
+        long previousTime = previousStateMessage.time;
+        long nextTime = nextStateMessage.time;
+//        Gdx.app.log("previousTime", Long.toString(previousTime));
+//        Gdx.app.log("currentTime ", Long.toString(currentTime + stateProcessor.timeOffset));
+//        Gdx.app.log("nextTime    ", Long.toString(nextTime));
+        currentTime += stateProcessor.timeOffset;
+        float alpha = 0;
+        if (nextTime != previousTime)
+            alpha = (float)(currentTime - previousTime) / (float)(nextTime - previousTime);
+        if (currentTime > nextTime) {
+            alpha = 1;
+        }
+        int counter = Math.min(previousStateMessage.states.size(), 
+                nextStateMessage.states.size());
+        for (;counter > 0; counter--) {
+            player.processState(previousStateMessage.states.get(counter-1), 
+                    nextStateMessage.states.get(counter-1), alpha);
             player.render(delta, batch);
         }
+//        Gdx.app.log("alpha    ", Float.toString(alpha));
     }
 
     private void processControls() {
@@ -122,7 +136,8 @@ public class WorldRenderer {
         ControlsMessage message = controlsSender.sendControls();
         
         if(isServer) {
-            worldManager.player.setCurrentControls(message);
+            worldManager.addIncomingEvent(MessageObjectPool.instance.
+                    eventPool.obtain().set(State.RECEIVED, message));
         } else {
             client.sendUDP(message);
         }

@@ -18,74 +18,91 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
-import com.sillygames.killingSpree.entities.Blob;
-import com.sillygames.killingSpree.entities.Entity;
-import com.sillygames.killingSpree.entities.Player;
+import com.sillygames.killingSpree.helpers.Event;
+import com.sillygames.killingSpree.helpers.Event.State;
 import com.sillygames.killingSpree.networking.messages.ControlsMessage;
 import com.sillygames.killingSpree.networking.messages.EntityState;
 import com.sillygames.killingSpree.networking.messages.GameStateMessage;
 import com.sillygames.killingSpree.pool.MessageObjectPool;
+import com.sillygames.killingSpree.serverEntities.ServerBlob;
+import com.sillygames.killingSpree.serverEntities.ServerEntity;
+import com.sillygames.killingSpree.serverEntities.ServerPlayer;
 
 public class WorldManager{
     
-    World world;
-    Server server;
-    private HashMap<Integer, Player> playerList;
-    private ArrayList<Entity> entities;
+    private World world;
+    private Server server;
+    private HashMap<Integer, ServerPlayer> playerList;
+    private ArrayList<ServerEntity> entities;
     private WorldManager worldManager = this;
-    public Player player;
-    public GameStateMessage currentGameState;
+    private ArrayList<Event> incomingEventQueue;
+    private ArrayList<Event> outgoingEventQueue;
+    private Listener serverListener;
+    private Listener outgoingEventListener;
+    MyConnection dummyConnection;
     
     public WorldManager(Server server){
         
-        playerList = new HashMap<Integer, Player>();
+        playerList = new HashMap<Integer, ServerPlayer>();
         
         world = new World(new Vector2(0, -70f), false);
         
+        serverListener = new WorldManagerServerListener();
+
         if  (server != null) {
-            server.addListener(new WorldManagerServerListener());
+            server.addListener(serverListener);
         }
         
         this.server = server;
         
-        entities = new ArrayList<Entity>();
+        entities = new ArrayList<ServerEntity>();
         
-        Blob blob = new Blob(40, 50);
+        ServerBlob blob = new ServerBlob(40, 50);
         blob.createBody(this);
         entities.add(blob);
 
-        player = new Player(40, 51);
-        player.createBody(worldManager);
-        entities.add(player);
-        playerList.put(-1, player);
-        
-        currentGameState = MessageObjectPool.instance.
-                            gameStateMessagePool.obtain();
+        incomingEventQueue = new ArrayList<Event>();
+        outgoingEventQueue = new ArrayList<Event>();
+        dummyConnection = new MyConnection();
+        incomingEventQueue.add(MessageObjectPool.instance.
+                eventPool.obtain().set(State.CONNECTED, null));
+        outgoingEventQueue.add(MessageObjectPool.instance.
+                eventPool.obtain().set(State.CONNECTED, null));
+    }
+    
+    public void setOutgoingEventListener(Listener listener) {
+        outgoingEventListener = listener;
     }
 
     public void update(float delta) {
-        for(Entity entity: entities) {
+        for(ServerEntity entity: entities) {
             entity.update(delta);
         }
         world.step(delta, 1, 1);
         
-        currentGameState = MessageObjectPool.instance.
-                                            gameStateMessagePool.obtain();
-        for(Entity entity: entities) {
+        GameStateMessage gameStateMessage = MessageObjectPool.instance.
+                gameStateMessagePool.obtain();
+        for(ServerEntity entity: entities) {
             EntityState state = MessageObjectPool.instance.
                                     entityStatePool.obtain();
-            state.x = entity.getPosition().x;
-            state.y = entity.getPosition().y;
-            currentGameState.addNewState(state);
+            entity.updateState(state);
+            gameStateMessage.addNewState(state);
         }
+        gameStateMessage.time = TimeUtils.nanoTime();
         if (server != null) {
-            server.sendToAllUDP(currentGameState);
+            server.sendToAllTCP(gameStateMessage);
         }
+        addOutgoingEvent(MessageObjectPool.instance.
+                eventPool.obtain().set(State.RECEIVED, gameStateMessage));
         
+        processEvents(serverListener, incomingEventQueue);
+        processEvents(outgoingEventListener, outgoingEventQueue);
     }
+
 
     public World getWorld() {
         return world;
@@ -155,14 +172,14 @@ public class WorldManager{
         body.createFixture(fixture);
     }
 
-    public ArrayList<Entity> getEntities() {
+    public ArrayList<ServerEntity> getEntities() {
         return entities;
     }
 
     private class WorldManagerServerListener extends Listener {
         @Override
         public void connected(Connection connection) {
-            Player player = new Player(20,100);
+            ServerPlayer player = new ServerPlayer(20,100);
             player.createBody(worldManager);
             playerList.put(connection.getID(), player);
             entities.add(player);
@@ -178,16 +195,33 @@ public class WorldManager{
         
         @Override
         public void disconnected(Connection connection) {
-            Player player = playerList.get(connection.getID());
+            ServerPlayer player = playerList.get(connection.getID());
             player.markForDispose();
             playerList.remove(connection.getID());
             entities.remove(player);
         }
     }
 
-    public void setCurrentControls() {
-        // TODO Auto-generated method stub
-        
+    private void processEvents(Listener listener, ArrayList<Event> queue) {
+        for (Event event: queue) {
+            if (event.state == State.CONNECTED) {
+                listener.connected(dummyConnection);
+            } else if (event.state == State.RECEIVED) {
+                listener.received(dummyConnection, event.object);
+            } else if (event.state == State.DISCONNECTED) {
+                listener.disconnected(dummyConnection);
+            }
+        }
+        queue.clear();
     }
+    
+    public void addIncomingEvent(Event event) {
+        incomingEventQueue.add(event);
+    }
+    
+    public void addOutgoingEvent(Event event) {
+        outgoingEventQueue.add(event);
+    }
+    
 }
 

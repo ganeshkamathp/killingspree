@@ -13,7 +13,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.esotericsoftware.kryonet.Client;
 import com.sillygames.killingSpree.KillingSpree;
 import com.sillygames.killingSpree.controls.InputController;
-import com.sillygames.killingSpree.screens.helpers.MyButton;
+import com.sillygames.killingSpree.helpers.MyButton;
 
 public class ClientDiscoveryScreen extends AbstractScreen {
 

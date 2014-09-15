@@ -1,4 +1,4 @@
-package com.sillygames.killingSpree.screens.helpers;
+package com.sillygames.killingSpree.helpers;
 
 import com.badlogic.gdx.math.Vector2;
 import com.sillygames.killingSpree.managers.WorldRenderer;

@@ -15,10 +15,10 @@ import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 import com.sillygames.killingSpree.KillingSpree;
 import com.sillygames.killingSpree.controls.InputController;
+import com.sillygames.killingSpree.helpers.MyButton;
 import com.sillygames.killingSpree.networking.NetworkRegisterer;
 import com.sillygames.killingSpree.networking.messages.ConnectMessage;
 import com.sillygames.killingSpree.pool.MessageObjectPool;
-import com.sillygames.killingSpree.screens.helpers.MyButton;
 import com.sillygames.killingSpree.screens.settings.Constants;
 
 public class LobbyScreen extends AbstractScreen {

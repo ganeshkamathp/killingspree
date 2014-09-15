@@ -1,5 +1,6 @@
 package com.sillygames.killingSpree.pool;
 
+import com.sillygames.killingSpree.helpers.Event;
 import com.sillygames.killingSpree.networking.messages.ConnectMessage;
 import com.sillygames.killingSpree.networking.messages.ControlsMessage;
 import com.sillygames.killingSpree.networking.messages.EntityState;
@@ -12,6 +13,7 @@ public class MessageObjectPool {
     public Pool<ControlsMessage> controlsMessagePool;
     public Pool<EntityState> entityStatePool;
     public Pool<GameStateMessage> gameStateMessagePool;
+    public Pool<Event> eventPool;
     
     public MessageObjectPool() {
         connectMessagePool = new Pool<ConnectMessage>() {
@@ -47,6 +49,14 @@ public class MessageObjectPool {
             @Override
             protected GameStateMessage getNewObject() {
                 return new GameStateMessage();
+            }
+        };
+        
+        eventPool = new Pool<Event>() {
+            
+            @Override
+            protected Event getNewObject() {
+                return new Event();
             }
         };
     }

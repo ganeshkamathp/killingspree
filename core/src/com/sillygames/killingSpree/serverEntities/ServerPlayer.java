@@ -1,38 +1,26 @@
-package com.sillygames.killingSpree.entities;
+package com.sillygames.killingSpree.serverEntities;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.sillygames.killingSpree.helpers.EntityUtils;
+import com.sillygames.killingSpree.helpers.EntityUtils.ActorType;
+import com.sillygames.killingSpree.helpers.Utils;
 import com.sillygames.killingSpree.managers.WorldManager;
-import com.sillygames.killingSpree.managers.WorldRenderer;
 import com.sillygames.killingSpree.networking.messages.ControlsMessage;
-import com.sillygames.killingSpree.screens.helpers.Utils;
+import com.sillygames.killingSpree.networking.messages.EntityState;
 
-public class Player extends Entity{
+public class ServerPlayer extends ServerEntity{
 
     private Body body;
-    private Sprite sprite;
     private ControlsMessage currentControls;
     private boolean markForDispose;
-    private Texture texture;
     
-    public Player(float x, float y) {
+    public ServerPlayer(float x, float y) {
         super(x, y);
         markForDispose = false;
         currentControls = new ControlsMessage();
-    }
-    
-    @Override
-    public void loadAssets() {
-        toLoadAssets = false;
-        texture = new Texture(Gdx.files.internal("sprites/player.png"));
-        sprite = new Sprite(texture);
-        sprite.setSize(2 * WorldRenderer.SCALE, 2 * WorldRenderer.SCALE);
+        actorType = ActorType.PLAYER;
     }
     
     public void createBody(WorldManager worldManager) {
@@ -55,28 +43,6 @@ public class Player extends Entity{
         markForDispose = true;
     }
     
-    @Override
-    public void render(float delta, SpriteBatch batch) {
-        if (markForDispose) {
-            dispose();
-            return;
-        } else if (toLoadAssets) {
-            loadAssets();
-        }
-        // Server
-        if(body != null) {
-            processPlayer();
-            position.set(body.getPosition());
-        }
-        renderPlayer(batch);
-        
-    }
-    private void renderPlayer(SpriteBatch batch) {
-        sprite.setPosition(position.x * WorldRenderer.SCALE - sprite.getWidth() / 2,
-                position.y * WorldRenderer.SCALE - sprite.getHeight() / 2);
-        sprite.draw(batch);
-    }
-
     private void processPlayer() {
         processControls(currentControls);
     }
@@ -113,7 +79,11 @@ public class Player extends Entity{
 
     @Override
     public void dispose() {
-        texture.dispose();
+    }
+
+    @Override
+    public void updateState(EntityState state) {
+        super.updateState(state);
     }
     
 }

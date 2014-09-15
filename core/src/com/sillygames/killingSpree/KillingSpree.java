@@ -34,7 +34,7 @@ public class KillingSpree extends ApplicationAdapter {
 	@Override
 	public void render () {
 	    float delta = Gdx.graphics.getDeltaTime();
-	    currentScreen.render(delta);
+	    currentScreen.render(1/60f);
 	}
 	
 	@Override

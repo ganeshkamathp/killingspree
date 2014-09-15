@@ -44,6 +44,8 @@ public class GameScreen extends AbstractScreen {
     }
     
     public void startServer(boolean lonely) {
+        //FIXME
+        lonely = false;
         isServer = true;
         if (!lonely) {
             server = new Server();
