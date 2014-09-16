@@ -1,9 +1,11 @@
 package com.sillygames.killingSpree.serverEntities;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.sillygames.killingSpree.helpers.EntityUtils;
+import com.sillygames.killingSpree.helpers.WorldBodyUtils;
 import com.sillygames.killingSpree.helpers.EntityUtils.ActorType;
 import com.sillygames.killingSpree.helpers.Utils;
 import com.sillygames.killingSpree.managers.WorldManager;
@@ -12,20 +14,21 @@ import com.sillygames.killingSpree.networking.messages.EntityState;
 
 public class ServerPlayer extends ServerEntity{
 
+    public static final float WIDTH = 2;
+    public static final float HEIGHT = 2;    
     private Body body;
     private ControlsMessage currentControls;
     private boolean markForDispose;
+    private float reloadTime;
     
-    public ServerPlayer(float x, float y) {
-        super(x, y);
+    public ServerPlayer(short id, float x, float y, WorldBodyUtils world) {
+        super(id, x, y, world);
         markForDispose = false;
         currentControls = new ControlsMessage();
         actorType = ActorType.PLAYER;
-    }
-    
-    public void createBody(WorldManager worldManager) {
-        body = worldManager.addBox(0.7f, 1f, position.x, position.y,
+        body = world.addBox(WIDTH / 2 - 0.3f, HEIGHT / 2, position.x, position.y,
                 BodyType.DynamicBody);
+        reloadTime = 0;
     }
     
     @Override
@@ -36,7 +39,7 @@ public class ServerPlayer extends ServerEntity{
         }
         processPlayer();
         position.set(body.getPosition());
-        
+        reloadTime += delta;
     }
     
     public void markForDispose() {
@@ -48,17 +51,21 @@ public class ServerPlayer extends ServerEntity{
     }
 
     public void processControls(ControlsMessage controls) {
-        Vector2 direction = Utils.parseDirections(controls);
         Vector2 velocity = body.getLinearVelocity();
         Vector2 position = body.getPosition();
 
         if (velocity.y < -20f) {
             velocity.y = -20f;
         }
-
-        if (direction.x!=0){
-            velocity.x = Math.signum(direction.x) * 10;
-        } else {
+        
+        if(Math.abs(velocity.x) < 10f) {
+            if (controls.right()){
+                velocity.x = 10f;
+            } else if (controls.left()){
+                velocity.x = -10f;
+            }
+        }
+        if(!controls.right() && !controls.left()) {
             velocity.x += -0.1f * velocity.x;
         }
         
@@ -68,8 +75,24 @@ public class ServerPlayer extends ServerEntity{
             body.setTransform(position, 0);
         }
 
-        if (controls.action > 1 && velocity.y == 0) {
+        if (controls.jump() && velocity.y == 0) {
             body.applyLinearImpulse(0, 100f, 0, 0, true);
+        }
+        
+        float x = controls.right()? 1 : (controls.left()? -1 : 0);
+        float y = controls.up()? 1 : (controls.down()? -1 : 0);
+        if (x==0 && y==0) {
+            x=1;
+        }
+        if (x ==1 && y == 1) {
+           x = 0.707f;
+           y = 0.707f;
+        }
+        if (controls.shoot() && reloadTime > 1) {
+            Gdx.app.log("shoot", "yes");
+            reloadTime = 0;
+            world.AddArrow(position.x + x * 2, position.y + y * 2).body.
+            setLinearVelocity(x * 20, y * 20);;
         }
     }
 
@@ -79,6 +102,7 @@ public class ServerPlayer extends ServerEntity{
 
     @Override
     public void dispose() {
+        world.destroyBody(body);
     }
 
     @Override

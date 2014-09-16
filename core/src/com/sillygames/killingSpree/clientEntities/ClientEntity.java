@@ -10,12 +10,14 @@ import com.sillygames.killingSpree.networking.messages.EntityState;
 
 public abstract class ClientEntity {
     
+    public short id;
     protected final Vector2 position;
     protected EntityState currentState;
     
-    public ClientEntity(float x, float y){
+    public ClientEntity(short id, float x, float y){
         position = new Vector2(x, y);
         currentState = new EntityState();
+        this.id = id;
     }
 
     public abstract void loadAssets();
@@ -24,32 +26,27 @@ public abstract class ClientEntity {
     
     public abstract void dispose();
 
-    public void processState(EntityState previousState, EntityState nextState, float alpha) {
+    public void processState(EntityState nextState, float alpha) {
         
         
-        position.set(previousState.x, previousState.y);
-        
-        if (previousState.x - nextState.x > 2000) {
-            position.x -= WorldRenderer.VIEWPORT_WIDTH * 10;
+        if (position.x - nextState.x > 20) {
+            position.x -= WorldRenderer.VIEWPORT_WIDTH / 10;
         }
-        else if (previousState.x - nextState.x < -2000) {
-            position.x += WorldRenderer.VIEWPORT_WIDTH * 10;
+        else if (position.x - nextState.x < -20) {
+            position.x += WorldRenderer.VIEWPORT_WIDTH / 10;
         }
         
-        if (previousState.y - nextState.y > 2000) {
-            position.y -= WorldRenderer.VIEWPORT_HEIGHT * 10;
+        if (position.y - nextState.y > 20) {
+            position.y -= WorldRenderer.VIEWPORT_HEIGHT / 10;
         }
-        else if (previousState.y - nextState.y < -2000) {
-            position.y += WorldRenderer.VIEWPORT_HEIGHT * 10;
+        else if (position.y - nextState.y < -20) {
+            position.y += WorldRenderer.VIEWPORT_HEIGHT / 10;
         }
         
         
         position.lerp(new Vector2((float)nextState.x, (float)nextState.y), alpha);
-        position.scl(0.01f);
-        
         
 //        Gdx.app.log("Alpha", Float.toString(alpha));
-//        Gdx.app.log("previous postion", (new Vector2(previousState.x, previousState.y).toString()));
 //        Gdx.app.log("current postion", (new Vector2(position.x, position.y).toString()));
 //        Gdx.app.log("next postion", (new Vector2(nextState.x, nextState.y).toString()));
         

@@ -13,28 +13,26 @@ import com.sillygames.killingSpree.managers.WorldManager;
 import com.sillygames.killingSpree.managers.WorldRenderer;
 import com.sillygames.killingSpree.networking.messages.ControlsMessage;
 import com.sillygames.killingSpree.networking.messages.EntityState;
+import com.sillygames.killingSpree.pool.AssetLoader;
+import com.sillygames.killingSpree.serverEntities.ServerPlayer;
 
 public class ClientPlayer extends ClientEntity{
 
     private Sprite sprite;
     private boolean markForDispose;
-    private Texture texture;
     
-    public ClientPlayer(float x, float y) {
-        super(x, y);
+    public ClientPlayer(short id, float x, float y) {
+        super(id, x, y);
         markForDispose = false;
         loadAssets();
     }
     
     @Override
     public void loadAssets() {
-        texture = new Texture(Gdx.files.internal("sprites/player.png"));
-        sprite = new Sprite(texture);
-        sprite.setSize(2 * WorldRenderer.SCALE, 2 * WorldRenderer.SCALE);
-    }
-    
-    public void markForDispose() {
-        markForDispose = true;
+        sprite = new Sprite(AssetLoader.instance.getTexture("sprites/player.png"));
+        sprite.setSize(ServerPlayer.WIDTH * WorldRenderer.SCALE, 
+                ServerPlayer.HEIGHT * WorldRenderer.SCALE);
+        sprite.setOrigin(sprite.getWidth()/2, sprite.getHeight()/2);
     }
     
     @Override
@@ -54,7 +52,6 @@ public class ClientPlayer extends ClientEntity{
 
     @Override
     public void dispose() {
-        texture.dispose();
     }
 
     

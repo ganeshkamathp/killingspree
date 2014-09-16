@@ -33,6 +33,7 @@ public class MessageObjectPool {
             }
             
         };
+        controlsMessagePool.setMax(512);
         
         entityStatePool = new Pool<EntityState>() {
 
@@ -42,7 +43,7 @@ public class MessageObjectPool {
             }
             
         };
-        entityStatePool.setMax(512);
+        entityStatePool.setMax(1024);
         
         gameStateMessagePool = new Pool<GameStateMessage>() {
             
@@ -51,6 +52,7 @@ public class MessageObjectPool {
                 return new GameStateMessage();
             }
         };
+        gameStateMessagePool.setMax(512);
         
         eventPool = new Pool<Event>() {
             

@@ -12,12 +12,11 @@ public class StateProcessor extends Listener{
 
     private static final int QUEUE_LENGTH = 6;
     private Client client;
-    private ArrayList<GameStateMessage> stateQueue;
+    public ArrayList<GameStateMessage> stateQueue;
     public long timeOffset = 0;
     private GameStateMessage previousState;
     private GameStateMessage nextState;
-    int badCounter = 0;
-    int goodCounter = 0;
+    int lag = 0;
     
     public StateProcessor(Client client) {
         if (client != null) {
@@ -74,37 +73,33 @@ public class StateProcessor extends Listener{
         
         long currentServerTime = currentTime + timeOffset;
         if (currentServerTime < stateQueue.get(0).time) {
-            goodCounter++;
-            if(goodCounter >10) {
-                goodCounter = 0;
+            lag++;
+            if(lag > 3) {
+                lag = 0;
                 timeOffset = stateQueue.get(QUEUE_LENGTH - 2).time - currentTime;
                 currentServerTime = currentTime + timeOffset;
             }
-        } else {
-            goodCounter = 0;
-        }
-
-        if (currentServerTime > stateQueue.get(QUEUE_LENGTH - 1).time) {
-            badCounter++;
-            if(badCounter > 10) {
-                badCounter = 0;
-                timeOffset = stateQueue.get(QUEUE_LENGTH - 2).time - currentTime;
+        } else if (currentServerTime > stateQueue.get(QUEUE_LENGTH - 1).time) {
+            lag++;
+            if(lag > 3) {
+                lag = 0;
+                timeOffset -= 10000;
                 currentServerTime = currentTime + timeOffset;
             }
         } else {
-            badCounter = 0;
+            lag = 0;
         }
         
         int totalStates = stateQueue.size();
         int i = 2;
         previousState = stateQueue.get(0);
-        nextState = stateQueue.get(1);
+        nextState = stateQueue.get(0);
         while (nextState.time < currentServerTime && i < totalStates) {
             previousState = nextState;
             nextState = stateQueue.get(i);
             i++;
         }
-        Gdx.app.log("Selected", Integer.toString(i));
+//        Gdx.app.log("Selected", Integer.toString(i));
     }
     
     public GameStateMessage getPreviousState() {

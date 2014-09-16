@@ -1,5 +1,8 @@
 package com.sillygames.killingSpree.managers;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -14,10 +17,16 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.esotericsoftware.kryonet.Client;
+import com.sillygames.killingSpree.clientEntities.ClientArrow;
+import com.sillygames.killingSpree.clientEntities.ClientBlob;
+import com.sillygames.killingSpree.clientEntities.ClientEntity;
 import com.sillygames.killingSpree.clientEntities.ClientPlayer;
+import com.sillygames.killingSpree.helpers.EntityUtils;
+import com.sillygames.killingSpree.helpers.EntityUtils.ActorType;
 import com.sillygames.killingSpree.helpers.Event.State;
 import com.sillygames.killingSpree.networking.ControlsSender;
 import com.sillygames.killingSpree.networking.messages.ControlsMessage;
+import com.sillygames.killingSpree.networking.messages.EntityState;
 import com.sillygames.killingSpree.networking.messages.GameStateMessage;
 import com.sillygames.killingSpree.networking.messages.StateProcessor;
 import com.sillygames.killingSpree.pool.MessageObjectPool;
@@ -42,7 +51,8 @@ public class WorldRenderer {
     private int count;
     private ControlsSender controlsSender;
     private StateProcessor stateProcessor;
-    private ClientPlayer player;
+    private HashMap<Short, ClientEntity> worldMap;
+    long previousTime;
     
     public WorldRenderer(WorldManager worldManager, Client client) {
         this.worldManager = worldManager;
@@ -58,8 +68,7 @@ public class WorldRenderer {
         box2dCamera = new OrthographicCamera();
         batch = new SpriteBatch();
         controlsSender = new ControlsSender();
-        player = new ClientPlayer(0, 0);
-        player.loadAssets();
+        worldMap = new HashMap<Short, ClientEntity>();
     }
 
     public void loadLevel(String level, boolean isServer) {
@@ -99,36 +108,55 @@ public class WorldRenderer {
         renderObjects(delta);
         batch.end();
         if (isServer) {
-//            box2dRenderer.render(world, box2dCamera.combined);
+            box2dRenderer.render(world, box2dCamera.combined);
         }
         processControls();
     }
 
     private void renderObjects(float delta) {
         long currentTime = TimeUtils.nanoTime();
-        stateProcessor.processStateQueue(currentTime);
-        GameStateMessage nextStateMessage = stateProcessor.getNextState();
-        GameStateMessage previousStateMessage = stateProcessor.getPreviousState();
-        long previousTime = previousStateMessage.time;
-        long nextTime = nextStateMessage.time;
-//        Gdx.app.log("previousTime", Long.toString(previousTime));
-//        Gdx.app.log("currentTime ", Long.toString(currentTime + stateProcessor.timeOffset));
-//        Gdx.app.log("nextTime    ", Long.toString(nextTime));
-        currentTime += stateProcessor.timeOffset;
         float alpha = 0;
-        if (nextTime != previousTime)
-            alpha = (float)(currentTime - previousTime) / (float)(nextTime - previousTime);
-        if (currentTime > nextTime) {
+        GameStateMessage nextStateMessage;
+        if (isServer) {
             alpha = 1;
+            nextStateMessage = stateProcessor.stateQueue.get(stateProcessor.stateQueue.size() - 1);
+        } else {
+            stateProcessor.processStateQueue(currentTime);
+            nextStateMessage = stateProcessor.getNextState();
+            long nextTime = nextStateMessage.time;
+            currentTime += stateProcessor.timeOffset;
+            if (nextTime != previousTime)
+                alpha = (float)(currentTime - previousTime) / (float)(nextTime - previousTime);
+            if (currentTime > nextTime) {
+                alpha = 1;
+            }
         }
-        int counter = Math.min(previousStateMessage.states.size(), 
-                nextStateMessage.states.size());
-        for (;counter > 0; counter--) {
-            player.processState(previousStateMessage.states.get(counter-1), 
-                    nextStateMessage.states.get(counter-1), alpha);
-            player.render(delta, batch);
+        
+        for (EntityState state: nextStateMessage.states) {
+            if (!worldMap.containsKey(state.id)) {
+                Gdx.app.log("found new entity", "yeah");
+                ClientEntity entity = null;
+                if (EntityUtils.ByteToActorType(state.type) == ActorType.PLAYER) {
+                    entity = new ClientPlayer(state.id, state.x/100, state.y/100);
+                    Gdx.app.log("adding", "player");
+                } else if (EntityUtils.ByteToActorType(state.type) == ActorType.BLOB) {
+                    entity = new ClientBlob(state.id, state.x/100, state.y/100);
+                    Gdx.app.log("adding", "blob");
+                } else if (EntityUtils.ByteToActorType(state.type) == ActorType.ARROW) {
+                    entity = new ClientArrow(state.id, state.x/100, state.y/100);
+                    Gdx.app.log("adding", "arrow");
+                }
+                worldMap.put(state.id, entity);
+            }
+        }
+
+        for (EntityState state: nextStateMessage.states) {
+            ClientEntity entity = worldMap.get(state.id);
+            entity.processState(state, alpha);
+            entity.render(delta, batch);
         }
 //        Gdx.app.log("alpha    ", Float.toString(alpha));
+        previousTime = currentTime;
     }
 
     private void processControls() {

@@ -6,6 +6,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
+import com.sillygames.killingSpree.pool.AssetLoader;
 import com.sillygames.killingSpree.screens.GameScreen;
 import com.sillygames.killingSpree.screens.SplashScreen;
 
@@ -24,7 +25,8 @@ public class KillingSpree extends ApplicationAdapter {
 	            (Gdx.files.internal("fonts/splash.ttf"));
 	    parameter = new FreeTypeFontParameter();
 	    
-      currentScreen = new SplashScreen(this);
+	    AssetLoader.instance.loadAll();
+	    currentScreen = new SplashScreen(this);
 //	    GameScreen gameScreen = new GameScreen(this);
 //        gameScreen.startServer();
 //        gameScreen.loadLevel("maps/retro-small.tmx", "localhost");
