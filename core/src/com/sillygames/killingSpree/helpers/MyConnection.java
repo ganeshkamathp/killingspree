@@ -1,4 +1,4 @@
-package com.sillygames.killingSpree.managers;
+package com.sillygames.killingSpree.helpers;
 
 import com.esotericsoftware.kryonet.Connection;
 

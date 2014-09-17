@@ -19,7 +19,7 @@
  </layer>
  <layer name="background" width="30" height="20">
   <data encoding="base64" compression="zlib">
-   eJzVlE0OwUAYhr8VxWiNndPYKg1XcAUuQNiRsOUYOIBgQVvWfi7DK5qY0Nao0fAmTzrTfukzTb8Zou+lkH1dk+BESaDx27yn3a42p/Ya90Q2IVyf2/zZK7MGVbm6RoxozOL17uE7gCM4sdf1HZ2oq6vz+31r52G+gG8JVl/2ysRBn7hc3TpkksoTpUEGsHx8XhOuMqgAC6zRHxtgCzjABVuwk+gf2fTg6wvfqgX8L6Z4rzhwuoK3JLzfxLjsza0Y9+ivZa5wH76Ts+Bt5IiaOf+6x/Mjxan+ibdo3McTOKdgFuAWo0Xw6ug9w+u/lhFeG5RkBG8VzprnnUf0Jny84p7xywDOYYxn2j/lArSRMuk=
+   eJzd1D1SwkAUB/A3FBBkSVio7LwJDQVfI7UdV9ALwGCHM9JCxxXUAzBoAUm09qPyJvrPEPCxhCSzCSl8M/9hN5vhx4a3ITpdnZej78lLogJiyM18bGw+bUnDFa7xrEPirdvy0I3zG9Iqz5oKopnI1n2H94F8Il9if22UgR+2106NLvh8ZBLdmum4V+WdMQ9zl/CekRffddAnrtR3ZzFdtc6qRCVEVPXcRo76eNbfXqLchb/XFqw20kG6yAr9sWY9YmPsIC7yirwp/aMY8yj3h/23Y3h3bK/GkT4REWcljlu3/sYOTJe5Tfb9LYzb/rybgjuw1DuSV5Cr1uIEbtZ1XSG6qQSvqe+toqR+Wu4DzEfk6YjNy9BwTfSepXnGt1XQcC9h9hK6+QCXn5mguoc5Sej+1/oFxjA+Ig==
   </data>
  </layer>
  <layer name="shadow" width="30" height="20">
@@ -29,21 +29,22 @@
  </layer>
  <layer name="terrain" width="30" height="20">
   <data encoding="base64" compression="zlib">
-   eJxjFmZQYEbDPYIMDQxQAGQzAMUWYMEY+kjRzzAKRgENQDsvQwMu3MqLSJekAqBekNk48SggDrznB+MGetsrwcWQAMQPqG2uOBeDQw4fJn4F9Cc2DJQ7gI6BZhygxA3P+cH2EYWBaimya7gCYJ2UgI6BddcBapkPNMsBaOYDdMwowsCAjoHieEE4NwNDBBRHchP0VwPQTGyYZHuBdh2IgGKgGw7Qwl4s4YQRL/jiiRR7nYUJuxcmT8jdzjj0AwDM6Gt9
+   eJztkk0OgkAMhZ9hJyFqcOGSo0ziIcQdR5mFfwsPwVHmKOxI2HgFH2RMxgEZJiqJP01e0kDbr9M2iJEEls4LSGijD37LDbXiPfMb4W9fbbs5BHefjMUjKydT1T7vS4zFJUsZ/p3tI+BInaLGl7616/yDrmHnkyUN39sus0bePT3LXU2RUcWncXlb9Y1lfbElZ1oNVOmYPVkFmb0xBldUA8VYNejhP2bcc2aLO1Cvqs9agjULW5MlYMt135sQSLW2ofNdkjW75M0lS6Va7EG9g9sxp9Ze+vbkw13H7n5v/119rx/kXwHrDmvH
   </data>
  </layer>
  <objectgroup name="collision" width="30" height="20">
+  <object x="75" y="105" width="60" height="15"/>
+  <object x="315" y="105" width="60" height="15"/>
+  <object x="210" y="120" width="30" height="45"/>
+  <object x="135" y="165" width="180" height="30"/>
   <object x="360" y="225" width="90" height="75"/>
   <object x="0" y="225" width="90" height="75"/>
   <object x="120" y="270" width="210" height="30"/>
   <object x="195" y="240" width="60" height="30"/>
+  <object x="0" y="75" width="30" height="105"/>
+  <object x="420" y="75" width="30" height="105"/>
   <object x="0" y="0" width="90" height="15"/>
   <object x="120" y="0" width="210" height="15"/>
   <object x="360" y="0" width="90" height="15"/>
-  <object x="90" y="165" width="270" height="15"/>
-  <object x="135" y="180" width="180" height="15"/>
-  <object x="0" y="90" width="120" height="15"/>
-  <object x="330" y="90" width="120" height="15"/>
-  <object x="210" y="135" width="30" height="30"/>
  </objectgroup>
 </map>

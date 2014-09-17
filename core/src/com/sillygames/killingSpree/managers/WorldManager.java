@@ -3,27 +3,15 @@ package com.sillygames.killingSpree.managers;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.MapProperties;
-import com.badlogic.gdx.maps.objects.PolygonMapObject;
-import com.badlogic.gdx.maps.objects.RectangleMapObject;
-import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 import com.sillygames.killingSpree.helpers.Event;
+import com.sillygames.killingSpree.helpers.MyConnection;
 import com.sillygames.killingSpree.helpers.WorldBodyUtils;
 import com.sillygames.killingSpree.helpers.Event.State;
 import com.sillygames.killingSpree.networking.messages.ControlsMessage;
@@ -39,7 +27,7 @@ public class WorldManager{
     private World world;
     private Server server;
     private HashMap<Integer, ServerPlayer> playerList;
-    private ArrayList<ServerEntity> entities;
+    public ArrayList<ServerEntity> entities;
     private WorldManager worldManager = this;
     private ArrayList<Event> incomingEventQueue;
     private ArrayList<Event> outgoingEventQueue;
@@ -48,8 +36,9 @@ public class WorldManager{
     private WorldBodyUtils worldBodyUtils;
     MyConnection dummyConnection;
     private short id;
+    public ServerBlob blob;
     
-    public WorldManager(Server server){
+    public WorldManager(final Server server){
         
         playerList = new HashMap<Integer, ServerPlayer>();
         
@@ -72,10 +61,10 @@ public class WorldManager{
                 eventPool.obtain().set(State.CONNECTED, null));
         outgoingEventQueue.add(MessageObjectPool.instance.
                 eventPool.obtain().set(State.CONNECTED, null));
-        worldBodyUtils = new WorldBodyUtils(world);
+        worldBodyUtils = new WorldBodyUtils(worldManager);
 
         id = 0;
-        ServerBlob blob = new ServerBlob(id++, 20, 20, worldBodyUtils);
+        blob = new ServerBlob(id++, 20, 20, worldBodyUtils);
         entities.add(blob);
     }
     
@@ -103,7 +92,7 @@ public class WorldManager{
 
         gameStateMessage.time = TimeUtils.nanoTime();
         if (server != null) {
-            server.sendToAllTCP(gameStateMessage);
+            server.sendToAllUDP(gameStateMessage);
         }
         addOutgoingEvent(MessageObjectPool.instance.
                 eventPool.obtain().set(State.RECEIVED, gameStateMessage));
@@ -125,10 +114,7 @@ public class WorldManager{
     private class WorldManagerServerListener extends Listener {
         @Override
         public void connected(Connection connection) {
-            Gdx.app.log("adding new player", Integer.toString(connection.getID()));
-            ServerPlayer player = new ServerPlayer(id++, 20, 100, worldBodyUtils);
-            playerList.put(connection.getID(), player);
-            entities.add(player);
+            server.sendToTCP(connection.getID(), "start");
         }
         
         @Override
@@ -139,8 +125,9 @@ public class WorldManager{
                     setCurrentControls((ControlsMessage) object);
                 }
                 catch(Exception e) {
-                    connected(connection);
-                    Gdx.app.log("ID", Integer.toString(connection.getID()));
+                    ServerPlayer player = new ServerPlayer(id++, 20, 100, worldBodyUtils);
+                    playerList.put(connection.getID(), player);
+                    entities.add(player);
                 }
             }
         }
@@ -153,6 +140,11 @@ public class WorldManager{
                 playerList.remove(connection.getID());
                 entities.remove(player);
             }
+            if (server!= null) {
+                server.sendToAllTCP(player.id);
+            }
+            addOutgoingEvent(MessageObjectPool.instance.
+                    eventPool.obtain().set(State.RECEIVED, player.id));
         }
     }
 

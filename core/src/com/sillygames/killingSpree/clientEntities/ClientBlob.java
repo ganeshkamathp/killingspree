@@ -1,6 +1,5 @@
 package com.sillygames.killingSpree.clientEntities;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.sillygames.killingSpree.managers.WorldRenderer;
@@ -15,15 +14,12 @@ public class ClientBlob extends ClientEntity {
     public ClientBlob(short id, float x, float y) {
         super(id, x, y);
         markForDispose = false;
-        loadAssets();
-    }
-    
-    @Override
-    public void loadAssets() {
         sprite = new Sprite(AssetLoader.instance.getTexture("sprites/blob.png"));
         sprite.setSize(ServerBlob.WIDTH * WorldRenderer.SCALE, 
                 ServerBlob.HEIGHT * WorldRenderer.SCALE);
         sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
+        sprite.setPosition(x * WorldRenderer.SCALE - sprite.getWidth() / 2,
+                y * WorldRenderer.SCALE - sprite.getHeight() / 2);
     }
 
     @Override

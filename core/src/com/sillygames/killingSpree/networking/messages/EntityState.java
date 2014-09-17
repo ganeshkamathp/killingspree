@@ -5,7 +5,7 @@ public class EntityState {
     public short id;
     public byte type;
     public float x, y;
-    public short angle;
+    public float angle;
     public byte extra;
 
 }

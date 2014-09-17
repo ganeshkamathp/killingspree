@@ -1,6 +1,7 @@
 package com.sillygames.killingSpree.serverEntities;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.sillygames.killingSpree.helpers.EntityUtils;
 import com.sillygames.killingSpree.helpers.EntityUtils.ActorType;
 import com.sillygames.killingSpree.helpers.WorldBodyUtils;
@@ -12,6 +13,7 @@ public abstract class ServerEntity {
     protected boolean toLoadAssets;
     protected final Vector2 position;
     protected WorldBodyUtils world;
+    public Body body;
     
     
     public ServerEntity(short id, float x, float y, WorldBodyUtils world){

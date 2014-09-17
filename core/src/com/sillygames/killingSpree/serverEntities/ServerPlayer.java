@@ -1,14 +1,11 @@
 package com.sillygames.killingSpree.serverEntities;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
-import com.sillygames.killingSpree.helpers.EntityUtils;
 import com.sillygames.killingSpree.helpers.WorldBodyUtils;
 import com.sillygames.killingSpree.helpers.EntityUtils.ActorType;
 import com.sillygames.killingSpree.helpers.Utils;
-import com.sillygames.killingSpree.managers.WorldManager;
 import com.sillygames.killingSpree.networking.messages.ControlsMessage;
 import com.sillygames.killingSpree.networking.messages.EntityState;
 
@@ -16,7 +13,6 @@ public class ServerPlayer extends ServerEntity{
 
     public static final float WIDTH = 2;
     public static final float HEIGHT = 2;    
-    private Body body;
     private ControlsMessage currentControls;
     private boolean markForDispose;
     private float reloadTime;
@@ -28,6 +24,7 @@ public class ServerPlayer extends ServerEntity{
         actorType = ActorType.PLAYER;
         body = world.addBox(WIDTH / 2 - 0.3f, HEIGHT / 2, position.x, position.y,
                 BodyType.DynamicBody);
+        body.setUserData(this);
         reloadTime = 0;
     }
     
@@ -89,7 +86,6 @@ public class ServerPlayer extends ServerEntity{
            y = 0.707f;
         }
         if (controls.shoot() && reloadTime > 1) {
-            Gdx.app.log("shoot", "yes");
             reloadTime = 0;
             world.AddArrow(position.x + x * 2, position.y + y * 2).body.
             setLinearVelocity(x * 20, y * 20);;

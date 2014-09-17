@@ -1,6 +1,5 @@
 package com.sillygames.killingSpree.managers;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.badlogic.gdx.Gdx;
@@ -13,6 +12,10 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.Contact;
+import com.badlogic.gdx.physics.box2d.ContactImpulse;
+import com.badlogic.gdx.physics.box2d.ContactListener;
+import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -25,11 +28,12 @@ import com.sillygames.killingSpree.helpers.EntityUtils;
 import com.sillygames.killingSpree.helpers.EntityUtils.ActorType;
 import com.sillygames.killingSpree.helpers.Event.State;
 import com.sillygames.killingSpree.networking.ControlsSender;
+import com.sillygames.killingSpree.networking.StateProcessor;
 import com.sillygames.killingSpree.networking.messages.ControlsMessage;
 import com.sillygames.killingSpree.networking.messages.EntityState;
 import com.sillygames.killingSpree.networking.messages.GameStateMessage;
-import com.sillygames.killingSpree.networking.messages.StateProcessor;
 import com.sillygames.killingSpree.pool.MessageObjectPool;
+import com.sillygames.killingSpree.serverEntities.ServerArrow;
 
 public class WorldRenderer {
     
@@ -55,8 +59,9 @@ public class WorldRenderer {
     long previousTime;
     
     public WorldRenderer(WorldManager worldManager, Client client) {
+        worldMap = new HashMap<Short, ClientEntity>();
         this.worldManager = worldManager;
-        stateProcessor = new StateProcessor(client);
+        stateProcessor = new StateProcessor(client, worldMap);
         if (worldManager != null) {
             world = worldManager.getWorld();
             box2dRenderer = new Box2DDebugRenderer();
@@ -68,7 +73,6 @@ public class WorldRenderer {
         box2dCamera = new OrthographicCamera();
         batch = new SpriteBatch();
         controlsSender = new ControlsSender();
-        worldMap = new HashMap<Short, ClientEntity>();
     }
 
     public void loadLevel(String level, boolean isServer) {
@@ -134,29 +138,27 @@ public class WorldRenderer {
         
         for (EntityState state: nextStateMessage.states) {
             if (!worldMap.containsKey(state.id)) {
-                Gdx.app.log("found new entity", "yeah");
                 ClientEntity entity = null;
                 if (EntityUtils.ByteToActorType(state.type) == ActorType.PLAYER) {
-                    entity = new ClientPlayer(state.id, state.x/100, state.y/100);
-                    Gdx.app.log("adding", "player");
+                    entity = new ClientPlayer(state.id, state.x, state.y);
                 } else if (EntityUtils.ByteToActorType(state.type) == ActorType.BLOB) {
-                    entity = new ClientBlob(state.id, state.x/100, state.y/100);
-                    Gdx.app.log("adding", "blob");
+                    entity = new ClientBlob(state.id, state.x, state.y);
                 } else if (EntityUtils.ByteToActorType(state.type) == ActorType.ARROW) {
-                    entity = new ClientArrow(state.id, state.x/100, state.y/100);
-                    Gdx.app.log("adding", "arrow");
+                    entity = new ClientArrow(state.id, state.x, state.y);
                 }
                 worldMap.put(state.id, entity);
             }
         }
 
         for (EntityState state: nextStateMessage.states) {
-            ClientEntity entity = worldMap.get(state.id);
-            entity.processState(state, alpha);
+            worldMap.get(state.id).processState(state, alpha);
+        }
+        for (ClientEntity entity: worldMap.values()) {
             entity.render(delta, batch);
         }
 //        Gdx.app.log("alpha    ", Float.toString(alpha));
         previousTime = currentTime;
+        
     }
 
     private void processControls() {

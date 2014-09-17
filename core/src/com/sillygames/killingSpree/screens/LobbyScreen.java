@@ -3,6 +3,7 @@ package com.sillygames.killingSpree.screens;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -18,7 +19,6 @@ import com.sillygames.killingSpree.controls.InputController;
 import com.sillygames.killingSpree.helpers.MyButton;
 import com.sillygames.killingSpree.networking.NetworkRegisterer;
 import com.sillygames.killingSpree.networking.messages.ConnectMessage;
-import com.sillygames.killingSpree.pool.MessageObjectPool;
 import com.sillygames.killingSpree.screens.settings.Constants;
 
 public class LobbyScreen extends AbstractScreen {
@@ -144,6 +144,11 @@ public class LobbyScreen extends AbstractScreen {
     
     public void processInput() {
         currentButton = currentButton.process();
+        //FIXME
+        if (Gdx.app.getType() == ApplicationType.Desktop) {
+            startGame = true;
+            if(isServer) server.stop();
+        }
         if (startGame) {
             GameScreen gameScreen = new GameScreen(game);
             if(isServer) {

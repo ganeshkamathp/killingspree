@@ -26,12 +26,14 @@ public class InputController {
 
     public boolean axisUp() {
         return (controllerEnabled() && Controllers
-                .getControllers().get(0).getAxis(9) == -1);
+                .getControllers().get(0).getAxis(9) == -1)
+                || Gdx.input.isKeyPressed(Keys.UP);
     }
 
     public boolean axisDown() {
         return (controllerEnabled() && Controllers
-                .getControllers().get(0).getAxis(9) == 1);
+                .getControllers().get(0).getAxis(9) == 1)
+                || Gdx.input.isKeyPressed(Keys.DOWN);
     }
 
     public boolean buttonA() {
@@ -47,7 +49,8 @@ public class InputController {
 
     public boolean buttonX() {
         return (controllerEnabled() && Controllers
-                .getControllers().get(0).getButton(99));
+                .getControllers().get(0).getButton(99) ||
+                Gdx.input.isKeyPressed(Keys.CONTROL_LEFT));
     }
 
     public boolean buttonY() {

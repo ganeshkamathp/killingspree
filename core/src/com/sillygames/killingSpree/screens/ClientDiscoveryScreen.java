@@ -14,6 +14,7 @@ import com.esotericsoftware.kryonet.Client;
 import com.sillygames.killingSpree.KillingSpree;
 import com.sillygames.killingSpree.controls.InputController;
 import com.sillygames.killingSpree.helpers.MyButton;
+import com.sillygames.killingSpree.screens.settings.Constants;
 
 public class ClientDiscoveryScreen extends AbstractScreen {
 
@@ -107,11 +108,16 @@ public class ClientDiscoveryScreen extends AbstractScreen {
         } else if (currentButton == refreshButton) {
             addIpButtons();
         } else {
+            //FIXME
             String address = currentButton.getText();
-            LobbyScreen lobbyScreen = new LobbyScreen(game);
-            lobbyScreen.setHost(address);
-            lobbyScreen.setServer(false);
-            game.setScreen(lobbyScreen);
+//            LobbyScreen lobbyScreen = new LobbyScreen(game);
+//            lobbyScreen.setHost(address);
+//            lobbyScreen.setServer(false);
+//            game.setScreen(lobbyScreen);
+            GameScreen gameScreen = new GameScreen(game);
+            gameScreen.loadLevel("maps/retro-small.tmx", address);
+            game.setScreen(gameScreen);
+            
         }
     }
     
@@ -164,7 +170,8 @@ public class ClientDiscoveryScreen extends AbstractScreen {
         MyButton previousButton = refreshButton;
         float y = 580;
         for (InetAddress address : 
-            client.discoverHosts(3000, 500)) {
+            client.discoverHosts(Constants.DISCOVERY_UDP_PORT, 
+                    Constants.TIMEOUT)) {
             MyButton button = new MyButton(address.getHostName(), 300, y);
             ipAddresses.add(button);
             previousButton.setSouth(button);
