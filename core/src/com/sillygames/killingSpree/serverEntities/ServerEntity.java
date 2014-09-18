@@ -1,10 +1,10 @@
 package com.sillygames.killingSpree.serverEntities;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
 import com.sillygames.killingSpree.helpers.EntityUtils;
 import com.sillygames.killingSpree.helpers.EntityUtils.ActorType;
 import com.sillygames.killingSpree.helpers.WorldBodyUtils;
+import com.sillygames.killingSpree.managers.physics.Body;
 import com.sillygames.killingSpree.networking.messages.EntityState;
 
 public abstract class ServerEntity {

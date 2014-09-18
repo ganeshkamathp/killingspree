@@ -15,8 +15,8 @@ public class ClientPlayer extends ClientEntity{
         super(id, x, y);
         markForDispose = false;
         sprite = new Sprite(AssetLoader.instance.getTexture("sprites/player.png"));
-        sprite.setSize(ServerPlayer.WIDTH * WorldRenderer.SCALE, 
-                ServerPlayer.HEIGHT * WorldRenderer.SCALE);
+        sprite.setSize(ServerPlayer.WIDTH, 
+                ServerPlayer.HEIGHT);
         sprite.setOrigin(sprite.getWidth()/2, sprite.getHeight()/2);
     }
     
@@ -30,8 +30,8 @@ public class ClientPlayer extends ClientEntity{
         
     }
     private void renderPlayer(SpriteBatch batch) {
-        sprite.setPosition(position.x * WorldRenderer.SCALE - sprite.getWidth() / 2,
-                position.y * WorldRenderer.SCALE - sprite.getHeight() / 2);
+        sprite.setPosition(position.x - sprite.getWidth() / 2,
+                position.y - sprite.getHeight() / 2);
         sprite.draw(batch);
     }
 

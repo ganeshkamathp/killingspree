@@ -18,18 +18,18 @@ public class ClientArrow extends ClientEntity {
         super(id, x, y);
         markForDispose = false;
         sprite = new Sprite(AssetLoader.instance.getTexture("sprites/arrow.png"));
-        sprite.setSize(ServerArrow.RADIUS * 16 * WorldRenderer.SCALE, 
-                ServerArrow.RADIUS * 4 * WorldRenderer.SCALE);
+        sprite.setSize(ServerArrow.RADIUS * 10 , 
+                ServerArrow.RADIUS * 2.5f);
         sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
-        sprite.setPosition(x * WorldRenderer.SCALE - sprite.getWidth() / 2,
-                y * WorldRenderer.SCALE - sprite.getHeight() / 2);
+        sprite.setPosition(x  - sprite.getWidth() / 2,
+                y  - sprite.getHeight() / 2);
     }
 
     @Override
     public void render(float delta, SpriteBatch batch) {
 //        Gdx.app.log("Angle", Float.toString(angle * MathUtils.radiansToDegrees));
-        sprite.setPosition(position.x * WorldRenderer.SCALE - sprite.getWidth() / 2,
-                position.y * WorldRenderer.SCALE - sprite.getHeight() / 2);
+        sprite.setPosition(position.x  - sprite.getWidth() / 2,
+                position.y  - sprite.getHeight() / 2);
         sprite.setRotation(angle * MathUtils.radiansToDegrees);
         sprite.draw(batch);
     }

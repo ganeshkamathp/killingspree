@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
@@ -14,6 +13,7 @@ import com.sillygames.killingSpree.helpers.Event;
 import com.sillygames.killingSpree.helpers.MyConnection;
 import com.sillygames.killingSpree.helpers.WorldBodyUtils;
 import com.sillygames.killingSpree.helpers.Event.State;
+import com.sillygames.killingSpree.managers.physics.World;
 import com.sillygames.killingSpree.networking.messages.ControlsMessage;
 import com.sillygames.killingSpree.networking.messages.EntityState;
 import com.sillygames.killingSpree.networking.messages.GameStateMessage;
@@ -34,15 +34,15 @@ public class WorldManager{
     private Listener serverListener;
     private Listener outgoingEventListener;
     private WorldBodyUtils worldBodyUtils;
-    MyConnection dummyConnection;
-    private short id;
+    public MyConnection dummyConnection;
+    public short id;
     public ServerBlob blob;
     
     public WorldManager(final Server server){
         
         playerList = new HashMap<Integer, ServerPlayer>();
         
-        world = new World(new Vector2(0, -70f), false);
+        world = new World(new Vector2(0, -500f));
         
         serverListener = new WorldManagerServerListener();
 
@@ -64,7 +64,7 @@ public class WorldManager{
         worldBodyUtils = new WorldBodyUtils(worldManager);
 
         id = 0;
-        blob = new ServerBlob(id++, 20, 20, worldBodyUtils);
+        blob = new ServerBlob(id++, 20, 100, worldBodyUtils);
         entities.add(blob);
     }
     
@@ -125,7 +125,7 @@ public class WorldManager{
                     setCurrentControls((ControlsMessage) object);
                 }
                 catch(Exception e) {
-                    ServerPlayer player = new ServerPlayer(id++, 20, 100, worldBodyUtils);
+                    ServerPlayer player = new ServerPlayer(id++, 50, 150, worldBodyUtils);
                     playerList.put(connection.getID(), player);
                     entities.add(player);
                 }

@@ -1,18 +1,18 @@
 package com.sillygames.killingSpree.serverEntities;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.sillygames.killingSpree.helpers.WorldBodyUtils;
 import com.sillygames.killingSpree.helpers.EntityUtils.ActorType;
 import com.sillygames.killingSpree.helpers.Utils;
+import com.sillygames.killingSpree.managers.physics.Body.BodyType;
 import com.sillygames.killingSpree.networking.messages.ControlsMessage;
 import com.sillygames.killingSpree.networking.messages.EntityState;
 
 public class ServerPlayer extends ServerEntity{
 
-    public static final float WIDTH = 2;
-    public static final float HEIGHT = 2;    
+    public static final float WIDTH = 20;
+    public static final float HEIGHT = 20;    
     private ControlsMessage currentControls;
     private boolean markForDispose;
     private float reloadTime;
@@ -22,7 +22,7 @@ public class ServerPlayer extends ServerEntity{
         markForDispose = false;
         currentControls = new ControlsMessage();
         actorType = ActorType.PLAYER;
-        body = world.addBox(WIDTH / 2 - 0.3f, HEIGHT / 2, position.x, position.y,
+        body = world.addBox(WIDTH - 3f, HEIGHT, x, y,
                 BodyType.DynamicBody);
         body.setUserData(this);
         reloadTime = 0;
@@ -51,15 +51,15 @@ public class ServerPlayer extends ServerEntity{
         Vector2 velocity = body.getLinearVelocity();
         Vector2 position = body.getPosition();
 
-        if (velocity.y < -20f) {
-            velocity.y = -20f;
+        if (velocity.y < -200f) {
+            velocity.y = -200f;
         }
         
-        if(Math.abs(velocity.x) < 10f) {
+        if(Math.abs(velocity.x) < 100f) {
             if (controls.right()){
-                velocity.x = 10f;
+                velocity.x = 100f;
             } else if (controls.left()){
-                velocity.x = -10f;
+                velocity.x = -100f;
             }
         }
         if(!controls.right() && !controls.left()) {
@@ -73,7 +73,7 @@ public class ServerPlayer extends ServerEntity{
         }
 
         if (controls.jump() && velocity.y == 0) {
-            body.applyLinearImpulse(0, 100f, 0, 0, true);
+            body.applyLinearImpulse(0, 290f);
         }
         
         float x = controls.right()? 1 : (controls.left()? -1 : 0);
@@ -86,9 +86,9 @@ public class ServerPlayer extends ServerEntity{
            y = 0.707f;
         }
         if (controls.shoot() && reloadTime > 1) {
+            world.AddArrow(position.x + x * 10, position.y + y * 10).body.
+            setLinearVelocity(x * 150, y * 150);;
             reloadTime = 0;
-            world.AddArrow(position.x + x * 2, position.y + y * 2).body.
-            setLinearVelocity(x * 20, y * 20);;
         }
     }
 
