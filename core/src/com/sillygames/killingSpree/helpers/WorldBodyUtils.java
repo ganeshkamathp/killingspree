@@ -7,6 +7,7 @@ import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.sillygames.killingSpree.managers.WorldManager;
+import com.sillygames.killingSpree.managers.WorldRenderer;
 import com.sillygames.killingSpree.managers.physics.Body;
 import com.sillygames.killingSpree.managers.physics.Body.BodyType;
 import com.sillygames.killingSpree.serverEntities.ServerArrow;
@@ -25,7 +26,7 @@ public class WorldBodyUtils {
     public Body addBox(float w, float h, float x, float y, BodyType type){
         Body body = new Body(x - w, y - h, w, h, type);
         body.setWorld(worldManager.getWorld());
-        worldManager.getWorld().dynamicBodies.add(body);
+        worldManager.getWorld().bodies.add(body);
         return body;
     }
 
@@ -33,7 +34,27 @@ public class WorldBodyUtils {
         if (object instanceof RectangleMapObject) {
             Rectangle rectangle = ((RectangleMapObject) object).getRectangle();
             Body body = new Body(rectangle);
-            worldManager.getWorld().staticBodies.add(body);
+            worldManager.getWorld().bodies.add(body);
+            
+            rectangle = new Rectangle(((RectangleMapObject) object).getRectangle());
+            rectangle.x += WorldRenderer.VIEWPORT_WIDTH;
+            body = new Body(rectangle);
+            worldManager.getWorld().bodies.add(body);
+            
+            rectangle = new Rectangle(((RectangleMapObject) object).getRectangle());
+            rectangle.x -= WorldRenderer.VIEWPORT_WIDTH;
+            body = new Body(rectangle);
+            worldManager.getWorld().bodies.add(body);
+            
+            rectangle = new Rectangle(((RectangleMapObject) object).getRectangle());
+            rectangle.y += WorldRenderer.VIEWPORT_HEIGHT;
+            body = new Body(rectangle);
+            worldManager.getWorld().bodies.add(body);
+            
+            rectangle = new Rectangle(((RectangleMapObject) object).getRectangle());
+            rectangle.y -= WorldRenderer.VIEWPORT_WIDTH;
+            body = new Body(rectangle);
+            worldManager.getWorld().bodies.add(body);
         }
     }
     
@@ -46,7 +67,6 @@ public class WorldBodyUtils {
     }
 
     public void destroyBody(Body body) {
-        // TODO Auto-generated method stub
-        
+        body.toDestroy = true;
     }
 }

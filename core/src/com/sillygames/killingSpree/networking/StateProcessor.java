@@ -51,6 +51,9 @@ public class StateProcessor extends Listener{
     }
     
     public void addNewState(GameStateMessage state) {
+        if (wait == null) {
+            wait = new AtomicBoolean(false);
+        }
         while (!wait.compareAndSet(false, true));
         
         if (stateQueue.size() == 0) {

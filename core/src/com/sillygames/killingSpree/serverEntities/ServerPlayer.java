@@ -16,6 +16,7 @@ public class ServerPlayer extends ServerEntity{
     private ControlsMessage currentControls;
     private boolean markForDispose;
     private float reloadTime;
+    private Vector2 velocity;
     
     public ServerPlayer(short id, float x, float y, WorldBodyUtils world) {
         super(id, x, y, world);
@@ -26,6 +27,7 @@ public class ServerPlayer extends ServerEntity{
                 BodyType.DynamicBody);
         body.setUserData(this);
         reloadTime = 0;
+        velocity = new Vector2();
     }
     
     @Override
@@ -48,8 +50,8 @@ public class ServerPlayer extends ServerEntity{
     }
 
     public void processControls(ControlsMessage controls) {
-        Vector2 velocity = body.getLinearVelocity();
-        Vector2 position = body.getPosition();
+        velocity.set(body.getLinearVelocity());
+        position.set(body.getPosition());
 
         if (velocity.y < -200f) {
             velocity.y = -200f;
@@ -57,8 +59,10 @@ public class ServerPlayer extends ServerEntity{
         
         if(Math.abs(velocity.x) < 100f) {
             if (controls.right()){
+                Gdx.app.log("right", "pressed");
                 velocity.x = 100f;
             } else if (controls.left()){
+                Gdx.app.log("left", "pressed");
                 velocity.x = -100f;
             }
         }
@@ -72,7 +76,7 @@ public class ServerPlayer extends ServerEntity{
             body.setTransform(position, 0);
         }
 
-        if (controls.jump() && velocity.y == 0) {
+        if (controls.jump() && body.grounded) {
             body.applyLinearImpulse(0, 290f);
         }
         
@@ -86,7 +90,7 @@ public class ServerPlayer extends ServerEntity{
            y = 0.707f;
         }
         if (controls.shoot() && reloadTime > 1) {
-            world.AddArrow(position.x + x * 10, position.y + y * 10).body.
+            world.AddArrow(position.x + x * 20, position.y + y * 20).body.
             setLinearVelocity(x * 150, y * 150);;
             reloadTime = 0;
         }

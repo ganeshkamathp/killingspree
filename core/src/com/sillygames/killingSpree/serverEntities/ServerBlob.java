@@ -26,7 +26,7 @@ public class ServerBlob extends ServerEntity {
     @Override
     public void update(float delta) {
         Vector2 velocityVector = new Vector2(body.getLinearVelocity());
-        if(Math.abs(velocityVector.x) < 10f) {
+        if(Math.abs(velocityVector.x) < 40f) {
             velocity *= -1;
             velocityVector.x = velocity;
         }
@@ -41,6 +41,7 @@ public class ServerBlob extends ServerEntity {
 
     @Override
     public void dispose() {
+        world.destroyBody(body);
     }
 
 }

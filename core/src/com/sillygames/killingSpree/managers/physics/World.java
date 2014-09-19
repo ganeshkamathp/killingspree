@@ -4,32 +4,38 @@ import java.util.ArrayList;
 
 import com.badlogic.gdx.math.Vector2;
 import com.sillygames.killingSpree.managers.physics.Body.BodyType;
+import com.sillygames.killingSpree.serverEntities.ServerEntity;
 
 public class World {
     
     public final Vector2 gravity;
-    public final ArrayList<Body> staticBodies;
-    public final ArrayList<Body> dynamicBodies;
+    public final ArrayList<Body> bodies;
 
     public World(Vector2 gravity) {
         this.gravity = gravity;
-        staticBodies = new ArrayList<Body>();
-        dynamicBodies = new ArrayList<Body>();
+        bodies = new ArrayList<Body>();
     }
 
-    public void step(float delta, int i, int j) {
-        for (Body body: dynamicBodies) {
-            body.update(delta);
+    public void step(float delta, int v, int p, ArrayList<ServerEntity> entities) {
+        int i = 0;
+        while (i < bodies.size()) {
+            Body body = bodies.get(i);
+            if (body.toDestroy) {
+                entities.remove(body.getUserData());
+                bodies.remove(i);
+            }
+            i++;
+        }
+        
+        for (Body body: bodies) {
+            if (body.bodyType == BodyType.DynamicBody)
+                body.update(delta);
         }
         
     }
     
     public void addBody(Body body) {
-        if (body.bodyType == BodyType.StaticBody) {
-            staticBodies.add(body);
-        } else if (body.bodyType == BodyType.DynamicBody) {
-            dynamicBodies.add(body);
-        }
+        bodies.add(body);
     }
 
 }

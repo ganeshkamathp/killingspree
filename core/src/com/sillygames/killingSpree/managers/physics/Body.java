@@ -12,12 +12,16 @@ public class Body {
     public BodyType bodyType;
     public ServerEntity entity;
     public float restitution;
+    public boolean grounded;
+    public boolean toDestroy;
     private final Vector2 velocity;
     private final Vector2 temp1;
     private final Vector2 temp2;
     private final Vector2 temp3;
+    private final Vector2 temp4;
     private World world;
     private float gravityScale;
+    private enum CollisionCategory { ALL, ENEMY, STATIC, NONE, WEAPON };
     
     public Body() {
         bodyType = BodyType.StaticBody;
@@ -25,8 +29,11 @@ public class Body {
         temp1 = new Vector2();
         temp2 = new Vector2();
         temp3 = new Vector2();
+        temp4 = new Vector2();
         restitution = 0;
         gravityScale = 1f;
+        grounded = false;
+        toDestroy = false;
     }
     
     public Body(Rectangle rectangle) {
@@ -82,8 +89,18 @@ public class Body {
     public void setUserData(ServerEntity entity) {
         this.entity = entity;
     }
+    
+    public ServerEntity getUserData() {
+        return entity;
+    }
 
     public void update(float delta) {
+        
+        if (toDestroy) {
+            return;
+        }
+        
+        grounded = false;
         // Calculate velocity
         temp2.set(world.gravity);
         temp2.scl(gravityScale);
@@ -95,18 +112,25 @@ public class Body {
         // Update position
         rectangle.getPosition(temp1);
         temp1.add(temp2);
-        rectangle.setPosition(temp1.x, rectangle.y);
+        rectangle.getPosition(temp2);
+        rectangle.getPosition(temp4);
+        temp2.sub(temp1);
         
-        for (Body body: world.staticBodies) {
+        rectangle.setPosition(rectangle.x, temp1.y);
+        for (Body body: world.bodies) {
+            if (body == this || body.toDestroy)
+                continue;
             if (body.rectangle.overlaps(rectangle)) {
-                solveHorizontalCollision(body, temp1);
+                solveVerticalCollision(body, temp1);
             }
         }
         
-        rectangle.setPosition(rectangle.x, temp1.y);
-        for (Body body: world.staticBodies) {
+        rectangle.setPosition(temp1.x, rectangle.y);
+        for (Body body: world.bodies) {
+            if (body == this || body.toDestroy)
+                continue;
             if (body.rectangle.overlaps(rectangle)) {
-                solveVerticalCollision(body, temp1);
+                solveHorizontalCollision(body, temp1);
             }
         }
 
@@ -118,29 +142,37 @@ public class Body {
     }
     
     public void solveHorizontalCollision(Body body, Vector2 temp1) {
-        float xDistance = rectangle.x - body.rectangle.x;
-        if (xDistance > 0 &&
-                Math.abs(xDistance) <= body.rectangle.width) {
-            temp1.x = body.rectangle.x + body.rectangle.width;
+        if (velocity.x < 0) {
+            float x = body.rectangle.x + body.rectangle.width + 0.01f;
+            temp1.x = Math.abs(temp4.x - x) < Math.abs(temp4.x - temp2.x) ?
+                    x : temp4.x;
             velocity.x *= -restitution;
-        } else if(xDistance <= 0 &&
-                Math.abs(xDistance) <= body.rectangle.width) {
-            temp1.x = body.rectangle.x - rectangle.width;
+            CollisionProcessor.touchLeft(this, body);
+        } else if(velocity.x > 0){
+            float x = body.rectangle.x - rectangle.width - 0.01f;
+            temp1.x = Math.abs(temp4.x - x) < Math.abs(temp4.x - temp2.x) ? x : temp4.x;
             velocity.x *= -restitution;
+            CollisionProcessor.touchRight(this, body);
         }
         rectangle.setPosition(temp1.x, rectangle.y);
     }
     
     public void solveVerticalCollision(Body body, Vector2 temp1) {
-        float yDistance = rectangle.y - body.rectangle.y;
-        if (yDistance < 0 &&
-                Math.abs(yDistance) <= rectangle.height) {
-            temp1.y = body.rectangle.y - rectangle.height;
+        if (velocity.y > 0){
+            float y = body.rectangle.y - rectangle.height - 0.01f;
+            temp1.y = Math.abs(temp4.y - y) < Math.abs(temp4.y - temp2.y) ?
+                    y: temp4.y;
             velocity.y *= -restitution;
-        } else if(yDistance >= 0 &&
-                Math.abs(yDistance) <= body.rectangle.height) {
-            temp1.y = body.rectangle.y + body.rectangle.height;
+            CollisionProcessor.jumpedOn(this, body);
+        } else if(velocity.y < 0) {
+            float y = body.rectangle.y + body.rectangle.height + 0.01f;
+            temp1.y = Math.abs(temp4.y - y) < Math.abs(temp4.y - temp2.y) ?
+                    y: temp4.y;
             velocity.y *= -restitution;
+            if (body.bodyType == BodyType.StaticBody) {
+                grounded = true;
+            }
+            CollisionProcessor.jumpOn(this, body);
         }
         rectangle.setPosition(rectangle.x, temp1.y);
     }

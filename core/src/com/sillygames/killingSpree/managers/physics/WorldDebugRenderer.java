@@ -19,12 +19,7 @@ public class WorldDebugRenderer {
         renderer.setProjectionMatrix(projectionMatrix);
         
         renderer.setColor(Color.CYAN);
-        for (Body body: world.staticBodies) {
-            drawRectangle(body.rectangle);
-        }
-        
-        renderer.setColor(Color.RED);
-        for (Body body: world.dynamicBodies) {
+        for (Body body: world.bodies) {
             drawRectangle(body.rectangle);
         }
         

@@ -41,8 +41,11 @@ public abstract class ClientEntity {
             position.y += WorldRenderer.VIEWPORT_HEIGHT / 10;
         }
         
-        position.lerp(new Vector2((float)nextState.x, (float)nextState.y), alpha);
-        
+        if (position.dst2(new Vector2(nextState.x, nextState.y)) > 60) {
+            position.set(nextState.x, nextState.y);
+        } else {
+            position.lerp(new Vector2((float)nextState.x, (float)nextState.y), alpha);
+        }
 //        Gdx.app.log("Alpha", Float.toString(alpha));
 //        Gdx.app.log("current postion", (new Vector2(position.x, position.y).toString()));
 //        Gdx.app.log("next postion", (new Vector2(nextState.x, nextState.y).toString()));

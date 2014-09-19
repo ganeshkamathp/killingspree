@@ -76,7 +76,7 @@ public class WorldManager{
         for(ServerEntity entity: entities) {
             entity.update(delta);
         }
-        world.step(delta, 1, 1);
+        world.step(delta, 1, 1, entities);
         
         GameStateMessage gameStateMessage = MessageObjectPool.instance.
                 gameStateMessagePool.obtain();
@@ -99,6 +99,10 @@ public class WorldManager{
         
         processEvents(serverListener, incomingEventQueue);
         processEvents(outgoingEventListener, outgoingEventQueue);
+        if (blob.body.toDestroy ) {
+            blob = new ServerBlob(id++, 20, 100, worldBodyUtils);
+            entities.add(blob);
+        }
     }
 
 

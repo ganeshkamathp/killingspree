@@ -62,6 +62,7 @@ public class ServerArrow extends ServerEntity {
 
     @Override
     public void dispose() {
+        world.destroyBody(body);
     }
 
     @Override
