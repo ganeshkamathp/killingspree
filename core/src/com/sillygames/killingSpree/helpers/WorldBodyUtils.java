@@ -36,25 +36,32 @@ public class WorldBodyUtils {
             Body body = new Body(rectangle);
             worldManager.getWorld().bodies.add(body);
             
-            rectangle = new Rectangle(((RectangleMapObject) object).getRectangle());
-            rectangle.x += WorldRenderer.VIEWPORT_WIDTH;
-            body = new Body(rectangle);
-            worldManager.getWorld().bodies.add(body);
+            if (rectangle.x < 20) {
+                rectangle = new Rectangle(rectangle);
+                rectangle.x += WorldRenderer.VIEWPORT_WIDTH;
+                body = new Body(rectangle);
+                worldManager.getWorld().bodies.add(body);
+            }
             
-            rectangle = new Rectangle(((RectangleMapObject) object).getRectangle());
-            rectangle.x -= WorldRenderer.VIEWPORT_WIDTH;
-            body = new Body(rectangle);
-            worldManager.getWorld().bodies.add(body);
+            if (rectangle.x + rectangle.width > WorldRenderer.VIEWPORT_WIDTH - 20) {
+                rectangle = new Rectangle(rectangle);
+                rectangle.x -= WorldRenderer.VIEWPORT_WIDTH;
+                body = new Body(rectangle);
+                worldManager.getWorld().bodies.add(body);
+            }
             
-            rectangle = new Rectangle(((RectangleMapObject) object).getRectangle());
-            rectangle.y += WorldRenderer.VIEWPORT_HEIGHT;
-            body = new Body(rectangle);
-            worldManager.getWorld().bodies.add(body);
-            
-            rectangle = new Rectangle(((RectangleMapObject) object).getRectangle());
-            rectangle.y -= WorldRenderer.VIEWPORT_WIDTH;
-            body = new Body(rectangle);
-            worldManager.getWorld().bodies.add(body);
+            if (rectangle.y < 20) {
+                rectangle = new Rectangle(rectangle);
+                rectangle.y += WorldRenderer.VIEWPORT_HEIGHT;
+                body = new Body(rectangle);
+                worldManager.getWorld().bodies.add(body);
+            }
+            if (rectangle.y > WorldRenderer.VIEWPORT_HEIGHT - 20) {
+                rectangle = new Rectangle(rectangle);
+                rectangle.y -= WorldRenderer.VIEWPORT_WIDTH;
+                body = new Body(rectangle);
+                worldManager.getWorld().bodies.add(body);
+            }
         }
     }
     

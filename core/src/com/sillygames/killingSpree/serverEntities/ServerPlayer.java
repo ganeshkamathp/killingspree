@@ -23,7 +23,7 @@ public class ServerPlayer extends ServerEntity{
         markForDispose = false;
         currentControls = new ControlsMessage();
         actorType = ActorType.PLAYER;
-        body = world.addBox(WIDTH - 3f, HEIGHT, x, y,
+        body = world.addBox(WIDTH, HEIGHT, x, y,
                 BodyType.DynamicBody);
         body.setUserData(this);
         reloadTime = 0;
@@ -59,10 +59,8 @@ public class ServerPlayer extends ServerEntity{
         
         if(Math.abs(velocity.x) < 100f) {
             if (controls.right()){
-                Gdx.app.log("right", "pressed");
                 velocity.x = 100f;
             } else if (controls.left()){
-                Gdx.app.log("left", "pressed");
                 velocity.x = -100f;
             }
         }
@@ -108,6 +106,12 @@ public class ServerPlayer extends ServerEntity{
     @Override
     public void updateState(EntityState state) {
         super.updateState(state);
+        state.vX = body.getLinearVelocity().x;
+        state.vY = body.getLinearVelocity().y;
     }
-    
+
+    @Override
+    public float getWidth() {
+        return WIDTH;
+    }   
 }

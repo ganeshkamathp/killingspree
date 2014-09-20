@@ -76,7 +76,7 @@ public class WorldManager{
         for(ServerEntity entity: entities) {
             entity.update(delta);
         }
-        world.step(delta, 1, 1, entities);
+        world.step(delta, 1, entities);
         
         GameStateMessage gameStateMessage = MessageObjectPool.instance.
                 gameStateMessagePool.obtain();
@@ -143,9 +143,9 @@ public class WorldManager{
                 player.dispose();
                 playerList.remove(connection.getID());
                 entities.remove(player);
-            }
-            if (server!= null) {
-                server.sendToAllTCP(player.id);
+                if (server!= null) {
+                    server.sendToAllTCP(player.id);
+                }
             }
             addOutgoingEvent(MessageObjectPool.instance.
                     eventPool.obtain().set(State.RECEIVED, player.id));

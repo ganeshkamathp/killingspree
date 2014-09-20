@@ -2,6 +2,7 @@ package com.sillygames.killingSpree.managers.physics;
 
 import java.util.ArrayList;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.sillygames.killingSpree.managers.physics.Body.BodyType;
 import com.sillygames.killingSpree.serverEntities.ServerEntity;
@@ -16,7 +17,7 @@ public class World {
         bodies = new ArrayList<Body>();
     }
 
-    public void step(float delta, int v, int p, ArrayList<ServerEntity> entities) {
+    public void step(float delta, int iterations, ArrayList<ServerEntity> entities) {
         int i = 0;
         while (i < bodies.size()) {
             Body body = bodies.get(i);
@@ -26,12 +27,12 @@ public class World {
             }
             i++;
         }
-        
-        for (Body body: bodies) {
-            if (body.bodyType == BodyType.DynamicBody)
-                body.update(delta);
+        for (i = 0; i< iterations; i++) {
+            for (Body body: bodies) {
+                if (body.bodyType == BodyType.DynamicBody)
+                    body.update(delta/(float)iterations);
+            }
         }
-        
     }
     
     public void addBody(Body body) {

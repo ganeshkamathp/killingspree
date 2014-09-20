@@ -15,7 +15,7 @@ public class ClientBlob extends ClientEntity {
         super(id, x, y);
         markForDispose = false;
         sprite = new Sprite(AssetLoader.instance.getTexture("sprites/blob.png"));
-        sprite.setSize(ServerBlob.WIDTH, 
+        sprite.setSize(ServerBlob.WIDTH + 5, 
                 ServerBlob.HEIGHT);
         sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
         sprite.setPosition(x - sprite.getWidth() / 2,

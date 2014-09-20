@@ -19,8 +19,8 @@ public class WorldDebugRenderer {
         renderer.setProjectionMatrix(projectionMatrix);
         
         renderer.setColor(Color.CYAN);
-        for (Body body: world.bodies) {
-            drawRectangle(body.rectangle);
+        for (int i = 0; i< world.bodies.size(); i++) {
+            drawRectangle(world.bodies.get(i).rectangle);
         }
         
         renderer.end();

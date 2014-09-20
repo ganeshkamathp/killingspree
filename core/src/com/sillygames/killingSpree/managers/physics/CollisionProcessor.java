@@ -6,7 +6,7 @@ import com.sillygames.killingSpree.serverEntities.ServerPlayer;
 
 public class CollisionProcessor {
     
-    public static void jumpOn(Body body1, Body body2) {
+    public static boolean jumpOn(Body body1, Body body2) {
         if (body1.getUserData() instanceof ServerPlayer) {
             if (body2.getUserData() instanceof ServerBlob) {
                 body2.getUserData().dispose();
@@ -20,36 +20,39 @@ public class CollisionProcessor {
                 body1.getUserData().dispose();
             }
         }
+        return false;
     }
 
-    public static void jumpedOn(Body body1, Body body2) {
+    public static boolean jumpedOn(Body body1, Body body2) {
         if (body1.getUserData() instanceof ServerArrow) {
             if (body2.getUserData() instanceof ServerBlob) {
                 body2.getUserData().dispose();
                 body1.getUserData().dispose();
             }
         }
-        // TODO Auto-generated method stub
+        return false;
         
     }
 
-    public static void touchLeft(Body body1, Body body2) {
+    public static boolean touchLeft(Body body1, Body body2) {
         if (body1.getUserData() instanceof ServerArrow) {
             if (body2.getUserData() instanceof ServerBlob) {
                 body2.getUserData().dispose();
                 body1.getUserData().dispose();
             }
         }
+        return false;
         
     }
 
-    public static void touchRight(Body body1, Body body2) {
+    public static boolean touchRight(Body body1, Body body2) {
         if (body1.getUserData() instanceof ServerArrow) {
             if (body2.getUserData() instanceof ServerBlob) {
                 body2.getUserData().dispose();
                 body1.getUserData().dispose();
             }
         }
+        return false;
         
     }
 

@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
@@ -18,6 +19,7 @@ import com.sillygames.killingSpree.clientEntities.ClientArrow;
 import com.sillygames.killingSpree.clientEntities.ClientBlob;
 import com.sillygames.killingSpree.clientEntities.ClientEntity;
 import com.sillygames.killingSpree.clientEntities.ClientPlayer;
+import com.sillygames.killingSpree.controls.onScreenControls;
 import com.sillygames.killingSpree.helpers.EntityUtils;
 import com.sillygames.killingSpree.helpers.EntityUtils.ActorType;
 import com.sillygames.killingSpree.helpers.Event.State;
@@ -29,12 +31,11 @@ import com.sillygames.killingSpree.networking.messages.ControlsMessage;
 import com.sillygames.killingSpree.networking.messages.EntityState;
 import com.sillygames.killingSpree.networking.messages.GameStateMessage;
 import com.sillygames.killingSpree.pool.MessageObjectPool;
-import com.sillygames.killingSpree.serverEntities.ServerArrow;
 
 public class WorldRenderer {
     
-    public static float VIEWPORT_WIDTH = 525;
-    public static float VIEWPORT_HEIGHT = 375;
+    public static int VIEWPORT_WIDTH = 525;
+    public static int VIEWPORT_HEIGHT = 375;
     private WorldManager worldManager;
     private World world;
     private OrthographicCamera camera;
@@ -50,6 +51,9 @@ public class WorldRenderer {
     private HashMap<Short, ClientEntity> worldMap;
     long previousTime;
     private WorldDebugRenderer debugRenderer;
+    private onScreenControls controls;
+    private int screenWidth;
+    private int screenHeight;
     
     public WorldRenderer(WorldManager worldManager, Client client) {
         worldMap = new HashMap<Short, ClientEntity>();
@@ -72,8 +76,8 @@ public class WorldRenderer {
         map = new TmxMapLoader().load(level);
         TiledMapTileLayer layer = (TiledMapTileLayer) map.
                                     getLayers().get("terrain");
-        VIEWPORT_WIDTH = layer.getTileWidth() * layer.getWidth();
-        VIEWPORT_HEIGHT = layer.getTileHeight() * layer.getHeight();
+        VIEWPORT_WIDTH = (int) (layer.getTileWidth() * layer.getWidth());
+        VIEWPORT_HEIGHT = (int) (layer.getTileHeight() * layer.getHeight());
         camera.setToOrtho(false, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
         viewport = new FitViewport(VIEWPORT_WIDTH, VIEWPORT_HEIGHT, camera);
         renderer = new OrthogonalTiledMapRenderer(map);
@@ -85,6 +89,7 @@ public class WorldRenderer {
                 worldManager.createWorldObject(object);
             }
         }
+        controls = new onScreenControls();
     }
 
     public void render(float delta) {
@@ -93,6 +98,7 @@ public class WorldRenderer {
         if(count % 60 == 0) {
 //            System.gc();
         }
+        viewport.apply();
         renderer.setView(camera);
         renderer.render();
         batch.setProjectionMatrix(camera.combined);
@@ -100,9 +106,11 @@ public class WorldRenderer {
         renderObjects(delta);
         batch.end();
         if (isServer) {
-            debugRenderer.render(world, camera.combined);
+//            debugRenderer.render(world, camera.combined);
         }
         processControls();
+        Gdx.gl.glViewport(0, 0, screenWidth, screenHeight);
+        controls.render();
     }
 
     private void renderObjects(float delta) {
@@ -151,7 +159,7 @@ public class WorldRenderer {
 
     private void processControls() {
 
-        ControlsMessage message = controlsSender.sendControls();
+        ControlsMessage message = controlsSender.sendControls(controls);
         
         if(isServer) {
             worldManager.addIncomingEvent(MessageObjectPool.instance.
@@ -162,6 +170,8 @@ public class WorldRenderer {
     }
 
     public void resize(int width, int height) {
+        screenWidth = width;
+        screenHeight = height;
         viewport.update(width, height);
         camera.update();
     }

@@ -7,5 +7,6 @@ public class EntityState {
     public float x, y;
     public float angle;
     public byte extra;
+    public float vX, vY;
 
 }

@@ -70,4 +70,9 @@ public class ServerArrow extends ServerEntity {
         super.updateState(state);
         state.angle = MathUtils.atan2(body.getLinearVelocity().y, body.getLinearVelocity().x);
     }
+
+    @Override
+    public float getWidth() {
+        return RADIUS;
+    }
 }

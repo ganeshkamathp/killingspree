@@ -3,7 +3,9 @@ package com.sillygames.killingSpree.managers.physics;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.sillygames.killingSpree.managers.WorldRenderer;
 import com.sillygames.killingSpree.serverEntities.ServerEntity;
+import com.sillygames.killingSpree.serverEntities.ServerPlayer;
 
 public class Body {
     
@@ -19,6 +21,7 @@ public class Body {
     private final Vector2 temp2;
     private final Vector2 temp3;
     private final Vector2 temp4;
+    private final Vector2 temp5;
     private World world;
     private float gravityScale;
     private enum CollisionCategory { ALL, ENEMY, STATIC, NONE, WEAPON };
@@ -30,6 +33,7 @@ public class Body {
         temp2 = new Vector2();
         temp3 = new Vector2();
         temp4 = new Vector2();
+        temp5 = new Vector2();
         restitution = 0;
         gravityScale = 1f;
         grounded = false;
@@ -96,6 +100,8 @@ public class Body {
 
     public void update(float delta) {
         
+        float xOffset = 0;
+        
         if (toDestroy) {
             return;
         }
@@ -108,7 +114,14 @@ public class Body {
         velocity.add(temp2);
         temp2.set(velocity);
         temp2.scl(delta);
-        
+
+        if (rectangle.x + rectangle.width > WorldRenderer.VIEWPORT_WIDTH 
+                && velocity.x > 0) {
+            xOffset = -WorldRenderer.VIEWPORT_WIDTH;
+        } else if (rectangle.x < 0 && velocity.x < 0) {
+            xOffset = WorldRenderer.VIEWPORT_WIDTH;
+        }
+        rectangle.x += xOffset;
         // Update position
         rectangle.getPosition(temp1);
         temp1.add(temp2);
@@ -134,6 +147,7 @@ public class Body {
             }
         }
 
+        rectangle.x -= xOffset;
     }
 
     public void applyLinearImpulse(float x, float y) {
@@ -143,13 +157,13 @@ public class Body {
     
     public void solveHorizontalCollision(Body body, Vector2 temp1) {
         if (velocity.x < 0) {
-            float x = body.rectangle.x + body.rectangle.width + 0.01f;
+            float x = body.rectangle.x + body.rectangle.width;
             temp1.x = Math.abs(temp4.x - x) < Math.abs(temp4.x - temp2.x) ?
                     x : temp4.x;
             velocity.x *= -restitution;
             CollisionProcessor.touchLeft(this, body);
         } else if(velocity.x > 0){
-            float x = body.rectangle.x - rectangle.width - 0.01f;
+            float x = body.rectangle.x - rectangle.width;
             temp1.x = Math.abs(temp4.x - x) < Math.abs(temp4.x - temp2.x) ? x : temp4.x;
             velocity.x *= -restitution;
             CollisionProcessor.touchRight(this, body);
@@ -157,16 +171,17 @@ public class Body {
         rectangle.setPosition(temp1.x, rectangle.y);
     }
     
-    public void solveVerticalCollision(Body body, Vector2 temp1) {
+    public void solveVerticalCollision(Body body, Vector2 position) {
+        temp5.set(position);
         if (velocity.y > 0){
-            float y = body.rectangle.y - rectangle.height - 0.01f;
-            temp1.y = Math.abs(temp4.y - y) < Math.abs(temp4.y - temp2.y) ?
+            float y = body.rectangle.y - rectangle.height;
+            position.y = Math.abs(temp4.y - y) < Math.abs(temp4.y - temp2.y) ?
                     y: temp4.y;
             velocity.y *= -restitution;
             CollisionProcessor.jumpedOn(this, body);
         } else if(velocity.y < 0) {
-            float y = body.rectangle.y + body.rectangle.height + 0.01f;
-            temp1.y = Math.abs(temp4.y - y) < Math.abs(temp4.y - temp2.y) ?
+            float y = body.rectangle.y + body.rectangle.height;
+            position.y = Math.abs(temp4.y - y) < Math.abs(temp4.y - temp2.y) ?
                     y: temp4.y;
             velocity.y *= -restitution;
             if (body.bodyType == BodyType.StaticBody) {
@@ -174,7 +189,7 @@ public class Body {
             }
             CollisionProcessor.jumpOn(this, body);
         }
-        rectangle.setPosition(rectangle.x, temp1.y);
+        rectangle.setPosition(rectangle.x, position.y);
     }
 
 }

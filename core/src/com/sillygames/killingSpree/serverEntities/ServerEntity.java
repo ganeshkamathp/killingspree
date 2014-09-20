@@ -33,5 +33,7 @@ public abstract class ServerEntity {
         state.x = position.x;
         state.y = position.y;
     }
+    
+    public abstract float getWidth();
 
 }

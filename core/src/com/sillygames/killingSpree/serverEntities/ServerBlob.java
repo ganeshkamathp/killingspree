@@ -17,7 +17,7 @@ public class ServerBlob extends ServerEntity {
         actorType = ActorType.BLOB;
         body = world.addBox(WIDTH, HEIGHT, position.x, position.y,
                 BodyType.DynamicBody);
-        velocity = 50f;
+        velocity = -55f;
         body.setLinearVelocity(velocity, 0);
         body.setGravityScale(0.5f);
         body.setUserData(this);
@@ -42,6 +42,11 @@ public class ServerBlob extends ServerEntity {
     @Override
     public void dispose() {
         world.destroyBody(body);
+    }
+
+    @Override
+    public float getWidth() {
+        return WIDTH;
     }
 
 }
