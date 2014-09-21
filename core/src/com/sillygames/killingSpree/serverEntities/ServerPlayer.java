@@ -5,14 +5,17 @@ import com.badlogic.gdx.math.Vector2;
 import com.sillygames.killingSpree.helpers.WorldBodyUtils;
 import com.sillygames.killingSpree.helpers.EntityUtils.ActorType;
 import com.sillygames.killingSpree.helpers.Utils;
+import com.sillygames.killingSpree.managers.physics.Body;
+import com.sillygames.killingSpree.managers.physics.Ray;
 import com.sillygames.killingSpree.managers.physics.Body.BodyType;
 import com.sillygames.killingSpree.networking.messages.ControlsMessage;
 import com.sillygames.killingSpree.networking.messages.EntityState;
 
 public class ServerPlayer extends ServerEntity{
 
-    public static final float WIDTH = 20;
-    public static final float HEIGHT = 20;    
+    public static final float WIDTH = 15;
+    public static final float HEIGHT = 20;
+    public static final float YOFFSET = 1f;
     private ControlsMessage currentControls;
     private boolean markForDispose;
     private float reloadTime;
@@ -23,7 +26,7 @@ public class ServerPlayer extends ServerEntity{
         markForDispose = false;
         currentControls = new ControlsMessage();
         actorType = ActorType.PLAYER;
-        body = world.addBox(WIDTH, HEIGHT, x, y,
+        body = world.addBox(WIDTH, HEIGHT - YOFFSET * 2, x, y,
                 BodyType.DynamicBody);
         body.setUserData(this);
         reloadTime = 0;
@@ -57,6 +60,32 @@ public class ServerPlayer extends ServerEntity{
             velocity.y = -200f;
         }
         
+        if (Utils.wrapBody(position)) {
+            body.setTransform(position, 0);
+        }
+        
+        if (controls.shoot()) {
+            if (reloadTime > 1) {
+                float x = controls.right()? 1 : (controls.left()? -1 : 0);
+                float y = controls.up()? 1 : (controls.down()? -1 : 0);
+                if (x==0 && y==0) {
+                    x=1;
+                }
+                if (x ==1 && y == 1) {
+                    x = 0.707f;
+                    y = 0.707f;
+                }
+                world.AddArrow(position.x + x * 20, position.y + y * 20).body.
+                setLinearVelocity(x * 150, y * 150);;
+                reloadTime = 0;
+            }
+            if (body.grounded) {
+                velocity.x += -0.1f * velocity.x;
+            }
+            body.setLinearVelocity(velocity);
+            return;
+        }
+        
         if(Math.abs(velocity.x) < 100f) {
             if (controls.right()){
                 velocity.x = 100f;
@@ -70,27 +99,8 @@ public class ServerPlayer extends ServerEntity{
         
         body.setLinearVelocity(velocity);
 
-        if (Utils.wrapBody(position)) {
-            body.setTransform(position, 0);
-        }
-
         if (controls.jump() && body.grounded) {
             body.applyLinearImpulse(0, 290f);
-        }
-        
-        float x = controls.right()? 1 : (controls.left()? -1 : 0);
-        float y = controls.up()? 1 : (controls.down()? -1 : 0);
-        if (x==0 && y==0) {
-            x=1;
-        }
-        if (x ==1 && y == 1) {
-           x = 0.707f;
-           y = 0.707f;
-        }
-        if (controls.shoot() && reloadTime > 1) {
-            world.AddArrow(position.x + x * 20, position.y + y * 20).body.
-            setLinearVelocity(x * 150, y * 150);;
-            reloadTime = 0;
         }
     }
 

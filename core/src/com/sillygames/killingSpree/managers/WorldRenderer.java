@@ -37,7 +37,6 @@ public class WorldRenderer {
     public static int VIEWPORT_WIDTH = 525;
     public static int VIEWPORT_HEIGHT = 375;
     private WorldManager worldManager;
-    private World world;
     private OrthographicCamera camera;
     private OrthogonalTiledMapRenderer renderer;
     private FitViewport viewport;
@@ -60,8 +59,7 @@ public class WorldRenderer {
         this.worldManager = worldManager;
         stateProcessor = new StateProcessor(client, worldMap);
         if (worldManager != null) {
-            world = worldManager.getWorld();
-            debugRenderer = new WorldDebugRenderer();
+            debugRenderer = new WorldDebugRenderer(worldManager.getWorld());
             worldManager.setOutgoingEventListener(stateProcessor);
         } else {
             this.client = client;
@@ -105,9 +103,9 @@ public class WorldRenderer {
         batch.begin();
         renderObjects(delta);
         batch.end();
-        if (isServer) {
-//            debugRenderer.render(world, camera.combined);
-        }
+//        if (isServer) {
+//            debugRenderer.render(camera.combined);
+//        }
         processControls();
         Gdx.gl.glViewport(0, 0, screenWidth, screenHeight);
         controls.render();

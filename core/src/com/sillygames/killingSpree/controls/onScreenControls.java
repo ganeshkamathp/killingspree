@@ -21,17 +21,20 @@ public class onScreenControls extends InputController {
     private Button jumpButton;
     private Button shootButton;
     private Button throwGrenadeButton;
-    private Skin buttonSkin;
-    private Drawable button;
+    private Skin skin;
     private boolean createObjectsWasPressed;
     private static float BUTTON_SIZE = 150f;
 
     public onScreenControls() {
         stage = new Stage();
 
-        buttonSkin = new Skin();
-        buttonSkin.add("button", new Texture("controls/button.png"));
-        button = buttonSkin.getDrawable("button");
+        skin = new Skin();
+        skin.add("knob", new Texture("controls/knob.png"));
+        skin.add("buttonA", new Texture("controls/buttonA.png"));
+        skin.add("buttonB", new Texture("controls/buttonB.png"));
+
+        Drawable button;
+        button = skin.getDrawable("knob");
 
         touchpadStyle = new TouchpadStyle();
         touchpadStyle.knob = button;
@@ -40,26 +43,27 @@ public class onScreenControls extends InputController {
         touchpad.setColor(touchpad.getColor().r, touchpad.getColor().g,
                 touchpad.getColor().b, touchpad.getColor().a / 5);
 
+        button = skin.getDrawable("buttonA");
         jumpButton = new Button(button);
         jumpButton.setColor(jumpButton.getColor().r, jumpButton.getColor().g,
                 jumpButton.getColor().b, jumpButton.getColor().a / 5);
 
+        button = skin.getDrawable("buttonB");
         shootButton = new Button(button);
         shootButton.setColor(shootButton.getColor().r,
                 shootButton.getColor().g, shootButton.getColor().b,
                 shootButton.getColor().a / 5);
 
-        throwGrenadeButton = new Button(button);
-        throwGrenadeButton.setColor(throwGrenadeButton.getColor().r,
-                throwGrenadeButton.getColor().g,
-                throwGrenadeButton.getColor().b,
-                throwGrenadeButton.getColor().a / 5);
+//        throwGrenadeButton = new Button(button);
+//        throwGrenadeButton.setColor(throwGrenadeButton.getColor().r,
+//                throwGrenadeButton.getColor().g,
+//                throwGrenadeButton.getColor().b,
+//                throwGrenadeButton.getColor().a / 5);
 
         this.stage.addActor(touchpad);
         this.stage.addActor(jumpButton);
         this.stage.addActor(shootButton);
-        // stage.addActor(testButton);
-        this.stage.addActor(throwGrenadeButton);
+//        this.stage.addActor(throwGrenadeButton);
         Gdx.input.setInputProcessor(stage);
         resize();
     }
@@ -119,7 +123,7 @@ public class onScreenControls extends InputController {
     }
     
     public void dispose() {
-        buttonSkin.dispose();
+        skin.dispose();
     }
 
     public void resize() {
@@ -130,7 +134,7 @@ public class onScreenControls extends InputController {
         // testButton.setBounds(Gdx.graphics.getWidth() / 2 - BUTTON_SIZE / 2,
         // Gdx.graphics.getHeight() - BUTTON_SIZE, BUTTON_SIZE,
         // BUTTON_SIZE);
-        throwGrenadeButton.setBounds(Gdx.graphics.getWidth() - BUTTON_SIZE,
-                2.1f * BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE);
+//        throwGrenadeButton.setBounds(Gdx.graphics.getWidth() - BUTTON_SIZE,
+//                2.1f * BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE);
     }
 }

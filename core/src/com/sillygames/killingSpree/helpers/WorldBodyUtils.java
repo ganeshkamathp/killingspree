@@ -15,7 +15,7 @@ import com.sillygames.killingSpree.serverEntities.ServerEntity;
 
 public class WorldBodyUtils {
     
-    WorldManager worldManager;
+    public WorldManager worldManager;
     public ArrayList<ServerEntity> entities;
 
     public WorldBodyUtils(WorldManager worldManager) {
@@ -67,7 +67,6 @@ public class WorldBodyUtils {
     
     public ServerArrow AddArrow(float x, float y) {
         ServerArrow arrow = new ServerArrow(worldManager.id++, x, y, this);
-        arrow.setTarget(worldManager.blob.body.getPosition());
         arrow.body.setUserData(arrow);
         entities.add(arrow);
         return arrow;

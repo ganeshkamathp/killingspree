@@ -9,12 +9,14 @@ import com.badlogic.gdx.math.Rectangle;
 public class WorldDebugRenderer {
     
     protected ShapeRenderer renderer;
+    protected World world;
     
-    public WorldDebugRenderer() {
+    public WorldDebugRenderer(World world) {
         renderer = new ShapeRenderer();
+        this.world = world;
     }
 
-    public void render(World world, Matrix4 projectionMatrix) {
+    public void render(Matrix4 projectionMatrix) {
         renderer.begin(ShapeType.Line);
         renderer.setProjectionMatrix(projectionMatrix);
         

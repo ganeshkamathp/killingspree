@@ -1,8 +1,13 @@
 package com.sillygames.killingSpree.clientEntities;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.sillygames.killingSpree.managers.WorldRenderer;
+import com.sillygames.killingSpree.networking.messages.EntityState;
 import com.sillygames.killingSpree.pool.AssetLoader;
 import com.sillygames.killingSpree.serverEntities.ServerBlob;
 
@@ -10,23 +15,40 @@ public class ClientBlob extends ClientEntity {
     
     private Sprite sprite;
     boolean markForDispose;
+    private Animation walk;
+    private float walkDuration;
+    private float vX, vY;
+    private boolean previousXFlip;
     
     public ClientBlob(short id, float x, float y) {
         super(id, x, y);
         markForDispose = false;
-        sprite = new Sprite(AssetLoader.instance.getTexture("sprites/blob.png"));
-        sprite.setSize(ServerBlob.WIDTH + 5, 
-                ServerBlob.HEIGHT);
-        sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
-        sprite.setPosition(x - sprite.getWidth() / 2,
-                y - sprite.getHeight() / 2);
+        Texture texture = AssetLoader.instance.getTexture("sprites/blob.png");
+        sprite = new Sprite(texture);
+        walk = new Animation(0.25f, TextureRegion.split(texture,
+                texture.getWidth()/2, texture.getHeight())[0]);
+        walk.setPlayMode(Animation.PlayMode.LOOP);
+        sprite.setSize(ServerBlob.WIDTH + 5f, ServerBlob.HEIGHT);
     }
 
     @Override
     public void render(float delta, SpriteBatch batch) {
-
-        float x = position.x - sprite.getWidth() / 2;
-        float y = position.y - sprite.getHeight() / 2;
+        walkDuration += delta;
+        if (vX < -5f && vY == 0) {
+            sprite.setRegion(walk.getKeyFrame(walkDuration));
+            previousXFlip = false;
+        } else if (vX > 5f && vY == 0){
+            sprite.setRegion(walk.getKeyFrame(walkDuration));
+            sprite.flip(true, false);
+            previousXFlip = true;
+        } else {
+            sprite.setRegion(walk.getKeyFrame(0));
+            sprite.flip(previousXFlip, false);
+        }
+        
+        float x = position.x - sprite.getWidth() / 2 + 1f;
+        float y = position.y - sprite.getHeight() / 2 + ServerBlob.YOFFSET;
+        sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
         sprite.setPosition(x, y);
         sprite.draw(batch);
         if (position.x > WorldRenderer.VIEWPORT_WIDTH / 2) {
@@ -46,7 +68,14 @@ public class ClientBlob extends ClientEntity {
         sprite.setPosition(x, y);
         sprite.draw(batch);
     }
-
+    
+    @Override
+    public void processState(EntityState nextState, float alpha) {
+        super.processState(nextState, alpha);
+        vX = nextState.vX;
+        vY = nextState.vY;
+    }
+    
     @Override
     public void dispose() {
     }

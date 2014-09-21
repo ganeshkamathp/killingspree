@@ -1,11 +1,14 @@
 package com.sillygames.killingSpree.serverEntities;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.sillygames.killingSpree.helpers.Utils;
 import com.sillygames.killingSpree.helpers.WorldBodyUtils;
 import com.sillygames.killingSpree.helpers.EntityUtils.ActorType;
+import com.sillygames.killingSpree.managers.physics.Body;
 import com.sillygames.killingSpree.managers.physics.Body.BodyType;
+import com.sillygames.killingSpree.managers.physics.Ray;
 import com.sillygames.killingSpree.networking.messages.EntityState;
 
 public class ServerArrow extends ServerEntity {
@@ -30,27 +33,39 @@ public class ServerArrow extends ServerEntity {
     @Override
     public void update(float delta) {
         gravityTime -= delta;
-//        Gdx.app.log(body.getPosition().toString(), target.toString());
+        Vector2 velocityVector = body.getLinearVelocity();
         position.set(body.getPosition());
-        Vector2 targetVelocity = new Vector2(target);
-        targetVelocity.sub(position);
-        Vector2 currentVelocity = body.getLinearVelocity();
-        targetVelocity.scl(1/targetVelocity.x);
-        targetVelocity.scl(currentVelocity.x);
-        if(Math.abs(currentVelocity.x) > 1) {
-            if(Math.abs(position.x - target.x) < 200 &&
-                    Math.abs(position.y - target.y) < 100) {
-                if (currentVelocity.y < targetVelocity.y) {
-                    currentVelocity.y += 50f / Math.ceil(Math.abs(position.y - target.y));
-                } else {
-                    currentVelocity.y -= 50f / Math.ceil(Math.abs(position.y - target.y));
+        Body targetBody = Ray.findBody(world.worldManager.getWorld(),
+                body, new Vector2(Math.signum(velocityVector.x), 0), 200f);
+        if (targetBody != null && targetBody.bodyType != BodyType.StaticBody) {
+            Gdx.app.log("facing", "player");
+        }
+        
+        position.set(body.getPosition());
+//        Gdx.app.log(body.getPosition().toString(), target.toString());
+        if (target != null) {
+            Vector2 currentVelocity = body.getLinearVelocity();
+            Vector2 targetVelocity = new Vector2(target);
+            targetVelocity.sub(position);
+            targetVelocity.scl(1/targetVelocity.x);
+            targetVelocity.scl(currentVelocity.x);
+            if(Math.abs(currentVelocity.x) > 1) {
+                if(Math.abs(position.x - target.x) < 200 &&
+                        Math.abs(position.y - target.y) < 100) {
+                    if (currentVelocity.y < targetVelocity.y) {
+                        currentVelocity.y += 50f / Math.ceil(Math.abs(position.y - target.y));
+                    } else {
+                        currentVelocity.y -= 50f / Math.ceil(Math.abs(position.y - target.y));
+                    }
+                    body.setLinearVelocity(currentVelocity);
                 }
-                body.setLinearVelocity(currentVelocity);
             }
         }
+        
         if (Utils.wrapBody(position)) {
             body.setTransform(position, 0);
         }
+        
         if (gravityTime < 0) {
             body.setGravityScale(0.5f);
         }
