@@ -2,7 +2,7 @@ package com.sillygames.killingSpree.helpers;
 
 public class EntityUtils {
     
-    public enum ActorType { ERROR, PLAYER, BLOB, ARROW };
+    public enum ActorType { ERROR, PLAYER, BLOB, ARROW, BULLET };
     
     public static byte actorTypeToByte(ActorType type) {
         switch (type) {
@@ -14,6 +14,8 @@ public class EntityUtils {
                 return 2;
             case ARROW:
                 return 3;
+            case BULLET:
+                return 4;
         }
         return -1;
     }
@@ -26,6 +28,8 @@ public class EntityUtils {
                 return ActorType.BLOB;
             case 3:
                 return ActorType.ARROW;
+            case 4:
+                return ActorType.BULLET;
         }
         return ActorType.ERROR;
     }

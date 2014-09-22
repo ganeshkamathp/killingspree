@@ -1,6 +1,7 @@
 package com.sillygames.killingSpree.managers;
 
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -17,6 +18,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.esotericsoftware.kryonet.Client;
 import com.sillygames.killingSpree.clientEntities.ClientArrow;
 import com.sillygames.killingSpree.clientEntities.ClientBlob;
+import com.sillygames.killingSpree.clientEntities.ClientBullet;
 import com.sillygames.killingSpree.clientEntities.ClientEntity;
 import com.sillygames.killingSpree.clientEntities.ClientPlayer;
 import com.sillygames.killingSpree.controls.onScreenControls;
@@ -47,15 +49,16 @@ public class WorldRenderer {
     private int count;
     private ControlsSender controlsSender;
     private StateProcessor stateProcessor;
-    private HashMap<Short, ClientEntity> worldMap;
+    private ConcurrentHashMap<Short, ClientEntity> worldMap;
     long previousTime;
     private WorldDebugRenderer debugRenderer;
     private onScreenControls controls;
     private int screenWidth;
     private int screenHeight;
+    private short recentId;
     
     public WorldRenderer(WorldManager worldManager, Client client) {
-        worldMap = new HashMap<Short, ClientEntity>();
+        worldMap = new ConcurrentHashMap<Short, ClientEntity>();
         this.worldManager = worldManager;
         stateProcessor = new StateProcessor(client, worldMap);
         if (worldManager != null) {
@@ -67,6 +70,7 @@ public class WorldRenderer {
         camera = new OrthographicCamera();
         batch = new SpriteBatch();
         controlsSender = new ControlsSender();
+        recentId = -2;
     }
 
     public void loadLevel(String level, boolean isServer) {
@@ -103,9 +107,9 @@ public class WorldRenderer {
         batch.begin();
         renderObjects(delta);
         batch.end();
-//        if (isServer) {
-//            debugRenderer.render(camera.combined);
-//        }
+        if (isServer) {
+            debugRenderer.render(camera.combined);
+        }
         processControls();
         Gdx.gl.glViewport(0, 0, screenWidth, screenHeight);
         controls.render();
@@ -131,7 +135,8 @@ public class WorldRenderer {
         }
         
         for (EntityState state: nextStateMessage.states) {
-            if (!worldMap.containsKey(state.id)) {
+            short id = recentId;
+            if (!worldMap.containsKey(state.id) && state.id > recentId) {
                 ClientEntity entity = null;
                 if (EntityUtils.ByteToActorType(state.type) == ActorType.PLAYER) {
                     entity = new ClientPlayer(state.id, state.x, state.y);
@@ -139,15 +144,28 @@ public class WorldRenderer {
                     entity = new ClientBlob(state.id, state.x, state.y);
                 } else if (EntityUtils.ByteToActorType(state.type) == ActorType.ARROW) {
                     entity = new ClientArrow(state.id, state.x, state.y);
+                } else if (EntityUtils.ByteToActorType(state.type) == ActorType.BULLET) {
+                    entity = new ClientBullet(state.id, state.x, state.y);
+                } else {
+                    Gdx.app.log("Error", "Couldnt decode actor type");
+                    Gdx.app.exit();
                 }
                 worldMap.put(state.id, entity);
+                id = (short) Math.max(id, state.id);
             }
+            recentId = id;
         }
 
         for (EntityState state: nextStateMessage.states) {
-            worldMap.get(state.id).processState(state, alpha);
+            if (worldMap.get(state.id) != null) {
+                worldMap.get(state.id).processState(state, alpha);
+            }
         }
         for (ClientEntity entity: worldMap.values()) {
+            if (entity.remove) {
+                worldMap.remove(entity.id);
+                continue;
+            }
             entity.render(delta, batch);
         }
 //        Gdx.app.log("alpha    ", Float.toString(alpha));

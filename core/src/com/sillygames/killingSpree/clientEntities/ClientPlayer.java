@@ -49,10 +49,10 @@ public class ClientPlayer extends ClientEntity{
             walkDuration = 0.49f;
         }
 
-        if (vX < -0.5f) {
+        if (vX < -1f) {
             sprite.setRegion(walk.getKeyFrame(walkDuration));
             previousXFlip = true;
-        } else if (vX > 0.5f){
+        } else if (vX > 1f){
             sprite.setRegion(walk.getKeyFrame(walkDuration));
             previousXFlip = false;
         } else {
@@ -60,7 +60,7 @@ public class ClientPlayer extends ClientEntity{
         }
         sprite.flip(previousXFlip, false);
         
-        sprite.setSize(ServerPlayer.WIDTH + 3f, 
+        sprite.setSize(ServerPlayer.WIDTH + 6f, 
                 ServerPlayer.HEIGHT + 1f);
         sprite.setOrigin(sprite.getWidth()/2, sprite.getHeight()/2);
         

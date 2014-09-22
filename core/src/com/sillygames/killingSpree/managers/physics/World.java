@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
+import com.esotericsoftware.kryonet.Server;
+import com.sillygames.killingSpree.managers.WorldManager;
 import com.sillygames.killingSpree.managers.physics.Body.BodyType;
 import com.sillygames.killingSpree.serverEntities.ServerEntity;
 
@@ -17,12 +19,12 @@ public class World {
         bodies = new ArrayList<Body>();
     }
 
-    public void step(float delta, int iterations, ArrayList<ServerEntity> entities) {
+    public void step(float delta, int iterations, WorldManager worldManager) {
         int i = 0;
         while (i < bodies.size()) {
             Body body = bodies.get(i);
             if (body.toDestroy) {
-                entities.remove(body.getUserData());
+                worldManager.destroyBody(body);
                 bodies.remove(i);
             }
             i++;

@@ -13,6 +13,7 @@ import com.sillygames.killingSpree.helpers.Event;
 import com.sillygames.killingSpree.helpers.MyConnection;
 import com.sillygames.killingSpree.helpers.WorldBodyUtils;
 import com.sillygames.killingSpree.helpers.Event.State;
+import com.sillygames.killingSpree.managers.physics.Body;
 import com.sillygames.killingSpree.managers.physics.World;
 import com.sillygames.killingSpree.networking.messages.ControlsMessage;
 import com.sillygames.killingSpree.networking.messages.EntityState;
@@ -76,7 +77,7 @@ public class WorldManager{
         for(ServerEntity entity: entities) {
             entity.update(delta);
         }
-        world.step(delta, 1, entities);
+        world.step(delta, 1, this);
         
         GameStateMessage gameStateMessage = MessageObjectPool.instance.
                 gameStateMessagePool.obtain();
@@ -129,6 +130,7 @@ public class WorldManager{
                     setCurrentControls((ControlsMessage) object);
                 }
                 catch(Exception e) {
+                    server.sendToTCP(connection.getID(), "start");
                     ServerPlayer player = new ServerPlayer(id++, 50, 150, worldBodyUtils);
                     playerList.put(connection.getID(), player);
                     entities.add(player);
@@ -146,9 +148,9 @@ public class WorldManager{
                 if (server!= null) {
                     server.sendToAllTCP(player.id);
                 }
+                addOutgoingEvent(MessageObjectPool.instance.
+                        eventPool.obtain().set(State.RECEIVED, player.id));
             }
-            addOutgoingEvent(MessageObjectPool.instance.
-                    eventPool.obtain().set(State.RECEIVED, player.id));
         }
     }
 
@@ -175,6 +177,13 @@ public class WorldManager{
 
     public void createWorldObject(MapObject object) {
         worldBodyUtils.createWorldObject(object);
+    }
+    
+    public void destroyBody(Body body) {
+        entities.remove(body.getUserData());
+        server.sendToAllTCP(body.getUserData().id);
+        addOutgoingEvent(MessageObjectPool.instance.
+                eventPool.obtain().set(State.RECEIVED, body.getUserData().id));
     }
     
 }

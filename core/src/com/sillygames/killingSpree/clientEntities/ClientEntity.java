@@ -1,5 +1,7 @@
 package com.sillygames.killingSpree.clientEntities;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.sillygames.killingSpree.managers.WorldRenderer;
@@ -12,12 +14,16 @@ public abstract class ClientEntity {
     protected final Vector2 position;
     protected EntityState currentState;
     protected float angle;
+    public boolean destroy;
+    public boolean remove;
     
     public ClientEntity(short id, float x, float y){
         position = new Vector2(x, y);
         previousPosition = new Vector2(x, y);
         currentState = new EntityState();
         this.id = id;
+        destroy = false;
+        remove = false;
     }
 
     public abstract void render(float delta, SpriteBatch batch);

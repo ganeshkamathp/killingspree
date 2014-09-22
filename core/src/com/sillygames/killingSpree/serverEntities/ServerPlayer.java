@@ -1,19 +1,16 @@
 package com.sillygames.killingSpree.serverEntities;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.sillygames.killingSpree.helpers.WorldBodyUtils;
 import com.sillygames.killingSpree.helpers.EntityUtils.ActorType;
 import com.sillygames.killingSpree.helpers.Utils;
-import com.sillygames.killingSpree.managers.physics.Body;
-import com.sillygames.killingSpree.managers.physics.Ray;
 import com.sillygames.killingSpree.managers.physics.Body.BodyType;
 import com.sillygames.killingSpree.networking.messages.ControlsMessage;
 import com.sillygames.killingSpree.networking.messages.EntityState;
 
 public class ServerPlayer extends ServerEntity{
 
-    public static final float WIDTH = 15;
+    public static final float WIDTH = 12;
     public static final float HEIGHT = 20;
     public static final float YOFFSET = 1f;
     private ControlsMessage currentControls;
@@ -75,15 +72,15 @@ public class ServerPlayer extends ServerEntity{
                     x = 0.707f;
                     y = 0.707f;
                 }
-                world.AddArrow(position.x + x * 20, position.y + y * 20).body.
-                setLinearVelocity(x * 150, y * 150);;
+                world.AddBullet(position.x + x * 20, position.y + y * 20).body.
+                setLinearVelocity(x * 200, y * 200);;
                 reloadTime = 0;
             }
-            if (body.grounded) {
-                velocity.x += -0.1f * velocity.x;
-            }
+//            if (body.grounded) {
+//                velocity.x += -0.1f * velocity.x;
+//            }
             body.setLinearVelocity(velocity);
-            return;
+//            return;
         }
         
         if(Math.abs(velocity.x) < 100f) {

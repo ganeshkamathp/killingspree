@@ -2,6 +2,7 @@ package com.sillygames.killingSpree.networking;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.badlogic.gdx.Gdx;
@@ -21,9 +22,9 @@ public class StateProcessor extends Listener{
     private GameStateMessage nextState;
     int lag = 0;
     AtomicBoolean wait;
-    HashMap<Short, ClientEntity> world;
+    ConcurrentHashMap<Short, ClientEntity> world;
     
-    public StateProcessor(Client client, HashMap<Short, ClientEntity> world) {
+    public StateProcessor(Client client, ConcurrentHashMap<Short, ClientEntity> worldMap) {
         if (client != null) {
             this.client = client;
             client.addListener(this);
@@ -33,7 +34,7 @@ public class StateProcessor extends Listener{
         nextState.time = 0;
         stateQueue = new ArrayList<GameStateMessage>();
         wait = new AtomicBoolean(false);
-        this.world = world;
+        this.world = worldMap;
     }
     
     @Override
@@ -45,7 +46,11 @@ public class StateProcessor extends Listener{
         if (object instanceof GameStateMessage) {
             addNewState((GameStateMessage) object);
         } else if (object instanceof Short) {
-            world.remove(object);
+            if(world.get(object) != null ) {
+                world.get(object).destroy = true;
+                //FIXME Set remove in the client entity
+                world.get(object).remove = true;
+            }
         }
         super.received(connection, object);
     }
