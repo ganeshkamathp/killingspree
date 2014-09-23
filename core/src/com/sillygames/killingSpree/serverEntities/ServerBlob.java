@@ -1,5 +1,7 @@
 package com.sillygames.killingSpree.serverEntities;
 
+import java.util.ArrayList;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.sillygames.killingSpree.helpers.Utils;
@@ -34,8 +36,9 @@ public class ServerBlob extends ServerEntity {
         position.set(body.getPosition());
         if (body.grounded) {
             Body targetBody = Ray.findBody(world.worldManager.getWorld(),
-                    body, new Vector2(Math.signum(velocityVector.x) * 5, 0), 600f);
+                    body, new Vector2(Math.signum(velocityVector.x) * 5, 0), 40f);
             if (targetBody != null && targetBody.bodyType != BodyType.StaticBody) {
+                Gdx.app.log(body.getPosition().toString(), targetBody.getPosition().toString());
                 body.setLinearVelocity(1.5f * velocityVector.x, velocityVector.y + 100);
             }
         }

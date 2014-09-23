@@ -21,13 +21,14 @@ import com.sillygames.killingSpree.networking.messages.GameStateMessage;
 import com.sillygames.killingSpree.pool.MessageObjectPool;
 import com.sillygames.killingSpree.serverEntities.ServerBlob;
 import com.sillygames.killingSpree.serverEntities.ServerEntity;
+import com.sillygames.killingSpree.serverEntities.ServerFly;
 import com.sillygames.killingSpree.serverEntities.ServerPlayer;
 
 public class WorldManager{
     
     private World world;
     private Server server;
-    private HashMap<Integer, ServerPlayer> playerList;
+    public HashMap<Integer, ServerPlayer> playerList;
     public ArrayList<ServerEntity> entities;
     private WorldManager worldManager = this;
     private ArrayList<Event> incomingEventQueue;
@@ -37,7 +38,7 @@ public class WorldManager{
     private WorldBodyUtils worldBodyUtils;
     public MyConnection dummyConnection;
     public short id;
-    public ServerBlob blob;
+    public ServerFly fly;
     
     public WorldManager(final Server server){
         
@@ -65,8 +66,8 @@ public class WorldManager{
         worldBodyUtils = new WorldBodyUtils(worldManager);
 
         id = 0;
-        blob = new ServerBlob(id++, 20, 100, worldBodyUtils);
-        entities.add(blob);
+        fly = new ServerFly(id++, 20, 100, worldBodyUtils);
+        entities.add(fly);
     }
     
     public void setOutgoingEventListener(Listener listener) {
@@ -100,9 +101,9 @@ public class WorldManager{
         
         processEvents(serverListener, incomingEventQueue);
         processEvents(outgoingEventListener, outgoingEventQueue);
-        if (blob.body.toDestroy ) {
-            blob = new ServerBlob(id++, 20, 100, worldBodyUtils);
-            entities.add(blob);
+        if (fly.body.toDestroy ) {
+            fly = new ServerFly(id++, 20, 100, worldBodyUtils);
+            entities.add(fly);
         }
     }
 

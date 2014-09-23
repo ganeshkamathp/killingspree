@@ -15,6 +15,7 @@ public class AssetLoader {
     public void loadAll() {
         manager.load("sprites/player.png", Texture.class);
         manager.load("sprites/blob.png", Texture.class);
+        manager.load("sprites/fly.png", Texture.class);
         manager.load("sprites/arrow.png", Texture.class);
         manager.load("sprites/bullet.png", Texture.class);
     }

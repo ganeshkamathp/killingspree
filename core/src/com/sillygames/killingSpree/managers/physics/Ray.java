@@ -16,7 +16,7 @@ public class Ray {
         step.scl(2);
         
         float bestLength = 100000;
-        length *= 2;
+        length *= length;
         for (int i = 0; i < world.bodies.size(); i++) {
             if (world.bodies.get(i) == srcBody) {
                 continue;
