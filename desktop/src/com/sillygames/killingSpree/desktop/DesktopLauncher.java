@@ -12,6 +12,6 @@ public class DesktopLauncher {
 		config.width = 1280;
 		config.vSyncEnabled = true;
 //		config.fullscreen = true;
-		new LwjglApplication(new KillingSpree(), config);
+		new LwjglApplication(new KillingSpree(new DesktopServices()), config);
 	}
 }

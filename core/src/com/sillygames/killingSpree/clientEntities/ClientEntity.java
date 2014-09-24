@@ -1,7 +1,6 @@
 package com.sillygames.killingSpree.clientEntities;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.sillygames.killingSpree.managers.WorldRenderer;
@@ -16,6 +15,7 @@ public abstract class ClientEntity {
     protected float angle;
     public boolean destroy;
     public boolean remove;
+    protected float vX, vY;
     
     public ClientEntity(short id, float x, float y){
         position = new Vector2(x, y);
@@ -52,12 +52,29 @@ public abstract class ClientEntity {
         } else {
             position.lerp(new Vector2((float)nextState.x, (float)nextState.y), alpha);
         }
-//        Gdx.app.log("Alpha", Float.toString(alpha));
-//        Gdx.app.log("current postion", (new Vector2(position.x, position.y).toString()));
-//        Gdx.app.log("next postion", (new Vector2(nextState.x, nextState.y).toString()));
         if (nextState.angle > 0.001f || nextState.angle < -0.001f)
             angle = nextState.angle;
+        vX = nextState.vX;
+        vY = nextState.vY;
         
+    }
+    
+    public void drawAll(Sprite sprite, SpriteBatch batch, float x, float y) {
+        sprite.setPosition(x, y);
+        sprite.draw(batch);
+        if (x > WorldRenderer.VIEWPORT_WIDTH / 2) {
+            sprite.setPosition(x - WorldRenderer.VIEWPORT_WIDTH, y);
+        } else {
+            sprite.setPosition(x + WorldRenderer.VIEWPORT_WIDTH, y);
+        }
+        sprite.draw(batch);
+        
+        if (position.y > WorldRenderer.VIEWPORT_HEIGHT / 2) {
+            sprite.setPosition(x, y - WorldRenderer.VIEWPORT_HEIGHT);
+        } else {
+            sprite.setPosition(x, y + WorldRenderer.VIEWPORT_HEIGHT);
+        }
+        sprite.draw(batch);
     }
 
 }

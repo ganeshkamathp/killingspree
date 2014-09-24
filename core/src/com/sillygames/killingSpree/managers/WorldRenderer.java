@@ -21,6 +21,7 @@ import com.sillygames.killingSpree.clientEntities.ClientBlob;
 import com.sillygames.killingSpree.clientEntities.ClientBullet;
 import com.sillygames.killingSpree.clientEntities.ClientEntity;
 import com.sillygames.killingSpree.clientEntities.ClientFly;
+import com.sillygames.killingSpree.clientEntities.ClientFrog;
 import com.sillygames.killingSpree.clientEntities.ClientPlayer;
 import com.sillygames.killingSpree.controls.onScreenControls;
 import com.sillygames.killingSpree.helpers.EntityUtils;
@@ -149,6 +150,8 @@ public class WorldRenderer {
                     entity = new ClientBullet(state.id, state.x, state.y);
                 } else if (EntityUtils.ByteToActorType(state.type) == ActorType.FLY) {
                     entity = new ClientFly(state.id, state.x, state.y);
+                } else if (EntityUtils.ByteToActorType(state.type) == ActorType.FROG) {
+                    entity = new ClientFrog(state.id, state.x, state.y);
                 } else {
                     Gdx.app.log("Error", "Couldnt decode actor type");
                     Gdx.app.exit();

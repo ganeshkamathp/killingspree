@@ -226,6 +226,7 @@ public class LobbyScreen extends AbstractScreen {
         public void disconnected(Connection connection) {
             currentButton = backButton;
             markForDispose = true;
+            game.platformServices.toast("Server disconnected");
         }
 
         @Override

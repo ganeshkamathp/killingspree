@@ -55,9 +55,17 @@ public class StateProcessor extends Listener{
         super.received(connection, object);
     }
     
+    @Override
+    public void disconnected(Connection connection){
+        
+    }
+    
     public void addNewState(GameStateMessage state) {
         if (wait == null) {
             wait = new AtomicBoolean(false);
+        }
+        if (stateQueue == null) {
+            stateQueue = new ArrayList<GameStateMessage>();
         }
         while (!wait.compareAndSet(false, true));
         

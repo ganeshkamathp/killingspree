@@ -11,13 +11,19 @@ import com.sillygames.killingSpree.screens.GameScreen;
 import com.sillygames.killingSpree.screens.SplashScreen;
 
 public class KillingSpree extends ApplicationAdapter {
-    
+
     Screen nextScreen;
     Screen currentScreen;
     private int width;
     private int height;
     private FreeTypeFontGenerator generator;
     FreeTypeFontParameter parameter;
+    public PlatformServices platformServices;
+    
+    public KillingSpree(PlatformServices platformServices) {
+        super();
+        this.platformServices = platformServices;
+    }
     
 	@Override
 	public void create () {

@@ -1,5 +1,6 @@
 package com.sillygames.killingSpree.serverEntities;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.sillygames.killingSpree.helpers.WorldBodyUtils;
 import com.sillygames.killingSpree.helpers.EntityUtils.ActorType;
@@ -17,6 +18,7 @@ public class ServerPlayer extends ServerEntity{
     private boolean markForDispose;
     private float reloadTime;
     private Vector2 velocity;
+    private float direction;
     
     public ServerPlayer(short id, float x, float y, WorldBodyUtils world) {
         super(id, x, y, world);
@@ -28,6 +30,7 @@ public class ServerPlayer extends ServerEntity{
         body.setUserData(this);
         reloadTime = 0;
         velocity = new Vector2();
+        direction = 1;
     }
     
     @Override
@@ -61,26 +64,26 @@ public class ServerPlayer extends ServerEntity{
             body.setTransform(position, 0);
         }
         
+        float x = controls.right()? 1 : (controls.left()? -1 : 0);
+        float y = controls.up()? 1 : (controls.down()? -1 : 0);
+        if (x==0 && y==0) {
+            x = direction;
+        } else {
+            direction = x;
+        }
+
         if (controls.shoot()) {
             if (reloadTime > 1) {
-                float x = controls.right()? 1 : (controls.left()? -1 : 0);
-                float y = controls.up()? 1 : (controls.down()? -1 : 0);
-                if (x==0 && y==0) {
-                    x=1;
-                }
                 if (x ==1 && y == 1) {
                     x = 0.707f;
                     y = 0.707f;
                 }
+                Gdx.app.log("direction", Float.toString(direction));
                 world.AddBullet(position.x + x * 20, position.y + y * 20).body.
                 setLinearVelocity(x * 200, y * 200);;
                 reloadTime = 0;
             }
-//            if (body.grounded) {
-//                velocity.x += -0.1f * velocity.x;
-//            }
             body.setLinearVelocity(velocity);
-//            return;
         }
         
         if(Math.abs(velocity.x) < 100f) {

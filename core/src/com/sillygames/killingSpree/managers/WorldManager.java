@@ -22,6 +22,7 @@ import com.sillygames.killingSpree.pool.MessageObjectPool;
 import com.sillygames.killingSpree.serverEntities.ServerBlob;
 import com.sillygames.killingSpree.serverEntities.ServerEntity;
 import com.sillygames.killingSpree.serverEntities.ServerFly;
+import com.sillygames.killingSpree.serverEntities.ServerFrog;
 import com.sillygames.killingSpree.serverEntities.ServerPlayer;
 
 public class WorldManager{
@@ -38,7 +39,9 @@ public class WorldManager{
     private WorldBodyUtils worldBodyUtils;
     public MyConnection dummyConnection;
     public short id;
+    public ServerFrog frog;
     public ServerFly fly;
+    public ServerBlob blob;
     
     public WorldManager(final Server server){
         
@@ -66,8 +69,12 @@ public class WorldManager{
         worldBodyUtils = new WorldBodyUtils(worldManager);
 
         id = 0;
+        frog = new ServerFrog(id++, 20, 100, worldBodyUtils);
+        entities.add(frog);
         fly = new ServerFly(id++, 20, 100, worldBodyUtils);
         entities.add(fly);
+        blob = new ServerBlob(id++, 20, 100, worldBodyUtils);
+        entities.add(blob);
     }
     
     public void setOutgoingEventListener(Listener listener) {
@@ -101,9 +108,17 @@ public class WorldManager{
         
         processEvents(serverListener, incomingEventQueue);
         processEvents(outgoingEventListener, outgoingEventQueue);
+        if (frog.body.toDestroy ) {
+            frog = new ServerFrog(id++, 20, 100, worldBodyUtils);
+            entities.add(frog);
+        }
         if (fly.body.toDestroy ) {
             fly = new ServerFly(id++, 20, 100, worldBodyUtils);
             entities.add(fly);
+        }
+        if (blob.body.toDestroy ) {
+            blob = new ServerBlob(id++, 20, 100, worldBodyUtils);
+            entities.add(blob);
         }
     }
 

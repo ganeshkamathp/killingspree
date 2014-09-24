@@ -2,6 +2,7 @@ package com.sillygames.killingSpree.screens;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -164,14 +165,19 @@ public class ClientDiscoveryScreen extends AbstractScreen {
     }
     
     private void addIpButtons() {
+        game.platformServices.shortToast("Searching for servers");
         refreshButton.south = null;
         backButton.south = null;
         ipAddresses.clear();
         MyButton previousButton = refreshButton;
         float y = 580;
-        for (InetAddress address : 
-            client.discoverHosts(Constants.DISCOVERY_UDP_PORT, 
-                    Constants.TIMEOUT)) {
+        List<InetAddress> tempAddresses = client.discoverHosts(Constants.DISCOVERY_UDP_PORT, 
+                Constants.TIMEOUT);
+        if (tempAddresses.size() == 0) {
+            game.platformServices.toast("no servers found");
+        }
+        
+        for (InetAddress address : tempAddresses) {
             MyButton button = new MyButton(address.getHostName(), 300, y);
             ipAddresses.add(button);
             previousButton.setSouth(button);

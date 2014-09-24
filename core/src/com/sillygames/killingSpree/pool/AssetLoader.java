@@ -18,6 +18,7 @@ public class AssetLoader {
         manager.load("sprites/fly.png", Texture.class);
         manager.load("sprites/arrow.png", Texture.class);
         manager.load("sprites/bullet.png", Texture.class);
+        manager.load("sprites/frog.png", Texture.class);
     }
     
     public Texture getTexture(String path) {

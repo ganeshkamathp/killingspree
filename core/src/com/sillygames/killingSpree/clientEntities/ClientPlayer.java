@@ -1,5 +1,6 @@
 package com.sillygames.killingSpree.clientEntities;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -17,7 +18,6 @@ public class ClientPlayer extends ClientEntity{
     private boolean markForDispose;
     private Animation walk;
     private float walkDuration;
-    private float vX, vY;
     private boolean previousXFlip;
     
     public ClientPlayer(short id, float x, float y) {
@@ -44,7 +44,6 @@ public class ClientPlayer extends ClientEntity{
         
     }
     private void renderPlayer(SpriteBatch batch) {
-        
         if (vY !=0) {
             walkDuration = 0.49f;
         }
@@ -66,33 +65,14 @@ public class ClientPlayer extends ClientEntity{
         
         float x = position.x - sprite.getWidth() / 2;
         float y = position.y - sprite.getHeight() / 2 + ServerPlayer.YOFFSET;
-        sprite.setPosition(x, y);
-        sprite.draw(batch);
-        if (position.x > WorldRenderer.VIEWPORT_WIDTH / 2) {
-            x -= WorldRenderer.VIEWPORT_WIDTH;
-        } else {
-            x += WorldRenderer.VIEWPORT_WIDTH;
-        }
-        sprite.setPosition(x, y);
-        sprite.draw(batch);
-        
-        if (position.y > WorldRenderer.VIEWPORT_HEIGHT / 2) {
-            y -= WorldRenderer.VIEWPORT_HEIGHT;
-        } else {
-            y += WorldRenderer.VIEWPORT_HEIGHT;
-        }
-        x = position.x - sprite.getWidth() / 2;
-        sprite.setPosition(x, y);
-        sprite.draw(batch);
-        
+       
+        drawAll(sprite, batch, x, y);
     }
-    
-    @Override
-    public void processState(EntityState nextState, float alpha) {
-        super.processState(nextState, alpha);
-        vX = nextState.vX;
-        vY = nextState.vY;
-    }
+
+//    @Override
+//    public void processState(EntityState nextState, float alpha) {
+//        super.processState(nextState, alpha);
+//    }
     
     @Override
     public void dispose() {

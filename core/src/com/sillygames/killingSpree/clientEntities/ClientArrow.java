@@ -1,13 +1,11 @@
 package com.sillygames.killingSpree.clientEntities;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.sillygames.killingSpree.managers.WorldRenderer;
 import com.sillygames.killingSpree.pool.AssetLoader;
 import com.sillygames.killingSpree.serverEntities.ServerArrow;
-import com.sillygames.killingSpree.serverEntities.ServerBlob;
 
 public class ClientArrow extends ClientEntity {
     
@@ -31,24 +29,7 @@ public class ClientArrow extends ClientEntity {
 
         float x = position.x - sprite.getWidth() / 2;
         float y = position.y - sprite.getHeight() / 2;
-        sprite.setPosition(x, y);
-        sprite.draw(batch);
-        if (position.x > WorldRenderer.VIEWPORT_WIDTH / 2) {
-            x -= WorldRenderer.VIEWPORT_WIDTH;
-        } else {
-            x += WorldRenderer.VIEWPORT_WIDTH;
-        }
-        sprite.setPosition(x, y);
-        sprite.draw(batch);
-        
-        if (position.y > WorldRenderer.VIEWPORT_HEIGHT / 2) {
-            y -= WorldRenderer.VIEWPORT_HEIGHT;
-        } else {
-            y += WorldRenderer.VIEWPORT_HEIGHT;
-        }
-        x = position.x - sprite.getWidth() / 2;
-        sprite.setPosition(x, y);
-        sprite.draw(batch);
+        drawAll(sprite, batch, x, y);
     }
 
     @Override

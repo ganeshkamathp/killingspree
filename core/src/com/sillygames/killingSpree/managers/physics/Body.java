@@ -13,9 +13,12 @@ public class Body {
     public Rectangle rectangle;
     public BodyType bodyType;
     public ServerEntity entity;
-    public float restitution;
+    public float restitutionX;
+    public float restitutionY;
     public boolean grounded;
     public boolean toDestroy;
+    public enum CollisionCategory { ALL, ENEMY, STATIC, NONE, WEAPON };
+    public CollisionCategory category;
     private final Vector2 velocity;
     private final Vector2 temp1;
     private final Vector2 temp2;
@@ -24,7 +27,6 @@ public class Body {
     private final Vector2 temp5;
     private World world;
     private float gravityScale;
-    private enum CollisionCategory { ALL, ENEMY, STATIC, NONE, WEAPON };
     
     public Body() {
         bodyType = BodyType.StaticBody;
@@ -34,10 +36,12 @@ public class Body {
         temp3 = new Vector2();
         temp4 = new Vector2();
         temp5 = new Vector2();
-        restitution = 0;
+        restitutionX = 0;
+        restitutionY = 0;
         gravityScale = 1f;
         grounded = false;
         toDestroy = false;
+        category = CollisionCategory.ALL;
     }
     
     public Body(Rectangle rectangle) {
@@ -131,7 +135,9 @@ public class Body {
         
         rectangle.setPosition(rectangle.x, temp1.y);
         for (Body body: world.bodies) {
-            if (body == this || body.toDestroy)
+            if (body == this || body.toDestroy ||
+                    (body.category != CollisionCategory.ALL &&
+                    body.category == category))
                 continue;
             if (body.rectangle.overlaps(rectangle)) {
                 solveVerticalCollision(body, temp1);
@@ -140,6 +146,10 @@ public class Body {
         
         rectangle.setPosition(temp1.x, rectangle.y);
         for (Body body: world.bodies) {
+            if (body == this || body.toDestroy ||
+                    (body.category != CollisionCategory.ALL &&
+                    body.category == category))
+                continue;
             if (body == this || body.toDestroy)
                 continue;
             if (body.rectangle.overlaps(rectangle)) {
@@ -160,12 +170,12 @@ public class Body {
             float x = body.rectangle.x + body.rectangle.width;
             temp1.x = Math.abs(temp4.x - x) < Math.abs(temp4.x - temp2.x) ?
                     x : temp4.x;
-            velocity.x *= -restitution;
+            velocity.x *= -restitutionX;
             CollisionProcessor.touchLeft(this, body);
         } else if(velocity.x > 0){
             float x = body.rectangle.x - rectangle.width;
             temp1.x = Math.abs(temp4.x - x) < Math.abs(temp4.x - temp2.x) ? x : temp4.x;
-            velocity.x *= -restitution;
+            velocity.x *= -restitutionX;
             CollisionProcessor.touchRight(this, body);
         }
         rectangle.setPosition(temp1.x, rectangle.y);
@@ -177,13 +187,13 @@ public class Body {
             float y = body.rectangle.y - rectangle.height;
             position.y = Math.abs(temp4.y - y) < Math.abs(temp4.y - temp2.y) ?
                     y: temp4.y;
-            velocity.y *= -restitution;
+            velocity.y *= -restitutionY;
             CollisionProcessor.jumpedOn(this, body);
         } else if(velocity.y < 0) {
             float y = body.rectangle.y + body.rectangle.height;
             position.y = Math.abs(temp4.y - y) < Math.abs(temp4.y - temp2.y) ?
                     y: temp4.y;
-            velocity.y *= -restitution;
+            velocity.y *= -restitutionY;
             if (body.bodyType == BodyType.StaticBody) {
                 grounded = true;
             }

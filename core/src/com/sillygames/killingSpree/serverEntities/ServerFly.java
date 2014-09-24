@@ -5,15 +5,17 @@ import java.util.ArrayList;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.sillygames.killingSpree.categories.EnemyCategory;
 import com.sillygames.killingSpree.helpers.Utils;
 import com.sillygames.killingSpree.helpers.WorldBodyUtils;
 import com.sillygames.killingSpree.helpers.EntityUtils.ActorType;
 import com.sillygames.killingSpree.managers.physics.Body;
 import com.sillygames.killingSpree.managers.physics.Ray;
 import com.sillygames.killingSpree.managers.physics.Body.BodyType;
+import com.sillygames.killingSpree.managers.physics.Body.CollisionCategory;
 import com.sillygames.killingSpree.networking.messages.EntityState;
 
-public class ServerFly extends ServerEntity {
+public class ServerFly extends ServerEntity implements EnemyCategory {
 
     public static final float WIDTH = 15f;
     public static final float HEIGHT = 10f;
@@ -28,6 +30,7 @@ public class ServerFly extends ServerEntity {
         body.setGravityScale(0f);
         body.setUserData(this);
         randomTime = 0;
+        body.category = CollisionCategory.ENEMY;
     }
 
     @Override
@@ -44,9 +47,8 @@ public class ServerFly extends ServerEntity {
 //                        body, playerPosition, 150f);
 //                if (targetBody != null && targetBody.getUserData() instanceof ServerPlayer) {
 //                    Gdx.app.log(body.getPosition().toString(), playerPosition.toString());
-                    body.setLinearVelocity(playerPosition.x * 10, playerPosition.y * 10);
+                    body.setLinearVelocity(playerPosition.x * 20, playerPosition.y * 20);
                     targetAcquired = true;
-                    Gdx.app.log(body.getLinearVelocity().toString(), "target");
                     break;
 //                }
             }
@@ -71,7 +73,6 @@ public class ServerFly extends ServerEntity {
                     randomTime = 0;
                     targetBody = Ray.findBody(world.worldManager.getWorld(),
                             body, currentVelocity, 30f);
-                    Gdx.app.log(body.getLinearVelocity().toString(), "redirecting");
                 } while ((Math.abs(body.getLinearVelocity().x) < 20
                         && Math.abs(body.getLinearVelocity().y) < 20) ||
                         (targetBody != null && targetBody.bodyType == BodyType.StaticBody));
@@ -81,8 +82,8 @@ public class ServerFly extends ServerEntity {
         
         Vector2 currentVelocity = body.getLinearVelocity();
         float max = Math.max(Math.abs(currentVelocity.x), Math.abs(currentVelocity.y));
-        if (max > 40)
-            currentVelocity.scl(40 / max);
+        if (max > 50)
+            currentVelocity.scl(50 / max);
         body.setLinearVelocity(currentVelocity);
         position.set(body.getPosition());
         if (Utils.wrapBody(position)) {
