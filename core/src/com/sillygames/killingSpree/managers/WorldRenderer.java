@@ -13,6 +13,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.esotericsoftware.kryonet.Client;
@@ -94,6 +95,8 @@ public class WorldRenderer {
             }
         }
         controls = new onScreenControls();
+        Gdx.app.log("viewport", Float.toString(VIEWPORT_WIDTH)
+                + Float.toString(VIEWPORT_HEIGHT));
     }
 
     public void render(float delta) {
@@ -106,6 +109,12 @@ public class WorldRenderer {
         renderer.setView(camera);
         renderer.render();
         batch.setProjectionMatrix(camera.combined);
+        if(Gdx.input.isTouched()) {
+            ;
+            Gdx.app.log("Touched at",
+                    viewport.unproject(new Vector2(Gdx.input.getX(),
+                            Gdx.input.getY())).toString());
+        }
         batch.begin();
         renderObjects(delta);
         batch.end();

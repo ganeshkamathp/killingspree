@@ -30,6 +30,10 @@ public class ServerFrog extends ServerEntity  implements EnemyCategory{
         body.category = CollisionCategory.ENEMY;
     }
 
+    public void setDirection(float direction) {
+        this.direction = direction;
+    }
+
     @Override
     public void update(float delta) {
         if (body.grounded) {
@@ -43,13 +47,13 @@ public class ServerFrog extends ServerEntity  implements EnemyCategory{
                 waitTime = 0;
                 Vector2 velocityVector = body.getLinearVelocity();
                 velocityVector.x = direction * velocity / 2;
-                velocityVector.y = velocity;
+                velocityVector.y = Math.abs(velocity);
                 body.setLinearVelocity(velocityVector);
             }
         } else {
-            direction = Math.signum(body.getLinearVelocity().x);
-            if (direction == 0) {
-                direction = 1;
+            float nextDirection = Math.signum(body.getLinearVelocity().x);
+            if (nextDirection != 0) {
+                direction = nextDirection;
             }
         }
         

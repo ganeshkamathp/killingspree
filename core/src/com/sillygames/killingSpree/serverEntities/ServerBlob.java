@@ -24,11 +24,16 @@ public class ServerBlob extends ServerEntity implements EnemyCategory {
         actorType = ActorType.BLOB;
         body = world.addBox(WIDTH, HEIGHT - YOFFSET * 2, position.x, position.y,
                 BodyType.DynamicBody);
-        velocity = -55f;
+        velocity = 55f;
         body.setLinearVelocity(velocity, 0);
         body.setGravityScale(0.75f);
         body.setUserData(this);
         body.category = CollisionCategory.ENEMY;
+    }
+    
+    public void setDirection(float direction) {
+        velocity *= direction;
+        body.setLinearVelocity(velocity, 0);
     }
 
     @Override

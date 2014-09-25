@@ -27,7 +27,7 @@ public class WorldBodyUtils {
     }
     
     public Body addBox(float w, float h, float x, float y, BodyType type){
-        Body body = new Body(x - w, y - h, w, h, type);
+        Body body = new Body(x - w/2, y - h/2, w, h, type);
         body.setWorld(worldManager.getWorld());
         worldManager.getWorld().bodies.add(body);
         return body;

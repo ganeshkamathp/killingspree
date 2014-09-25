@@ -63,6 +63,7 @@ public class GameScreen extends AbstractScreen {
     public void loadLevel(String level, String host) {
         if (isServer) {
             world = new WorldManager(server);
+            world.loader.platformServices = game.platformServices;
         } else {
             client = new Client();
             NetworkRegisterer.register(client);

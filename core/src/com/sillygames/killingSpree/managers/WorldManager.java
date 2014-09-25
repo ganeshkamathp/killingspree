@@ -3,6 +3,7 @@ package com.sillygames.killingSpree.managers;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -39,9 +40,10 @@ public class WorldManager{
     private WorldBodyUtils worldBodyUtils;
     public MyConnection dummyConnection;
     public short id;
-    public ServerFrog frog;
-    public ServerFly fly;
-    public ServerBlob blob;
+//    public ServerFrog frog;
+//    public ServerFly fly;
+//    public ServerBlob blob;
+    public LevelLoader loader;
     
     public WorldManager(final Server server){
         
@@ -69,19 +71,39 @@ public class WorldManager{
         worldBodyUtils = new WorldBodyUtils(worldManager);
 
         id = 0;
-        frog = new ServerFrog(id++, 20, 100, worldBodyUtils);
-        entities.add(frog);
-        fly = new ServerFly(id++, 20, 100, worldBodyUtils);
-        entities.add(fly);
-        blob = new ServerBlob(id++, 20, 100, worldBodyUtils);
-        entities.add(blob);
+//        frog = new ServerFrog(id++, 20, 100, worldBodyUtils);
+//        entities.add(frog);
+//        fly = new ServerFly(id++, 20, 100, worldBodyUtils);
+//        entities.add(fly);
+//        blob = new ServerBlob(id++, 20, 100, worldBodyUtils);
+//        entities.add(blob);
+        loader = new LevelLoader("maps/retro-small.txt", this);
     }
     
     public void setOutgoingEventListener(Listener listener) {
         outgoingEventListener = listener;
     }
+    
+    public ServerFrog addFrog(float x, float y) {
+        ServerFrog frog = new ServerFrog(id++, x, y, worldBodyUtils);
+        entities.add(frog);
+        return frog;
+    }
+    
+    public ServerFly addFly(float x, float y) {
+        ServerFly fly = new ServerFly(id++, x, y, worldBodyUtils);
+        entities.add(fly);
+        return fly;
+    }
+    
+    public ServerBlob addBlob(float x, float y) {
+        ServerBlob blob = new ServerBlob(id++, x, y, worldBodyUtils);
+        entities.add(blob);
+        return blob;
+    }
 
     public void update(float delta) {
+        loader.loadNextLine(delta);
         for(ServerEntity entity: entities) {
             entity.update(delta);
         }
@@ -108,18 +130,18 @@ public class WorldManager{
         
         processEvents(serverListener, incomingEventQueue);
         processEvents(outgoingEventListener, outgoingEventQueue);
-        if (frog.body.toDestroy ) {
-            frog = new ServerFrog(id++, 20, 100, worldBodyUtils);
-            entities.add(frog);
-        }
-        if (fly.body.toDestroy ) {
-            fly = new ServerFly(id++, 20, 100, worldBodyUtils);
-            entities.add(fly);
-        }
-        if (blob.body.toDestroy ) {
-            blob = new ServerBlob(id++, 20, 100, worldBodyUtils);
-            entities.add(blob);
-        }
+//        if (frog.body.toDestroy ) {
+//            frog = new ServerFrog(id++, 20, 100, worldBodyUtils);
+//            entities.add(frog);
+//        }
+//        if (fly.body.toDestroy ) {
+//            fly = new ServerFly(id++, 20, 100, worldBodyUtils);
+//            entities.add(fly);
+//        }
+//        if (blob.body.toDestroy ) {
+//            blob = new ServerBlob(id++, 20, 100, worldBodyUtils);
+//            entities.add(blob);
+//        }
     }
 
 
