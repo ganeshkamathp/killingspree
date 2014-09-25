@@ -13,6 +13,7 @@ blob
 blob
 430 85 -1
 1000
+Are you ready?
 frog
 20 85 1
 0
@@ -25,6 +26,7 @@ blob
 blob
 430 85 -1
 1000
+Final wave
 fly
 20 85 1
 0
@@ -36,4 +38,5 @@ blob
 0
 blob
 430 85 -1
-10
+1000
+Finally you won!!!
