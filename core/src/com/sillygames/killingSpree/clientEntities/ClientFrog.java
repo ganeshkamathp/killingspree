@@ -32,18 +32,21 @@ public class ClientFrog extends ClientEntity {
 
     @Override
     public void render(float delta, SpriteBatch batch) {
-        if (vY <= 0) 
-            sprite.setRegion(walk.getKeyFrame(0));
-        else
-            sprite.setRegion(walk.getKeyFrame(0.3f));
-
-        if (vX < -15f) {
-            previousXFlip = false;
-        } else if (vX > 15f){
-            previousXFlip = true;
+        if (extra == 1) {
+            if (vY <= 0) 
+                sprite.setRegion(walk.getKeyFrame(0));
+            else
+                sprite.setRegion(walk.getKeyFrame(0.3f));
+    
+            if (vX < -15f) {
+                previousXFlip = false;
+            } else if (vX > 15f){
+                previousXFlip = true;
+            }
+            sprite.flip(previousXFlip, false);
+        } else {
+            sprite.setRegion(AssetLoader.instance.getTexture("sprites/green_loader.png"));
         }
-        sprite.flip(previousXFlip, false);
-        
         float x = position.x - sprite.getWidth() / 2 + 1f;
         float y = position.y - sprite.getHeight() / 2 + ServerBlob.YOFFSET;
         drawAll(sprite, batch, x, y);

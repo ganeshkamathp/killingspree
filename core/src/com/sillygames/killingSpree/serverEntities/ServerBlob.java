@@ -18,17 +18,19 @@ public class ServerBlob extends ServerEntity implements EnemyCategory {
     public static final float HEIGHT = 10f;
     public static final float YOFFSET = 1f;
     private float velocity;
+    private float spawnTime;
     
     public ServerBlob(short id, float x, float y, WorldBodyUtils world) {
         super(id, x, y, world);
         actorType = ActorType.BLOB;
         body = world.addBox(WIDTH, HEIGHT - YOFFSET * 2, position.x, position.y,
-                BodyType.DynamicBody);
+                BodyType.StaticBody);
         velocity = 55f;
         body.setLinearVelocity(velocity, 0);
         body.setGravityScale(0.75f);
         body.setUserData(this);
-        body.category = CollisionCategory.ENEMY;
+        spawnTime = 0.1f;
+        body.category = CollisionCategory.NONE;
     }
     
     public void setDirection(float direction) {
@@ -38,6 +40,15 @@ public class ServerBlob extends ServerEntity implements EnemyCategory {
 
     @Override
     public void update(float delta) {
+        if (spawnTime > 0) {
+            spawnTime += delta;
+            if (spawnTime > 4) {
+                body.category = CollisionCategory.ENEMY;
+                body.bodyType = BodyType.DynamicBody;
+                spawnTime = -1f;
+            }
+            return;
+        }
         Vector2 velocityVector = body.getLinearVelocity();
         position.set(body.getPosition());
         if (body.grounded) {
@@ -78,5 +89,6 @@ public class ServerBlob extends ServerEntity implements EnemyCategory {
         super.updateState(state);
         state.vX = body.getLinearVelocity().x;
         state.vY = body.getLinearVelocity().y;
+        state.extra = (byte) (spawnTime > 0.01f ? 0 : 1);
     }
 }

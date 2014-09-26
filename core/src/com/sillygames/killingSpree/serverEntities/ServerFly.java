@@ -21,23 +21,34 @@ public class ServerFly extends ServerEntity implements EnemyCategory {
     public static final float HEIGHT = 10f;
     public static final float YOFFSET = 1f;
     private float randomTime;
+    private float spawnTime;
     
     public ServerFly(short id, float x, float y, WorldBodyUtils world) {
         super(id, x, y, world);
         actorType = ActorType.FLY;
         body = world.addBox(WIDTH, HEIGHT - YOFFSET * 2, position.x, position.y,
-                BodyType.DynamicBody);
+                BodyType.StaticBody);
         body.setGravityScale(0f);
         body.setUserData(this);
         randomTime = 0;
-        body.category = CollisionCategory.ENEMY;
+        body.category = CollisionCategory.NONE;
+        spawnTime = 0.1f;
     }
 
     @Override
     public void update(float delta) {
+        if (spawnTime > 0) {
+            spawnTime += delta;
+            if (spawnTime > 4) {
+                body.category = CollisionCategory.ENEMY;
+                body.bodyType = BodyType.DynamicBody;
+                spawnTime = -1f;
+            }
+            return;
+        }
         boolean targetAcquired = false;
         position.set(body.getPosition());
-        ArrayList<Vector2> playersPositions = world.getPlayers(position, 150);
+        ArrayList<Vector2> playersPositions = world.getPlayers(position, 100);
         if (playersPositions.size() != 0) {
             for (Vector2 playerPosition: playersPositions) {
                 playerPosition.sub(position);
@@ -106,5 +117,6 @@ public class ServerFly extends ServerEntity implements EnemyCategory {
         super.updateState(state);
         state.vX = body.getLinearVelocity().x;
         state.vY = body.getLinearVelocity().y;
+        state.extra = (byte) (spawnTime > 0.01f ? 0 : 1);
     }
 }

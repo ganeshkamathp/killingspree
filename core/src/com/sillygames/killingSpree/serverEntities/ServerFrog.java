@@ -17,17 +17,19 @@ public class ServerFrog extends ServerEntity  implements EnemyCategory{
     private float velocity;
     private float waitTime;
     private float direction;
+    private float spawnTime;
     
     public ServerFrog(short id, float x, float y, WorldBodyUtils world) {
         super(id, x, y, world);
         actorType = ActorType.FROG;
         body = world.addBox(WIDTH, HEIGHT - YOFFSET * 2, position.x, position.y,
-                BodyType.DynamicBody);
+                BodyType.StaticBody);
         velocity = 200f;
         body.setUserData(this);
         waitTime = 0;
         direction = 1;
-        body.category = CollisionCategory.ENEMY;
+        spawnTime = 0.1f;
+        body.category = CollisionCategory.NONE;
     }
 
     public void setDirection(float direction) {
@@ -36,6 +38,15 @@ public class ServerFrog extends ServerEntity  implements EnemyCategory{
 
     @Override
     public void update(float delta) {
+        if (spawnTime > 0) {
+            spawnTime += delta;
+            if (spawnTime > 4) {
+                body.category = CollisionCategory.ENEMY;
+                body.bodyType = BodyType.DynamicBody;
+                spawnTime = -1f;
+            }
+            return;
+        }
         if (body.grounded) {
             body.restitutionX = 0;
             body.restitutionY = 0;
@@ -78,5 +89,6 @@ public class ServerFrog extends ServerEntity  implements EnemyCategory{
         super.updateState(state);
         state.vX = body.getLinearVelocity().x;
         state.vY = body.getLinearVelocity().y;
+        state.extra = (byte) (spawnTime > 0.01f ? 0 : 1);
     }
 }

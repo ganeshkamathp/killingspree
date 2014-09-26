@@ -135,7 +135,6 @@ public class WorldRenderer {
         renderer.render();
         batch.setProjectionMatrix(camera.combined);
         if(Gdx.input.isTouched()) {
-            ;
             Gdx.app.log("Touched at",
                     viewport.unproject(new Vector2(Gdx.input.getX(),
                             Gdx.input.getY())).toString());
@@ -205,7 +204,7 @@ public class WorldRenderer {
         }
         for (ClientEntity entity: worldMap.values()) {
             if (entity.remove) {
-                shakeScreen();
+//                shakeScreen();
                 worldMap.remove(entity.id);
                 continue;
             }

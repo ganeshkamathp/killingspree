@@ -35,8 +35,8 @@ public class LevelLoader {
                     continue;
                 }
             }
-            String entity = level[i++].trim();
-            String param[] = level[i++].trim().split(" ");
+            String entity = readNextLine();
+            String param[] = readNextLine().split(" ");
             if (entity.contentEquals("fly")) {
                 ServerFly fly = world.addFly(Float.parseFloat(param[0]), 
                         Float.parseFloat(param[1]));
@@ -52,7 +52,15 @@ public class LevelLoader {
                 frog.setDirection(Float.parseFloat(param[2]));
             }
             currentTime = 0;
-            nextTime = Long.parseLong(level[i++].trim());
+            nextTime = Long.parseLong(readNextLine());
         }
+    }
+    
+    String readNextLine() {
+        String line = level[i++].trim();
+        while (line.compareTo("") == 0 && i < level.length) {
+            line = level[i++].trim();
+        }
+        return line;
     }
 }

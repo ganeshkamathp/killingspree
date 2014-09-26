@@ -31,17 +31,21 @@ public class ClientFly extends ClientEntity {
 
     @Override
     public void render(float delta, SpriteBatch batch) {
-        walkDuration += delta;
-        if (vX < -15f) {
-            sprite.setRegion(walk.getKeyFrame(walkDuration));
-            previousXFlip = false;
-        } else if (vX > 15f){
-            sprite.setRegion(walk.getKeyFrame(walkDuration));
-            sprite.flip(true, false);
-            previousXFlip = true;
+        if (extra == 1) {
+            walkDuration += delta;
+            if (vX < -15f) {
+                sprite.setRegion(walk.getKeyFrame(walkDuration));
+                previousXFlip = false;
+            } else if (vX > 15f){
+                sprite.setRegion(walk.getKeyFrame(walkDuration));
+                sprite.flip(true, false);
+                previousXFlip = true;
+            } else {
+                sprite.setRegion(walk.getKeyFrame(walkDuration));
+                sprite.flip(previousXFlip, false);
+            }
         } else {
-            sprite.setRegion(walk.getKeyFrame(walkDuration));
-            sprite.flip(previousXFlip, false);
+            sprite.setRegion(AssetLoader.instance.getTexture("sprites/green_loader.png"));
         }
         
         float x = position.x - sprite.getWidth() / 2 + 1f;

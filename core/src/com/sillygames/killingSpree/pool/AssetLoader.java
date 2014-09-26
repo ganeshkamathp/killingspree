@@ -21,6 +21,8 @@ public class AssetLoader {
         manager.load("sprites/bullet.png", Texture.class);
         manager.load("sprites/frog.png", Texture.class);
         manager.load("sprites/explosion.png", Texture.class);
+        manager.load("sprites/gun.png", Texture.class);
+        manager.load("sprites/green_loader.png", Texture.class);
     }
     
     public Texture getTexture(String path) {

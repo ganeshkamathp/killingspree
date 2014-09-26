@@ -137,7 +137,8 @@ public class Body {
         for (Body body: world.bodies) {
             if (body == this || body.toDestroy ||
                     (body.category != CollisionCategory.ALL &&
-                    body.category == category))
+                    body.category == category) 
+                    || body.category ==CollisionCategory.NONE)
                 continue;
             if (body.rectangle.overlaps(rectangle)) {
                 solveVerticalCollision(body, temp1);
@@ -148,7 +149,8 @@ public class Body {
         for (Body body: world.bodies) {
             if (body == this || body.toDestroy ||
                     (body.category != CollisionCategory.ALL &&
-                    body.category == category))
+                    body.category == category)
+                    || body.category ==CollisionCategory.NONE)
                 continue;
             if (body == this || body.toDestroy)
                 continue;

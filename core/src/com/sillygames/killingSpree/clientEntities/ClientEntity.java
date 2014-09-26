@@ -16,6 +16,7 @@ public abstract class ClientEntity {
     public boolean destroy;
     public boolean remove;
     protected float vX, vY;
+    protected byte extra;
     
     public ClientEntity(short id, float x, float y){
         position = new Vector2(x, y);
@@ -52,11 +53,10 @@ public abstract class ClientEntity {
         } else {
             position.lerp(new Vector2((float)nextState.x, (float)nextState.y), alpha);
         }
-        if (nextState.angle > 0.001f || nextState.angle < -0.001f)
-            angle = nextState.angle;
+        angle = nextState.angle;
         vX = nextState.vX;
         vY = nextState.vY;
-        
+        extra = nextState.extra;
     }
     
     public void drawAll(Sprite sprite, SpriteBatch batch, float x, float y) {

@@ -33,28 +33,31 @@ public class ClientBlob extends ClientEntity {
 
     @Override
     public void render(float delta, SpriteBatch batch) {
-        walkDuration += delta;
-        if (vX < -5f && vY == 0) {
-            sprite.setRegion(walk.getKeyFrame(walkDuration));
-            previousXFlip = false;
-        } else if (vX > 5f && vY == 0){
-            sprite.setRegion(walk.getKeyFrame(walkDuration));
-            sprite.flip(true, false);
-            previousXFlip = true;
-        } else {
-            sprite.setRegion(walk.getKeyFrame(0));
-            sprite.flip(previousXFlip, false);
-        }
-        
-        if (destroy) {
-            deadTimer -= delta;
-            if (deadTimer <=0) {
-                remove = true;
+        if (extra == 1) {
+            walkDuration += delta;
+            if (vX < -5f && vY == 0) {
+                sprite.setRegion(walk.getKeyFrame(walkDuration));
+                previousXFlip = false;
+            } else if (vX > 5f && vY == 0){
+                sprite.setRegion(walk.getKeyFrame(walkDuration));
+                sprite.flip(true, false);
+                previousXFlip = true;
+            } else {
+                sprite.setRegion(walk.getKeyFrame(0));
+                sprite.flip(previousXFlip, false);
             }
-            sprite.setRegion(AssetLoader.instance.getTexture("sprites/explosion.png"));
-            sprite.flip(false, false);
+            
+            if (destroy) {
+                deadTimer -= delta;
+                if (deadTimer <=0) {
+                    remove = true;
+                }
+                sprite.setRegion(AssetLoader.instance.getTexture("sprites/explosion.png"));
+                sprite.flip(false, false);
+            }
+        } else {
+            sprite.setRegion(AssetLoader.instance.getTexture("sprites/green_loader.png"));
         }
-        
         float x = position.x - sprite.getWidth() / 2 + 1f;
         float y = position.y - sprite.getHeight() / 2 + ServerBlob.YOFFSET;
         drawAll(sprite, batch, x, y);
