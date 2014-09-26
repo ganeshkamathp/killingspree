@@ -17,6 +17,7 @@ public class ClientBlob extends ClientEntity {
     private Animation walk;
     private float walkDuration;
     private boolean previousXFlip;
+    private float deadTimer;
     
     public ClientBlob(short id, float x, float y) {
         super(id, x, y);
@@ -27,6 +28,7 @@ public class ClientBlob extends ClientEntity {
                 texture.getWidth()/2, texture.getHeight())[0]);
         walk.setPlayMode(Animation.PlayMode.LOOP);
         sprite.setSize(ServerBlob.WIDTH + 5f, ServerBlob.HEIGHT);
+        deadTimer = 2f;
     }
 
     @Override
@@ -42,6 +44,15 @@ public class ClientBlob extends ClientEntity {
         } else {
             sprite.setRegion(walk.getKeyFrame(0));
             sprite.flip(previousXFlip, false);
+        }
+        
+        if (destroy) {
+            deadTimer -= delta;
+            if (deadTimer <=0) {
+                remove = true;
+            }
+            sprite.setRegion(AssetLoader.instance.getTexture("sprites/explosion.png"));
+            sprite.flip(false, false);
         }
         
         float x = position.x - sprite.getWidth() / 2 + 1f;

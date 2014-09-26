@@ -13,6 +13,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -24,6 +25,7 @@ import com.sillygames.killingSpree.clientEntities.ClientEntity;
 import com.sillygames.killingSpree.clientEntities.ClientFly;
 import com.sillygames.killingSpree.clientEntities.ClientFrog;
 import com.sillygames.killingSpree.clientEntities.ClientPlayer;
+import com.sillygames.killingSpree.controls.InputController;
 import com.sillygames.killingSpree.controls.onScreenControls;
 import com.sillygames.killingSpree.helpers.EntityUtils;
 import com.sillygames.killingSpree.helpers.EntityUtils.ActorType;
@@ -59,6 +61,9 @@ public class WorldRenderer {
     private int screenWidth;
     private int screenHeight;
     private short recentId;
+    private float screenShakeX;
+    private float screenShakeY;
+    private float screenShakeTime;
     
     public WorldRenderer(WorldManager worldManager, Client client) {
         worldMap = new ConcurrentHashMap<Short, ClientEntity>();
@@ -74,6 +79,9 @@ public class WorldRenderer {
         batch = new SpriteBatch();
         controlsSender = new ControlsSender();
         recentId = -2;
+        screenShakeX = 0;
+        screenShakeY = 0;
+        screenShakeTime = 0;
     }
 
     public void loadLevel(String level, boolean isServer) {
@@ -83,7 +91,6 @@ public class WorldRenderer {
                                     getLayers().get("terrain");
         VIEWPORT_WIDTH = (int) (layer.getTileWidth() * layer.getWidth());
         VIEWPORT_HEIGHT = (int) (layer.getTileHeight() * layer.getHeight());
-        camera.setToOrtho(false, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
         viewport = new FitViewport(VIEWPORT_WIDTH, VIEWPORT_HEIGHT, camera);
         renderer = new OrthogonalTiledMapRenderer(map);
 
@@ -100,6 +107,24 @@ public class WorldRenderer {
     }
 
     public void render(float delta) {
+        if (screenShakeTime > 0) {
+            screenShakeTime += delta;
+            screenShakeX += MathUtils.random(-20, 20);
+            screenShakeY += MathUtils.random(-10, 10);
+            if (Math.abs(screenShakeX) < 30) {
+                screenShakeX = Math.signum(screenShakeX) * 5;
+            }
+            if (Math.abs(screenShakeY) < 30) {
+                screenShakeY = Math.signum(screenShakeY) * 5;
+            }
+            if (screenShakeTime > 0.3f) {
+                screenShakeTime = 0;
+                screenShakeX = 0;
+                screenShakeY = 0;
+            }
+        }
+        camera.setToOrtho(false, VIEWPORT_WIDTH + screenShakeX,
+                VIEWPORT_HEIGHT + screenShakeY);
         // Temp experiment to check GC
         count++;
         if(count % 60 == 0) {
@@ -123,7 +148,9 @@ public class WorldRenderer {
         }
         processControls();
         Gdx.gl.glViewport(0, 0, screenWidth, screenHeight);
-        controls.render();
+        if (!InputController.instance.controllerEnabled()) {
+            controls.render();
+        }
     }
 
     private void renderObjects(float delta) {
@@ -178,6 +205,7 @@ public class WorldRenderer {
         }
         for (ClientEntity entity: worldMap.values()) {
             if (entity.remove) {
+                shakeScreen();
                 worldMap.remove(entity.id);
                 continue;
             }
@@ -205,6 +233,10 @@ public class WorldRenderer {
         screenHeight = height;
         viewport.update(width, height);
         camera.update();
+    }
+    
+    public void shakeScreen() {
+        screenShakeTime = 0.01f;
     }
     
 }
