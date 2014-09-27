@@ -1,17 +1,20 @@
-package com.sillygames.killingSpree.helpers;
+package com.sillygames.killingSpree.managers;
 
 import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
+import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.sillygames.killingSpree.managers.WorldManager;
-import com.sillygames.killingSpree.managers.WorldRenderer;
+import com.sillygames.killingSpree.categories.LivingCategory;
 import com.sillygames.killingSpree.managers.physics.Body;
 import com.sillygames.killingSpree.managers.physics.Body.BodyType;
+import com.sillygames.killingSpree.managers.physics.Ray;
 import com.sillygames.killingSpree.serverEntities.ServerArrow;
+import com.sillygames.killingSpree.serverEntities.ServerBomb;
 import com.sillygames.killingSpree.serverEntities.ServerBullet;
 import com.sillygames.killingSpree.serverEntities.ServerEntity;
 import com.sillygames.killingSpree.serverEntities.ServerPlayer;
@@ -20,8 +23,10 @@ public class WorldBodyUtils {
     
     public WorldManager worldManager;
     public ArrayList<ServerEntity> entities;
-
+    private Circle circle;
+    
     public WorldBodyUtils(WorldManager worldManager) {
+        circle = new Circle();
         this.worldManager = worldManager;
         entities = new ArrayList<ServerEntity>();
     }
@@ -75,11 +80,25 @@ public class WorldBodyUtils {
         return arrow;
     }
     
-    public ServerBullet AddBullet(float x, float y) {
+    public ServerBullet AddBullet(float x, float y, ServerPlayer shooter) {
         ServerBullet bullet = new ServerBullet(worldManager.id++, x, y, this);
+        bullet.shooter = shooter;
         bullet.body.setUserData(bullet);
         entities.add(bullet);
         return bullet;
+    }
+    
+    public ServerBomb AddBomb(float x, float y, ServerPlayer bomber) {
+        for (Body body: worldManager.getWorld().bodies) {
+            if (body.rectangle.contains(x, y)) {
+                return null;
+            }
+        }
+        ServerBomb bomb = new ServerBomb(worldManager.id++, x, y, this);
+        bomb.bomber = bomber;
+        bomb.body.setUserData(bomb);
+        entities.add(bomb);
+        return bomb;
     }
 
     public void destroyBody(Body body) {
@@ -109,5 +128,32 @@ public class WorldBodyUtils {
             }
         }
         return playersPosition;
+    }
+
+    public void destroyEntities(ServerBomb bomb, float radius, Vector2 position) {
+        Body body = bomb.body;
+        circle.set(position, radius);
+        for (ServerEntity entity: worldManager.entities) {
+            if (entity.body == body) {
+                continue;
+            }
+            if (Intersector.overlaps(circle, entity.body.rectangle)) {
+                Vector2 step = entity.body.getPosition();
+                float length = position.dst(step);
+                step.sub(position);
+                float max = Math.max(step.x, step.y);
+                step.scl(4 / max);
+                Body otherBody = Ray.findBody(worldManager.getWorld(),
+                        body, step, length, true);
+                if (otherBody == null) {
+                    if (entity instanceof LivingCategory) {
+                        if (((LivingCategory)entity.body.getUserData()).kill()) {
+                            if (bomb.bomber != entity.body.getUserData())
+                                bomb.bomber.addKill();
+                        }
+                    }
+                }
+            }
+        }
     }
 }

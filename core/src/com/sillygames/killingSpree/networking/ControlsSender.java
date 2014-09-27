@@ -15,7 +15,8 @@ public class ControlsSender {
                 ((controls.axisDown()   ? 1 : 0) << 2) |
                 ((controls.axisUp()     ? 1 : 0) << 3) |
                 ((controls.axisRight()  ? 1 : 0) << 4) |
-                ((controls.axisLeft()   ? 1 : 0) << 5));
+                ((controls.axisLeft()   ? 1 : 0) << 5) |
+                ((controls.buttonB()    ? 1 : 0) << 6) );
         return message;
     }
 

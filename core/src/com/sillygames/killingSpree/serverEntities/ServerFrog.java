@@ -2,14 +2,15 @@ package com.sillygames.killingSpree.serverEntities;
 
 import com.badlogic.gdx.math.Vector2;
 import com.sillygames.killingSpree.categories.EnemyCategory;
+import com.sillygames.killingSpree.categories.LivingCategory;
 import com.sillygames.killingSpree.helpers.Utils;
-import com.sillygames.killingSpree.helpers.WorldBodyUtils;
 import com.sillygames.killingSpree.helpers.EntityUtils.ActorType;
+import com.sillygames.killingSpree.managers.WorldBodyUtils;
 import com.sillygames.killingSpree.managers.physics.Body.BodyType;
 import com.sillygames.killingSpree.managers.physics.Body.CollisionCategory;
 import com.sillygames.killingSpree.networking.messages.EntityState;
 
-public class ServerFrog extends ServerEntity  implements EnemyCategory{
+public class ServerFrog extends ServerEntity  implements EnemyCategory, LivingCategory {
 
     public static final float WIDTH = 15f;
     public static final float HEIGHT = 10f;
@@ -90,5 +91,14 @@ public class ServerFrog extends ServerEntity  implements EnemyCategory{
         state.vX = body.getLinearVelocity().x;
         state.vY = body.getLinearVelocity().y;
         state.extra = (byte) (spawnTime > 0.01f ? 0 : 1);
+    }
+
+    @Override
+    public boolean kill() {
+        if (spawnTime < 0 && !body.toDestroy) {
+            dispose();
+            return true;
+        }
+        return false;
     }
 }

@@ -9,6 +9,7 @@ import com.badlogic.gdx.Gdx;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import com.sillygames.killingSpree.clientEntities.ClientBomb;
 import com.sillygames.killingSpree.clientEntities.ClientEntity;
 import com.sillygames.killingSpree.networking.messages.GameStateMessage;
 import com.sillygames.killingSpree.pool.MessageObjectPool;
@@ -23,6 +24,7 @@ public class StateProcessor extends Listener{
     int lag = 0;
     AtomicBoolean wait;
     ConcurrentHashMap<Short, ClientEntity> world;
+    public boolean disconnected;
     
     public StateProcessor(Client client, ConcurrentHashMap<Short, ClientEntity> worldMap) {
         if (client != null) {
@@ -35,6 +37,7 @@ public class StateProcessor extends Listener{
         stateQueue = new ArrayList<GameStateMessage>();
         wait = new AtomicBoolean(false);
         this.world = worldMap;
+        disconnected = false;
     }
     
     @Override
@@ -49,7 +52,8 @@ public class StateProcessor extends Listener{
             if(world.get(object) != null ) {
                 world.get(object).destroy = true;
                 //FIXME Set remove in the client entity
-                world.get(object).remove = true;
+                if (!(world.get(object) instanceof ClientBomb))
+                    world.get(object).remove = true;
             }
         }
         super.received(connection, object);
@@ -57,7 +61,7 @@ public class StateProcessor extends Listener{
     
     @Override
     public void disconnected(Connection connection){
-        
+        disconnected = true;
     }
     
     public void addNewState(GameStateMessage state) {

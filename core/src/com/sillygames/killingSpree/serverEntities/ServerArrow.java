@@ -3,15 +3,16 @@ package com.sillygames.killingSpree.serverEntities;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.sillygames.killingSpree.categories.NonExplodingWeaponCategory;
 import com.sillygames.killingSpree.helpers.Utils;
-import com.sillygames.killingSpree.helpers.WorldBodyUtils;
 import com.sillygames.killingSpree.helpers.EntityUtils.ActorType;
+import com.sillygames.killingSpree.managers.WorldBodyUtils;
 import com.sillygames.killingSpree.managers.physics.Body;
 import com.sillygames.killingSpree.managers.physics.Body.BodyType;
 import com.sillygames.killingSpree.managers.physics.Ray;
 import com.sillygames.killingSpree.networking.messages.EntityState;
 
-public class ServerArrow extends ServerEntity {
+public class ServerArrow extends ServerEntity implements NonExplodingWeaponCategory {
 
     public static final float RADIUS = 3.5f;
     private float velocity;
@@ -89,5 +90,11 @@ public class ServerArrow extends ServerEntity {
     @Override
     public float getWidth() {
         return RADIUS;
+    }
+
+    @Override
+    public ServerEntity getShooter() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

@@ -20,7 +20,7 @@ public class onScreenControls extends InputController {
     private TouchpadStyle touchpadStyle;
     private Button jumpButton;
     private Button shootButton;
-    private Button throwGrenadeButton;
+    private Button throwBombButton;
     private Skin skin;
     private boolean createObjectsWasPressed;
     private static float BUTTON_SIZE = 150f;
@@ -32,6 +32,7 @@ public class onScreenControls extends InputController {
         skin.add("knob", new Texture("controls/knob.png"));
         skin.add("buttonA", new Texture("controls/buttonA.png"));
         skin.add("buttonB", new Texture("controls/buttonB.png"));
+        skin.add("buttonX", new Texture("controls/buttonX.png"));
 
         Drawable button;
         button = skin.getDrawable("knob");
@@ -39,7 +40,7 @@ public class onScreenControls extends InputController {
         touchpadStyle = new TouchpadStyle();
         touchpadStyle.knob = button;
         touchpad = new Touchpad(10, touchpadStyle);
-        touchpad.setBounds(0, 0, 250, 250);
+        touchpad.setBounds(0, 0, 250.0f * Gdx.graphics.getWidth() / 1280, 250);
         touchpad.setColor(touchpad.getColor().r, touchpad.getColor().g,
                 touchpad.getColor().b, touchpad.getColor().a / 5);
 
@@ -48,22 +49,23 @@ public class onScreenControls extends InputController {
         jumpButton.setColor(jumpButton.getColor().r, jumpButton.getColor().g,
                 jumpButton.getColor().b, jumpButton.getColor().a / 5);
 
-        button = skin.getDrawable("buttonB");
+        button = skin.getDrawable("buttonX");
         shootButton = new Button(button);
         shootButton.setColor(shootButton.getColor().r,
                 shootButton.getColor().g, shootButton.getColor().b,
                 shootButton.getColor().a / 5);
 
-//        throwGrenadeButton = new Button(button);
-//        throwGrenadeButton.setColor(throwGrenadeButton.getColor().r,
-//                throwGrenadeButton.getColor().g,
-//                throwGrenadeButton.getColor().b,
-//                throwGrenadeButton.getColor().a / 5);
+        button = skin.getDrawable("buttonB");
+        throwBombButton = new Button(button);
+        throwBombButton.setColor(throwBombButton.getColor().r,
+                throwBombButton.getColor().g,
+                throwBombButton.getColor().b,
+                throwBombButton.getColor().a / 5);
 
         this.stage.addActor(touchpad);
         this.stage.addActor(jumpButton);
         this.stage.addActor(shootButton);
-//        this.stage.addActor(throwGrenadeButton);
+        this.stage.addActor(throwBombButton);
         Gdx.input.setInputProcessor(stage);
         resize();
     }
@@ -97,6 +99,12 @@ public class onScreenControls extends InputController {
                     .buttonA());
     }
 
+    @Override
+    public boolean buttonB() {
+        return (throwBombButton.isPressed() || InputController.instance
+                .buttonB());
+    }
+
     public Stage getStage() {
         return stage;
     }
@@ -127,14 +135,12 @@ public class onScreenControls extends InputController {
     }
 
     public void resize() {
-        shootButton.setBounds(Gdx.graphics.getWidth() - BUTTON_SIZE,
-                BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE);
-        jumpButton.setBounds(Gdx.graphics.getWidth() - 2 * BUTTON_SIZE, 0,
+        BUTTON_SIZE = 100.0f * (float) Gdx.graphics.getWidth() / 1280f;
+        shootButton.setBounds(Gdx.graphics.getWidth() - BUTTON_SIZE * 1.1f,
+                BUTTON_SIZE * 1.1f, BUTTON_SIZE, BUTTON_SIZE);
+        jumpButton.setBounds(Gdx.graphics.getWidth() - 2 * BUTTON_SIZE  * 1.1f, 10,
                 BUTTON_SIZE, BUTTON_SIZE);
-        // testButton.setBounds(Gdx.graphics.getWidth() / 2 - BUTTON_SIZE / 2,
-        // Gdx.graphics.getHeight() - BUTTON_SIZE, BUTTON_SIZE,
-        // BUTTON_SIZE);
-//        throwGrenadeButton.setBounds(Gdx.graphics.getWidth() - BUTTON_SIZE,
-//                2.1f * BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE);
+        throwBombButton.setBounds(Gdx.graphics.getWidth() - BUTTON_SIZE * 1.1f,
+                2.1f * BUTTON_SIZE  * 1.1f, BUTTON_SIZE, BUTTON_SIZE);
     }
 }

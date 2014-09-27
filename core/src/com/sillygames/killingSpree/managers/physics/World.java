@@ -8,6 +8,7 @@ import com.esotericsoftware.kryonet.Server;
 import com.sillygames.killingSpree.managers.WorldManager;
 import com.sillygames.killingSpree.managers.physics.Body.BodyType;
 import com.sillygames.killingSpree.serverEntities.ServerEntity;
+import com.sillygames.killingSpree.serverEntities.ServerPlayer;
 
 public class World {
     
@@ -31,7 +32,13 @@ public class World {
         }
         for (i = 0; i< iterations; i++) {
             for (Body body: bodies) {
-                if (body.bodyType == BodyType.DynamicBody)
+                if (body.getUserData() instanceof ServerPlayer)
+                    body.update(delta/(float)iterations);
+            }
+            
+            for (Body body: bodies) {
+                if (body.bodyType == BodyType.DynamicBody && 
+                        !(body.getUserData() instanceof ServerPlayer))
                     body.update(delta/(float)iterations);
             }
         }

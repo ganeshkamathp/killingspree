@@ -2,11 +2,12 @@ package com.sillygames.killingSpree.managers.physics;
 
 import com.badlogic.gdx.math.Vector2;
 import com.sillygames.killingSpree.managers.WorldRenderer;
+import com.sillygames.killingSpree.managers.physics.Body.BodyType;
 
 public class Ray {
     
     public static Body findBody(World world, Body srcBody,
-            Vector2 step, float length) {
+            Vector2 step, float length, boolean staticOnly) {
         Vector2 start = srcBody.getPosition();
         Body body = null;
         if (step.isZero()) {
@@ -18,6 +19,10 @@ public class Ray {
         float bestLength = 100000;
         length *= length;
         for (int i = 0; i < world.bodies.size(); i++) {
+            if (staticOnly &&
+                    world.bodies.get(i).bodyType != BodyType.StaticBody) {
+                continue;
+            }
             if (world.bodies.get(i) == srcBody) {
                 continue;
             }
@@ -38,6 +43,11 @@ public class Ray {
             }
         }
         return body;
+    }
+    
+    public static Body findBody(World world, Body srcBody,
+            Vector2 step, float length) {
+        return findBody(world, srcBody, step, length, false);
     }
 
 }

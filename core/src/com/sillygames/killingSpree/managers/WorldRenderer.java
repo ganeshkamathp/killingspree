@@ -1,11 +1,9 @@
 package com.sillygames.killingSpree.managers;
 
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
@@ -20,6 +18,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.esotericsoftware.kryonet.Client;
 import com.sillygames.killingSpree.clientEntities.ClientArrow;
 import com.sillygames.killingSpree.clientEntities.ClientBlob;
+import com.sillygames.killingSpree.clientEntities.ClientBomb;
 import com.sillygames.killingSpree.clientEntities.ClientBullet;
 import com.sillygames.killingSpree.clientEntities.ClientEntity;
 import com.sillygames.killingSpree.clientEntities.ClientFly;
@@ -53,7 +52,7 @@ public class WorldRenderer {
     private Client client;
     private int count;
     private ControlsSender controlsSender;
-    private StateProcessor stateProcessor;
+    public StateProcessor stateProcessor;
     private ConcurrentHashMap<Short, ClientEntity> worldMap;
     long previousTime;
     private WorldDebugRenderer debugRenderer;
@@ -107,17 +106,18 @@ public class WorldRenderer {
     }
 
     public void render(float delta) {
+//        screenShakeTime = 0.1f;
         if (screenShakeTime > 0) {
             screenShakeTime += delta;
-            screenShakeX += MathUtils.random(-20, 20);
-            screenShakeY += MathUtils.random(-10, 10);
-            if (Math.abs(screenShakeX) < 30) {
-                screenShakeX = Math.signum(screenShakeX) * 5;
+            screenShakeX += MathUtils.random(-7, 7);
+            screenShakeY += MathUtils.random(-7, 7);
+            if (Math.abs(screenShakeX) > 10) {
+                screenShakeX = Math.signum(screenShakeX) * 10;
             }
-            if (Math.abs(screenShakeY) < 30) {
+            if (Math.abs(screenShakeY) > 5) {
                 screenShakeY = Math.signum(screenShakeY) * 5;
             }
-            if (screenShakeTime > 0.3f) {
+            if (screenShakeTime > 0.2f) {
                 screenShakeTime = 0;
                 screenShakeX = 0;
                 screenShakeY = 0;
@@ -187,6 +187,8 @@ public class WorldRenderer {
                     entity = new ClientFly(state.id, state.x, state.y);
                 } else if (EntityUtils.ByteToActorType(state.type) == ActorType.FROG) {
                     entity = new ClientFrog(state.id, state.x, state.y);
+                } else if (EntityUtils.ByteToActorType(state.type) == ActorType.BOMB) {
+                    entity = new ClientBomb(state.id, state.x, state.y);
                 } else {
                     Gdx.app.log("Error", "Couldnt decode actor type");
                     Gdx.app.exit();
@@ -203,8 +205,9 @@ public class WorldRenderer {
             }
         }
         for (ClientEntity entity: worldMap.values()) {
+            if (entity.destroy && entity instanceof ClientBomb)
+                shakeScreen();
             if (entity.remove) {
-//                shakeScreen();
                 worldMap.remove(entity.id);
                 continue;
             }
@@ -236,6 +239,11 @@ public class WorldRenderer {
     
     public void shakeScreen() {
         screenShakeTime = 0.01f;
+    }
+
+    public void dispose() {
+        // TODO Auto-generated method stub
+        
     }
     
 }

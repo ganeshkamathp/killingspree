@@ -27,4 +27,8 @@ public class ControlsMessage{
     public boolean left() {
         return (buttonPresses & 0x20) > 0; 
     }
+    
+    public boolean throwBomb() {
+        return (buttonPresses & 0x40) > 0; 
+    }
 }

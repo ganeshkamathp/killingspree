@@ -32,6 +32,10 @@ public class GameScreen extends AbstractScreen {
             world.update(delta);
         }
         renderer.render(delta);
+        if (renderer.stateProcessor.disconnected) {
+            game.platformServices.toast("server disconnected");
+            game.setScreen(new MainMenuScreen(game));
+        }
     }
 
     @Override
@@ -95,6 +99,11 @@ public class GameScreen extends AbstractScreen {
 
     @Override
     public void dispose() {
+        if (isServer) {
+            world.dispose();
+        }
+        renderer.dispose();
+        
     }
 
 }

@@ -39,18 +39,19 @@ public class InputController {
     public boolean buttonA() {
         return (controllerEnabled() && Controllers
                 .getControllers().get(0).getButton(96) ||
-                Gdx.input.isKeyPressed(Keys.SPACE));
+                Gdx.input.isKeyPressed(Keys.Z));
     }
 
     public boolean buttonB() {
         return (controllerEnabled() && Controllers
-                .getControllers().get(0).getButton(97));
+                .getControllers().get(0).getButton(97)||
+                Gdx.input.isKeyPressed(Keys.C));
     }
 
     public boolean buttonX() {
         return (controllerEnabled() && Controllers
                 .getControllers().get(0).getButton(99) ||
-                Gdx.input.isKeyPressed(Keys.CONTROL_LEFT));
+                Gdx.input.isKeyPressed(Keys.X));
     }
 
     public boolean buttonY() {

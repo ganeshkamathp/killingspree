@@ -12,7 +12,6 @@ import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 import com.sillygames.killingSpree.helpers.Event;
 import com.sillygames.killingSpree.helpers.MyConnection;
-import com.sillygames.killingSpree.helpers.WorldBodyUtils;
 import com.sillygames.killingSpree.helpers.Event.State;
 import com.sillygames.killingSpree.managers.physics.Body;
 import com.sillygames.killingSpree.managers.physics.World;
@@ -222,6 +221,11 @@ public class WorldManager{
         server.sendToAllTCP(body.getUserData().id);
         addOutgoingEvent(MessageObjectPool.instance.
                 eventPool.obtain().set(State.RECEIVED, body.getUserData().id));
+    }
+
+    public void dispose() {
+        // TODO Auto-generated method stub
+        
     }
     
 }

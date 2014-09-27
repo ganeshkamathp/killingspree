@@ -3,7 +3,7 @@ package com.sillygames.killingSpree.serverEntities;
 import com.badlogic.gdx.math.Vector2;
 import com.sillygames.killingSpree.helpers.EntityUtils;
 import com.sillygames.killingSpree.helpers.EntityUtils.ActorType;
-import com.sillygames.killingSpree.helpers.WorldBodyUtils;
+import com.sillygames.killingSpree.managers.WorldBodyUtils;
 import com.sillygames.killingSpree.managers.physics.Body;
 import com.sillygames.killingSpree.networking.messages.EntityState;
 
@@ -30,10 +30,18 @@ public abstract class ServerEntity {
     public void updateState(EntityState state) {
         state.id = id;
         state.type = EntityUtils.actorTypeToByte(actorType);
-        state.x = position.x;
-        state.y = position.y;
+        state.x = body.getPosition().x;
+        state.y =  body.getPosition().y;
     }
     
     public abstract float getWidth();
+
+    public void addKill(){
+        
+    }
+    
+    public boolean spawning() {
+        return false;
+    }
 
 }
