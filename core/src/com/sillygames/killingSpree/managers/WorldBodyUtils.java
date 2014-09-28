@@ -13,6 +13,8 @@ import com.sillygames.killingSpree.categories.LivingCategory;
 import com.sillygames.killingSpree.managers.physics.Body;
 import com.sillygames.killingSpree.managers.physics.Body.BodyType;
 import com.sillygames.killingSpree.managers.physics.Ray;
+import com.sillygames.killingSpree.managers.physics.World;
+import com.sillygames.killingSpree.networking.messages.AudioMessage;
 import com.sillygames.killingSpree.serverEntities.ServerArrow;
 import com.sillygames.killingSpree.serverEntities.ServerBomb;
 import com.sillygames.killingSpree.serverEntities.ServerBullet;
@@ -24,17 +26,21 @@ public class WorldBodyUtils {
     public WorldManager worldManager;
     public ArrayList<ServerEntity> entities;
     private Circle circle;
+    public AudioMessage audio;
+    private World world;
     
     public WorldBodyUtils(WorldManager worldManager) {
         circle = new Circle();
         this.worldManager = worldManager;
         entities = new ArrayList<ServerEntity>();
+        audio = worldManager.audio;
+        this.world = worldManager.getWorld();
     }
     
     public Body addBox(float w, float h, float x, float y, BodyType type){
         Body body = new Body(x - w/2, y - h/2, w, h, type);
-        body.setWorld(worldManager.getWorld());
-        worldManager.getWorld().bodies.add(body);
+        body.setWorld(world);
+        world.bodies.add(body);
         return body;
     }
 
@@ -42,33 +48,33 @@ public class WorldBodyUtils {
         if (object instanceof RectangleMapObject) {
             Rectangle rectangle = ((RectangleMapObject) object).getRectangle();
             Body body = new Body(rectangle);
-            worldManager.getWorld().bodies.add(body);
+            world.bodies.add(body);
             
             if (rectangle.x < 20) {
                 rectangle = new Rectangle(rectangle);
                 rectangle.x += WorldRenderer.VIEWPORT_WIDTH;
                 body = new Body(rectangle);
-                worldManager.getWorld().bodies.add(body);
+                world.bodies.add(body);
             }
             
             if (rectangle.x + rectangle.width > WorldRenderer.VIEWPORT_WIDTH - 20) {
                 rectangle = new Rectangle(rectangle);
                 rectangle.x -= WorldRenderer.VIEWPORT_WIDTH;
                 body = new Body(rectangle);
-                worldManager.getWorld().bodies.add(body);
+                world.bodies.add(body);
             }
             
             if (rectangle.y < 20) {
                 rectangle = new Rectangle(rectangle);
                 rectangle.y += WorldRenderer.VIEWPORT_HEIGHT;
                 body = new Body(rectangle);
-                worldManager.getWorld().bodies.add(body);
+                world.bodies.add(body);
             }
             if (rectangle.y > WorldRenderer.VIEWPORT_HEIGHT - 20) {
                 rectangle = new Rectangle(rectangle);
                 rectangle.y -= WorldRenderer.VIEWPORT_WIDTH;
                 body = new Body(rectangle);
-                worldManager.getWorld().bodies.add(body);
+                world.bodies.add(body);
             }
         }
     }
@@ -89,7 +95,7 @@ public class WorldBodyUtils {
     }
     
     public ServerBomb AddBomb(float x, float y, ServerPlayer bomber) {
-        for (Body body: worldManager.getWorld().bodies) {
+        for (Body body: world.bodies) {
             if (body.rectangle.contains(x, y)) {
                 return null;
             }
@@ -143,7 +149,7 @@ public class WorldBodyUtils {
                 step.sub(position);
                 float max = Math.max(step.x, step.y);
                 step.scl(4 / max);
-                Body otherBody = Ray.findBody(worldManager.getWorld(),
+                Body otherBody = Ray.findBody(world,
                         body, step, length, true);
                 if (otherBody == null) {
                     if (entity instanceof LivingCategory) {

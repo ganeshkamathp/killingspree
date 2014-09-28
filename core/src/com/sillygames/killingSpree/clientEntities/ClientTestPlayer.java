@@ -20,8 +20,8 @@ public class ClientTestPlayer extends ClientEntity{
     private float walkDuration;
     private boolean previousXFlip;
     
-    public ClientTestPlayer(short id, float x, float y) {
-        super(id, x, y);
+    public ClientTestPlayer(short id, float x, float y, WorldRenderer renderer) {
+        super(id, x, y, renderer);
         markForDispose = false;
         Texture texture = AssetLoader.instance.getTexture("sprites/explosion.png");
         sprite = new Sprite(texture);

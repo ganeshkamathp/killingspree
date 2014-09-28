@@ -19,8 +19,8 @@ public class ClientFrog extends ClientEntity {
     private Animation walk;
     private boolean previousXFlip;
     
-    public ClientFrog(short id, float x, float y) {
-        super(id, x, y);
+    public ClientFrog(short id, float x, float y, WorldRenderer renderer) {
+        super(id, x, y, renderer);
         markForDispose = false;
         Texture texture = AssetLoader.instance.getTexture("sprites/frog.png");
         sprite = new Sprite(texture);
@@ -32,7 +32,7 @@ public class ClientFrog extends ClientEntity {
 
     @Override
     public void render(float delta, SpriteBatch batch) {
-        if (extra == 1) {
+        if ((extra & 0x1) == 1) {
             if (vY <= 0) 
                 sprite.setRegion(walk.getKeyFrame(0));
             else

@@ -16,15 +16,17 @@ public abstract class ClientEntity {
     public boolean destroy;
     public boolean remove;
     protected float vX, vY;
-    protected byte extra;
+    protected short extra;
+    protected WorldRenderer renderer;
     
-    public ClientEntity(short id, float x, float y){
+    public ClientEntity(short id, float x, float y, WorldRenderer renderer){
         position = new Vector2(x, y);
         previousPosition = new Vector2(x, y);
         currentState = new EntityState();
         this.id = id;
         destroy = false;
         remove = false;
+        this.renderer = renderer;
     }
 
     public abstract void render(float delta, SpriteBatch batch);

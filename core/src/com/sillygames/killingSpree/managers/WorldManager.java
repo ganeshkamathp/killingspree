@@ -1,7 +1,9 @@
 package com.sillygames.killingSpree.managers;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapObject;
@@ -15,6 +17,7 @@ import com.sillygames.killingSpree.helpers.MyConnection;
 import com.sillygames.killingSpree.helpers.Event.State;
 import com.sillygames.killingSpree.managers.physics.Body;
 import com.sillygames.killingSpree.managers.physics.World;
+import com.sillygames.killingSpree.networking.messages.AudioMessage;
 import com.sillygames.killingSpree.networking.messages.ControlsMessage;
 import com.sillygames.killingSpree.networking.messages.EntityState;
 import com.sillygames.killingSpree.networking.messages.GameStateMessage;
@@ -29,7 +32,7 @@ public class WorldManager{
     
     private World world;
     private Server server;
-    public HashMap<Integer, ServerPlayer> playerList;
+    public ConcurrentHashMap<Integer, ServerPlayer> playerList;
     public ArrayList<ServerEntity> entities;
     private WorldManager worldManager = this;
     private ArrayList<Event> incomingEventQueue;
@@ -39,14 +42,25 @@ public class WorldManager{
     private WorldBodyUtils worldBodyUtils;
     public MyConnection dummyConnection;
     public short id;
+    public AudioMessage audio;
 //    public ServerFrog frog;
 //    public ServerFly fly;
 //    public ServerBlob blob;
     public LevelLoader loader;
+    ArrayList<Vector2> playerPositions;
+    
+    public int i;
     
     public WorldManager(final Server server){
+        i = 0;
         
-        playerList = new HashMap<Integer, ServerPlayer>();
+        playerPositions = new ArrayList<Vector2>();
+        playerPositions.add(new Vector2(50,85));
+        playerPositions.add(new Vector2(395,85));
+        playerPositions.add(new Vector2(50,230));
+        playerPositions.add(new Vector2(395,230));
+        
+        playerList = new ConcurrentHashMap<Integer, ServerPlayer>();
         
         world = new World(new Vector2(0, -500f));
         
@@ -67,6 +81,8 @@ public class WorldManager{
                 eventPool.obtain().set(State.CONNECTED, null));
         outgoingEventQueue.add(MessageObjectPool.instance.
                 eventPool.obtain().set(State.CONNECTED, null));
+        audio = new AudioMessage();
+
         worldBodyUtils = new WorldBodyUtils(worldManager);
 
         id = 0;
@@ -76,7 +92,8 @@ public class WorldManager{
 //        entities.add(fly);
 //        blob = new ServerBlob(id++, 20, 100, worldBodyUtils);
 //        entities.add(blob);
-        loader = new LevelLoader("maps/retro-small.txt", this);
+        if (server == null)
+            loader = new LevelLoader("maps/retro-small.txt", this);
     }
     
     public void setOutgoingEventListener(Listener listener) {
@@ -102,7 +119,10 @@ public class WorldManager{
     }
 
     public void update(float delta) {
-        loader.loadNextLine(delta);
+        audio.reset();
+        if (server == null)
+            loader.loadNextLine(delta);
+        
         for(ServerEntity entity: entities) {
             entity.update(delta);
         }
@@ -123,9 +143,14 @@ public class WorldManager{
         gameStateMessage.time = TimeUtils.nanoTime();
         if (server != null) {
             server.sendToAllUDP(gameStateMessage);
+            if (audio.audio != 0) {
+                server.sendToAllUDP(audio);
+            }
         }
         addOutgoingEvent(MessageObjectPool.instance.
                 eventPool.obtain().set(State.RECEIVED, gameStateMessage));
+        addOutgoingEvent(MessageObjectPool.instance.
+                eventPool.obtain().set(State.RECEIVED, audio));
         
         processEvents(serverListener, incomingEventQueue);
         processEvents(outgoingEventListener, outgoingEventQueue);
@@ -156,7 +181,8 @@ public class WorldManager{
     private class WorldManagerServerListener extends Listener {
         @Override
         public void connected(Connection connection) {
-            server.sendToTCP(connection.getID(), "start");
+            if (server != null)
+                server.sendToTCP(connection.getID(), "start");
         }
         
         @Override
@@ -167,8 +193,12 @@ public class WorldManager{
                     setCurrentControls((ControlsMessage) object);
                 }
                 catch(Exception e) {
-                    server.sendToTCP(connection.getID(), "start");
-                    ServerPlayer player = new ServerPlayer(id++, 50, 150, worldBodyUtils);
+                    if (server != null)
+                        server.sendToTCP(connection.getID(), "start");
+                    ServerPlayer player = new ServerPlayer(id++, playerPositions.get(i).x,
+                            playerPositions.get(i).y, worldBodyUtils);
+                    i++;
+                    i %= playerPositions.size();
                     playerList.put(connection.getID(), player);
                     entities.add(player);
                 }
@@ -218,14 +248,16 @@ public class WorldManager{
     
     public void destroyBody(Body body) {
         entities.remove(body.getUserData());
-        server.sendToAllTCP(body.getUserData().id);
+        if (server != null)
+            server.sendToAllTCP(body.getUserData().id);
         addOutgoingEvent(MessageObjectPool.instance.
                 eventPool.obtain().set(State.RECEIVED, body.getUserData().id));
     }
 
     public void dispose() {
-        // TODO Auto-generated method stub
-        
+        if (server != null) {
+            server.stop();
+        }
     }
     
 }

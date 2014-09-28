@@ -25,10 +25,12 @@ public class SplashScreen extends AbstractScreen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        font.drawMultiLine(batch, "Silly\ngames", Gdx.graphics.getWidth()/2-200,
+        font.draw(batch, "Killing", Gdx.graphics.getWidth()/2 - 450,
                 Gdx.graphics.getHeight() - 120);
+        font.draw(batch, "Spree", Gdx.graphics.getWidth()/2,
+                Gdx.graphics.getHeight() - 380);
         batch.end();
-        if (totalTime < 0f){
+        if (totalTime < 2f){
             totalTime += delta;
         } else {
             game.setScreen(new MainMenuScreen(game));

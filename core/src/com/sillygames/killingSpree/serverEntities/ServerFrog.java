@@ -90,15 +90,17 @@ public class ServerFrog extends ServerEntity  implements EnemyCategory, LivingCa
         super.updateState(state);
         state.vX = body.getLinearVelocity().x;
         state.vY = body.getLinearVelocity().y;
-        state.extra = (byte) (spawnTime > 0.01f ? 0 : 1);
+        state.extra |= (short) (spawnTime > 0.01f ? 0 : 1);
     }
 
     @Override
     public boolean kill() {
         if (spawnTime < 0 && !body.toDestroy) {
             dispose();
+            world.audio.jumpedOn();
             return true;
         }
         return false;
     }
+    
 }

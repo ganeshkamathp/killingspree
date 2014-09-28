@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Registration;
 import com.esotericsoftware.kryonet.EndPoint;
+import com.sillygames.killingSpree.networking.messages.AudioMessage;
 import com.sillygames.killingSpree.networking.messages.ConnectMessage;
 import com.sillygames.killingSpree.networking.messages.ControlsMessage;
 import com.sillygames.killingSpree.networking.messages.EntityState;
@@ -56,6 +57,17 @@ public class NetworkRegisterer {
             @Override
             public GameStateMessage newInstance() {
                 return MessageObjectPool.instance.gameStateMessagePool.obtain();
+            }
+            
+        });
+        
+        registration = kryo.register(AudioMessage.class);
+        registration.setInstantiator(new 
+                ObjectInstantiator<AudioMessage>() {
+            
+            @Override
+            public AudioMessage newInstance() {
+                return MessageObjectPool.instance.audioMessagePool.obtain();
             }
             
         });

@@ -26,6 +26,8 @@ public class ServerPlayer extends ServerEntity implements LivingCategory {
     private float startX, startY;
     private float spawnTime;
     public byte score;
+    private byte totalBombs;
+    private float addBombTimer;
     
     public ServerPlayer(short id, float x, float y, WorldBodyUtils world) {
         super(id, x, y, world);
@@ -42,14 +44,25 @@ public class ServerPlayer extends ServerEntity implements LivingCategory {
         spawnTime = 0.1f;
         direction = 1;
         score = 0;
+        totalBombs = 3;
+        addBombTimer = 0;
     }
     
     @Override
     public void update(float delta) {
+        if (totalBombs < 3) {
+            addBombTimer += delta;
+            if (addBombTimer >= 10) {
+               totalBombs++;
+               addBombTimer = 0;
+            }
+        } else {
+            addBombTimer = 0;
+        }
 //        Gdx.app.log(Short.toString(id), Byte.toString(score));
         if (spawnTime > 0) {
             spawnTime += delta;
-            if (spawnTime > 4) {
+            if (spawnTime > 2f) {
                 body.bodyType = BodyType.DynamicBody;
                 spawnTime = -1f;
             }
@@ -103,11 +116,12 @@ public class ServerPlayer extends ServerEntity implements LivingCategory {
                     world.AddBullet(position.x + x * 15, position.y + y * 15, this).body.
                     setLinearVelocity(x * 200, y * 200);;
                     reloadTime = 0;
-            } else if (controls.throwBomb()) {
+            } else if (controls.throwBomb() && totalBombs > 0) {
                 ServerBomb bomb = world.AddBomb(position.x + Math.signum(x) * 15, position.y + 10, this);
                 if (bomb != null) {
                     bomb.body.setLinearVelocity(Math.signum(x) * 100, 100);
                     reloadTime = 0;
+                    totalBombs--;
                 }
             }
         }
@@ -127,6 +141,7 @@ public class ServerPlayer extends ServerEntity implements LivingCategory {
 
         if (controls.jump() && body.grounded) {
             body.applyLinearImpulse(0, 290f);
+            world.audio.jump();
         }
     }
 
@@ -137,10 +152,12 @@ public class ServerPlayer extends ServerEntity implements LivingCategory {
     @Override
     public boolean kill() {
         if (spawnTime < 0) {
+            world.audio.hurt();
             Vector2 position = body.getPosition();
             position.set(startX, startY);
             body.setTransform(position, 0);
             spawnTime = 0.1f;
+            totalBombs = 3;
             return true;
         }
         return false;
@@ -157,8 +174,9 @@ public class ServerPlayer extends ServerEntity implements LivingCategory {
         state.vX = body.getLinearVelocity().x;
         state.vY = body.getLinearVelocity().y;
         state.angle = (float) Math.atan2(directionY, directionX);
-        state.extra = (byte) (spawnTime > 0.01f ? 0 : 1);
-        state.extra |= score << 1;
+        state.extra |= (short) (spawnTime > 0.01f ? 0 : 1);
+        state.extra |= (totalBombs << 1);
+        state.extra |= (score << 4);
     }
 
     @Override

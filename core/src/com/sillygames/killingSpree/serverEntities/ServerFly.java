@@ -118,15 +118,17 @@ public class ServerFly extends ServerEntity implements EnemyCategory, LivingCate
         super.updateState(state);
         state.vX = body.getLinearVelocity().x;
         state.vY = body.getLinearVelocity().y;
-        state.extra = (byte) (spawnTime > 0.01f ? 0 : 1);
+        state.extra |= (short) (spawnTime > 0.01f ? 0 : 1);
     }
     
     @Override
     public boolean kill() {
         if (spawnTime < 0 && !body.toDestroy) {
+            world.audio.jumpedOn();
             dispose();
             return true;
         }
         return false;
     }
+    
 }

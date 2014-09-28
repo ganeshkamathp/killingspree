@@ -27,13 +27,11 @@ public class LevelLoader {
 
     public void loadNextLine(float delta) {
         currentTime += delta;
+        i %= level.length;
         while ((world.entities.size() - world.playerList.size() <= 0 ||
                 currentTime >= nextTime) && i < level.length) {
             if (nextTime == 1000) {
                 platformServices.toast(level[i++].trim());
-                if (i >= level.length) {
-                    continue;
-                }
             }
             String entity = readNextLine();
             String param[] = readNextLine().split(" ");
@@ -57,8 +55,10 @@ public class LevelLoader {
     }
     
     String readNextLine() {
+        i %= level.length;
         String line = level[i++].trim();
         while (line.compareTo("") == 0 && i < level.length) {
+            i %= level.length;
             line = level[i++].trim();
         }
         return line;

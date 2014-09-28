@@ -12,8 +12,8 @@ public class ClientBullet extends ClientEntity {
     private Sprite sprite;
     boolean markForDispose;
     
-    public ClientBullet(short id, float x, float y) {
-        super(id, x, y);
+    public ClientBullet(short id, float x, float y, WorldRenderer renderer) {
+        super(id, x, y, renderer);
         markForDispose = false;
         sprite = new Sprite(AssetLoader.instance.getTexture("sprites/bullet.png"));
         sprite.setSize(ServerArrow.RADIUS * 4 , 
@@ -21,6 +21,7 @@ public class ClientBullet extends ClientEntity {
         sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
         sprite.setPosition(x  - sprite.getWidth() / 2,
                 y  - sprite.getHeight() / 2);
+        renderer.audioPlayer.shoot();
     }
 
     @Override

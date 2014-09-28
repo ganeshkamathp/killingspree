@@ -18,7 +18,9 @@ public class GameScreen extends AbstractScreen {
     private boolean isServer;
     private Server server;
     private Client client;
-
+    private float currentTime;
+    private final float frameTime = 1 / 60.0f;
+    
     public GameScreen(KillingSpree game) {
         super(game);
         show();
@@ -29,7 +31,12 @@ public class GameScreen extends AbstractScreen {
         Gdx.gl.glClearColor(0.1f, 0.1f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         if (isServer) {
-            world.update(delta);
+//            currentTime += delta;
+//            while (currentTime >= frameTime) {
+//                currentTime -= frameTime;
+//                world.update(frameTime);
+                world.update(delta);
+//            }
         }
         renderer.render(delta);
         if (renderer.stateProcessor.disconnected) {
@@ -45,11 +52,10 @@ public class GameScreen extends AbstractScreen {
 
     @Override
     public void show() {
+        currentTime = 0;
     }
     
     public void startServer(boolean lonely) {
-        //FIXME
-        lonely = false;
         isServer = true;
         if (!lonely) {
             server = new Server();
@@ -67,7 +73,8 @@ public class GameScreen extends AbstractScreen {
     public void loadLevel(String level, String host) {
         if (isServer) {
             world = new WorldManager(server);
-            world.loader.platformServices = game.platformServices;
+            if (server == null)
+                world.loader.platformServices = game.platformServices;
         } else {
             client = new Client();
             NetworkRegisterer.register(client);
@@ -81,7 +88,7 @@ public class GameScreen extends AbstractScreen {
             }
         }
         
-        renderer = new WorldRenderer(world, client);
+        renderer = new WorldRenderer(world, client, game);
         renderer.loadLevel(level, isServer);
     }
 

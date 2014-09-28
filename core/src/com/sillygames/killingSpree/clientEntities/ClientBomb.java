@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.sillygames.killingSpree.managers.WorldRenderer;
 import com.sillygames.killingSpree.pool.AssetLoader;
-import com.sillygames.killingSpree.serverEntities.ServerArrow;
+import com.sillygames.killingSpree.serverEntities.ServerBomb;
 
 public class ClientBomb extends ClientEntity {
     
@@ -17,12 +17,12 @@ public class ClientBomb extends ClientEntity {
     private float deadTimer;
     private Animation explode;
     
-    public ClientBomb(short id, float x, float y) {
-        super(id, x, y);
+    public ClientBomb(short id, float x, float y, WorldRenderer renderer) {
+        super(id, x, y, renderer);
         markForDispose = false;
         sprite = new Sprite(AssetLoader.instance.getTexture("sprites/bomb.png"));
-        sprite.setSize(ServerArrow.RADIUS + 10, 
-                ServerArrow.RADIUS + 10);
+        sprite.setSize(ServerBomb.RADIUS + 5, 
+                ServerBomb.RADIUS + 5);
         sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
         sprite.setPosition(x  - sprite.getWidth() / 2,
                 y  - sprite.getHeight() / 2);

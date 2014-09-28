@@ -12,8 +12,8 @@ public class ClientArrow extends ClientEntity {
     private Sprite sprite;
     boolean markForDispose;
     
-    public ClientArrow(short id, float x, float y) {
-        super(id, x, y);
+    public ClientArrow(short id, float x, float y, WorldRenderer renderer) {
+        super(id, x, y, renderer);
         markForDispose = false;
         sprite = new Sprite(AssetLoader.instance.getTexture("sprites/arrow.png"));
         sprite.setSize(ServerArrow.RADIUS * 10 , 

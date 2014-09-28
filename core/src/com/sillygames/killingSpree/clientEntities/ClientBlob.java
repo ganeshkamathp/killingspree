@@ -19,8 +19,8 @@ public class ClientBlob extends ClientEntity {
     private boolean previousXFlip;
     private float deadTimer;
     
-    public ClientBlob(short id, float x, float y) {
-        super(id, x, y);
+    public ClientBlob(short id, float x, float y, WorldRenderer renderer) {
+        super(id, x, y, renderer);
         markForDispose = false;
         Texture texture = AssetLoader.instance.getTexture("sprites/blob.png");
         sprite = new Sprite(texture);
@@ -33,7 +33,7 @@ public class ClientBlob extends ClientEntity {
 
     @Override
     public void render(float delta, SpriteBatch batch) {
-        if (extra == 1) {
+        if ((extra & 0x1) == 1) {
             walkDuration += delta;
             if (vX < -5f && vY == 0) {
                 sprite.setRegion(walk.getKeyFrame(walkDuration));

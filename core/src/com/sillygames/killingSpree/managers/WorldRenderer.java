@@ -16,6 +16,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.esotericsoftware.kryonet.Client;
+import com.sillygames.killingSpree.KillingSpree;
 import com.sillygames.killingSpree.clientEntities.ClientArrow;
 import com.sillygames.killingSpree.clientEntities.ClientBlob;
 import com.sillygames.killingSpree.clientEntities.ClientBomb;
@@ -37,9 +38,13 @@ import com.sillygames.killingSpree.networking.messages.ControlsMessage;
 import com.sillygames.killingSpree.networking.messages.EntityState;
 import com.sillygames.killingSpree.networking.messages.GameStateMessage;
 import com.sillygames.killingSpree.pool.MessageObjectPool;
+import com.sillygames.killingSpree.renderers.HUDRenderer;
+import com.sillygames.killingSpree.screens.MainMenuScreen;
+import com.sillygames.killingSpree.sound.SFXPlayer;
 
 public class WorldRenderer {
     
+    private static final boolean DEBUG = false;
     public static int VIEWPORT_WIDTH = 525;
     public static int VIEWPORT_HEIGHT = 375;
     private WorldManager worldManager;
@@ -63,11 +68,15 @@ public class WorldRenderer {
     private float screenShakeX;
     private float screenShakeY;
     private float screenShakeTime;
+    private KillingSpree game;
+    public SFXPlayer audioPlayer;
+    public HUDRenderer hudRenderer;
     
-    public WorldRenderer(WorldManager worldManager, Client client) {
+    public WorldRenderer(WorldManager worldManager, Client client, KillingSpree game) {
         worldMap = new ConcurrentHashMap<Short, ClientEntity>();
         this.worldManager = worldManager;
-        stateProcessor = new StateProcessor(client, worldMap);
+        audioPlayer = new SFXPlayer();
+        stateProcessor = new StateProcessor(client, worldMap, audioPlayer);
         if (worldManager != null) {
             debugRenderer = new WorldDebugRenderer(worldManager.getWorld());
             worldManager.setOutgoingEventListener(stateProcessor);
@@ -81,6 +90,8 @@ public class WorldRenderer {
         screenShakeX = 0;
         screenShakeY = 0;
         screenShakeTime = 0;
+        hudRenderer = new HUDRenderer();
+        this.game = game;
     }
 
     public void loadLevel(String level, boolean isServer) {
@@ -105,6 +116,7 @@ public class WorldRenderer {
                 + Float.toString(VIEWPORT_HEIGHT));
     }
 
+    @SuppressWarnings("unused")
     public void render(float delta) {
 //        screenShakeTime = 0.1f;
         if (screenShakeTime > 0) {
@@ -134,16 +146,16 @@ public class WorldRenderer {
         renderer.setView(camera);
         renderer.render();
         batch.setProjectionMatrix(camera.combined);
-        if(Gdx.input.isTouched()) {
-            Gdx.app.log("Touched at",
-                    viewport.unproject(new Vector2(Gdx.input.getX(),
-                            Gdx.input.getY())).toString());
-        }
+//        if(DEBUG && Gdx.input.isTouched()) {
+//            Gdx.app.log("Touched at",
+//                    viewport.unproject(new Vector2(Gdx.input.getX(),
+//                            Gdx.input.getY())).toString());
+//        }
         batch.begin();
         renderObjects(delta);
         batch.end();
-        if (isServer) {
-//            debugRenderer.render(camera.combined);
+        if (isServer && DEBUG) {
+            debugRenderer.render(camera.combined);
         }
         processControls();
         Gdx.gl.glViewport(0, 0, screenWidth, screenHeight);
@@ -176,19 +188,19 @@ public class WorldRenderer {
             if (!worldMap.containsKey(state.id) && state.id > recentId) {
                 ClientEntity entity = null;
                 if (EntityUtils.ByteToActorType(state.type) == ActorType.PLAYER) {
-                    entity = new ClientPlayer(state.id, state.x, state.y);
+                    entity = new ClientPlayer(state.id, state.x, state.y, this);
                 } else if (EntityUtils.ByteToActorType(state.type) == ActorType.BLOB) {
-                    entity = new ClientBlob(state.id, state.x, state.y);
+                    entity = new ClientBlob(state.id, state.x, state.y, this);
                 } else if (EntityUtils.ByteToActorType(state.type) == ActorType.ARROW) {
-                    entity = new ClientArrow(state.id, state.x, state.y);
+                    entity = new ClientArrow(state.id, state.x, state.y, this);
                 } else if (EntityUtils.ByteToActorType(state.type) == ActorType.BULLET) {
-                    entity = new ClientBullet(state.id, state.x, state.y);
+                    entity = new ClientBullet(state.id, state.x, state.y, this);
                 } else if (EntityUtils.ByteToActorType(state.type) == ActorType.FLY) {
-                    entity = new ClientFly(state.id, state.x, state.y);
+                    entity = new ClientFly(state.id, state.x, state.y, this);
                 } else if (EntityUtils.ByteToActorType(state.type) == ActorType.FROG) {
-                    entity = new ClientFrog(state.id, state.x, state.y);
+                    entity = new ClientFrog(state.id, state.x, state.y, this);
                 } else if (EntityUtils.ByteToActorType(state.type) == ActorType.BOMB) {
-                    entity = new ClientBomb(state.id, state.x, state.y);
+                    entity = new ClientBomb(state.id, state.x, state.y, this);
                 } else {
                     Gdx.app.log("Error", "Couldnt decode actor type");
                     Gdx.app.exit();
@@ -228,6 +240,10 @@ public class WorldRenderer {
         } else {
             client.sendUDP(message);
         }
+        
+        if (controls.closeButton()) {
+            game.setScreen(new MainMenuScreen(game));
+        }
     }
 
     public void resize(int width, int height) {
@@ -242,8 +258,11 @@ public class WorldRenderer {
     }
 
     public void dispose() {
-        // TODO Auto-generated method stub
-        
+        batch.dispose();
+        hudRenderer.dispose();
+        audioPlayer.dispose();
+        map.dispose();
+        renderer.dispose();
     }
     
 }

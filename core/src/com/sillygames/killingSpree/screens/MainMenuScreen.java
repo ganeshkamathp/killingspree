@@ -23,7 +23,7 @@ public class MainMenuScreen extends AbstractScreen {
     private MyButton currentButton;
     private MyButton startGameButton;
     private MyButton joinGameButton;
-    private MyButton optionsButton;
+    private MyButton practiceButton;
     private MyButton exitButton;
     
     public MainMenuScreen(KillingSpree game) {
@@ -33,14 +33,8 @@ public class MainMenuScreen extends AbstractScreen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0, 0, 0, 0);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        batch.setProjectionMatrix(camera.combined);
-        batch.begin();
-        processInput();
         renderButtons(delta);
-        batch.end();
-        
+        processInput();
     }
 
     @Override
@@ -92,15 +86,22 @@ public class MainMenuScreen extends AbstractScreen {
     private void processButton() {
         buttons.clear();
         if (currentButton == startGameButton) {
-            LobbyScreen lobbyScreen = new LobbyScreen(game);
-            lobbyScreen.setServer(true);
-            game.setScreen(lobbyScreen);
+//            LobbyScreen lobbyScreen = new LobbyScreen(game);
+//            lobbyScreen.setServer(true);
+//            game.setScreen(lobbyScreen);
+            GameScreen gameScreen = new GameScreen(game);
+            gameScreen.startServer(false);
+            gameScreen.loadLevel("maps/retro-small.tmx", "localhost");
+            game.setScreen(gameScreen);
         } else if (currentButton == joinGameButton) {
             ClientDiscoveryScreen clientDiscoveryScreen = 
                     new ClientDiscoveryScreen(game);
             game.setScreen(clientDiscoveryScreen);
-        } else if (currentButton == optionsButton) {
-            
+        } else if (currentButton == practiceButton) {
+            GameScreen gameScreen = new GameScreen(game);
+            gameScreen.startServer(true);
+            gameScreen.loadLevel("maps/retro-small.tmx", "localhost");
+            game.setScreen(gameScreen);
         } else if (currentButton == exitButton) {
             Gdx.app.exit();
         }
@@ -111,8 +112,14 @@ public class MainMenuScreen extends AbstractScreen {
                 Gdx.input.getY()));
         for (MyButton button: buttons) {
             if(button.isPressed(touchVector, font)) {
+                if (currentButton == button) {
+                    processButton();
+                    return;
+                }
+                currentButton.setActive(false);
                 currentButton = button;
-                processButton();
+                currentButton.setActive(true);
+                renderButtons(0.01f);
                 return;
             }
         }
@@ -125,21 +132,26 @@ public class MainMenuScreen extends AbstractScreen {
     }
     
     private void renderButtons(float delta) {
+        Gdx.gl.glClearColor(0, 0, 0, 0);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        batch.setProjectionMatrix(camera.combined);
+        batch.begin();
         for (MyButton button: buttons) {
             button.render(batch, font, delta);
         }
+        batch.end();
     }
     
     private void addAllButtons() {
         startGameButton = addButton("Start game", 100, 750);
         joinGameButton = addButton("Join game", 100, 550);
-        optionsButton = addButton("Options", 100, 350);
+        practiceButton = addButton("Solo practice", 100, 350);
         exitButton = addButton("Exit", 100, 150);
         startGameButton.setActive(true);
         currentButton = startGameButton;
         joinGameButton.setNorth(startGameButton);
-        optionsButton.setNorth(joinGameButton);
-        optionsButton.setSouth(exitButton);
+        practiceButton.setNorth(joinGameButton);
+        practiceButton.setSouth(exitButton);
         startGameButton.setNorth(exitButton);
     }
 

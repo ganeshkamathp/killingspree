@@ -38,10 +38,6 @@ public class ServerArrow extends ServerEntity implements NonExplodingWeaponCateg
         position.set(body.getPosition());
         Body targetBody = Ray.findBody(world.worldManager.getWorld(),
                 body, new Vector2(Math.signum(velocityVector.x), 0), 200f);
-        if (targetBody != null && targetBody.bodyType != BodyType.StaticBody) {
-            Gdx.app.log("facing", "player");
-        }
-        
         position.set(body.getPosition());
 //        Gdx.app.log(body.getPosition().toString(), target.toString());
         if (target != null) {

@@ -54,7 +54,8 @@ public class ServerBomb extends ServerEntity implements ExplodingWeaponCategory 
     @Override
     public void updateState(EntityState state) {
         super.updateState(state);
-        state.angle = MathUtils.atan2(body.getLinearVelocity().y, body.getLinearVelocity().x);
+        state.angle = MathUtils.atan2(body.getLinearVelocity().y,
+                body.getLinearVelocity().x);
     }
 
     @Override
@@ -64,24 +65,25 @@ public class ServerBomb extends ServerEntity implements ExplodingWeaponCategory 
 
     @Override
     public void explode() {
+        world.audio.explode();
         Vector2 position = body.getPosition();
-        world.destroyEntities(this, 60, position);
+        world.destroyEntities(this, 35, position);
         
-        if (position.x > WorldRenderer.VIEWPORT_WIDTH - 30) {
+        if (position.x > WorldRenderer.VIEWPORT_WIDTH - 20) {
             position.x -= WorldRenderer.VIEWPORT_WIDTH;
-        } else if (position.x < 30) {
+        } else if (position.x < 20) {
             position.x += WorldRenderer.VIEWPORT_WIDTH;
         }
-        world.destroyEntities(this, 60, position);
+        world.destroyEntities(this, 35, position);
           
         position = body.getPosition();
 
-        if (position.y > WorldRenderer.VIEWPORT_HEIGHT - 30) {
+        if (position.y > WorldRenderer.VIEWPORT_HEIGHT - 20) {
             position.y -= WorldRenderer.VIEWPORT_HEIGHT;
-        } else if (position.x < 30) {
+        } else if (position.x < 20) {
             position.y += WorldRenderer.VIEWPORT_HEIGHT;
         }
-        world.destroyEntities(this, 60, position);
+        world.destroyEntities(this, 35, position);
         
         dispose();
     }

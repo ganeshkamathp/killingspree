@@ -3,13 +3,11 @@ package com.sillygames.killingSpree.clientEntities;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.math.MathUtils;
+import com.sillygames.killingSpree.managers.WorldRenderer;
 import com.sillygames.killingSpree.pool.AssetLoader;
 import com.sillygames.killingSpree.serverEntities.ServerPlayer;
 
@@ -21,10 +19,9 @@ public class ClientPlayer extends ClientEntity{
     private Animation walk;
     private float walkDuration;
     private boolean previousXFlip;
-    private BitmapFont font;
     
-    public ClientPlayer(short id, float x, float y) {
-        super(id, x, y);
+    public ClientPlayer(short id, float x, float y, WorldRenderer renderer) {
+        super(id, x, y, renderer);
         markForDispose = false;
         Texture texture = AssetLoader.instance.getTexture("sprites/player.png");
         sprite = new Sprite(texture);
@@ -34,18 +31,13 @@ public class ClientPlayer extends ClientEntity{
                 texture.getWidth()/10, texture.getHeight())[0]);
         walk.setPlayMode(Animation.PlayMode.LOOP);
         walkDuration = 0;
-        FreeTypeFontParameter parameter = new FreeTypeFontParameter();
-        parameter.size = 10;
-        font = new FreeTypeFontGenerator
-                (Gdx.files.internal("fonts/game.ttf")).generateFont(parameter);
+        gunSprite.setSize(40, 6);
+        gunSprite.setOrigin(gunSprite.getWidth()/2, gunSprite.getHeight()/2);
+        gunSprite.setAlpha(0.7f);
     }
     
     @Override
     public void render(float delta, SpriteBatch batch) {
-        gunSprite.setSize(40, 6);
-        gunSprite.setOrigin(gunSprite.getWidth()/2, gunSprite.getHeight()/2);
-        gunSprite.setAlpha(0.5f);
-        
         walkDuration += delta;
         if (markForDispose) {
             dispose();
@@ -90,7 +82,8 @@ public class ClientPlayer extends ClientEntity{
         float y = position.y - sprite.getHeight() / 2 + ServerPlayer.YOFFSET;
        
         drawAll(sprite, batch, x, y);
-        font.draw(batch, Byte.toString((byte) (extra >> 1)), x + 3, y + 35);
+        
+        renderer.hudRenderer.render(batch, x, y, extra);
         
         x = position.x - gunSprite.getWidth() / 2;
         y = position.y - gunSprite.getHeight() / 2 + ServerPlayer.YOFFSET;

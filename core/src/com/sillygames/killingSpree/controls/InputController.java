@@ -8,6 +8,10 @@ public class InputController {
     
     public static final InputController instance = new InputController();
     
+    public InputController () {
+        Gdx.input.setCatchBackKey(true);
+    }
+    
     public boolean controllerEnabled() {
         return (Controllers.getControllers().size > 0);
     }
@@ -62,6 +66,11 @@ public class InputController {
     public boolean rightTrigger() {
         return (controllerEnabled() && Controllers
                 .getControllers().get(0).getAxis(7) == 1);
+    }
+
+    public boolean closeButton() {
+        return Gdx.input.isKeyPressed(Keys.BACK) || 
+                Gdx.input.isKeyJustPressed(Keys.ESCAPE);
     }
     
 }

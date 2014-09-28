@@ -21,6 +21,7 @@ public class onScreenControls extends InputController {
     private Button jumpButton;
     private Button shootButton;
     private Button throwBombButton;
+    private Button closeButton;
     private Skin skin;
     private boolean createObjectsWasPressed;
     private static float BUTTON_SIZE = 150f;
@@ -33,6 +34,7 @@ public class onScreenControls extends InputController {
         skin.add("buttonA", new Texture("controls/buttonA.png"));
         skin.add("buttonB", new Texture("controls/buttonB.png"));
         skin.add("buttonX", new Texture("controls/buttonX.png"));
+        skin.add("closeButton", new Texture("controls/closeButton.png"));
 
         Drawable button;
         button = skin.getDrawable("knob");
@@ -61,11 +63,19 @@ public class onScreenControls extends InputController {
                 throwBombButton.getColor().g,
                 throwBombButton.getColor().b,
                 throwBombButton.getColor().a / 5);
+        
+        button = skin.getDrawable("closeButton");
+        closeButton = new Button(button);
+        closeButton.setColor(closeButton.getColor().r,
+                closeButton.getColor().g,
+                closeButton.getColor().b,
+                closeButton.getColor().a / 5);
 
         this.stage.addActor(touchpad);
         this.stage.addActor(jumpButton);
         this.stage.addActor(shootButton);
         this.stage.addActor(throwBombButton);
+        this.stage.addActor(closeButton);
         Gdx.input.setInputProcessor(stage);
         resize();
     }
@@ -103,6 +113,12 @@ public class onScreenControls extends InputController {
     public boolean buttonB() {
         return (throwBombButton.isPressed() || InputController.instance
                 .buttonB());
+    }
+    
+    @Override
+    public boolean closeButton() {
+        return (closeButton.isPressed() || InputController.instance
+                .closeButton());
     }
 
     public Stage getStage() {
@@ -142,5 +158,8 @@ public class onScreenControls extends InputController {
                 BUTTON_SIZE, BUTTON_SIZE);
         throwBombButton.setBounds(Gdx.graphics.getWidth() - BUTTON_SIZE * 1.1f,
                 2.1f * BUTTON_SIZE  * 1.1f, BUTTON_SIZE, BUTTON_SIZE);
+        closeButton.setBounds(Gdx.graphics.getWidth() - BUTTON_SIZE * 1.1f,
+                Gdx.graphics.getHeight() - BUTTON_SIZE * 1.1f, BUTTON_SIZE,
+                BUTTON_SIZE);
     }
 }

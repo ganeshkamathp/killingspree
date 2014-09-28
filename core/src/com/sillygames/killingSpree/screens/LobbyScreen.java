@@ -145,14 +145,14 @@ public class LobbyScreen extends AbstractScreen {
     public void processInput() {
         currentButton = currentButton.process();
         //FIXME
-        if (Gdx.app.getType() == ApplicationType.Desktop) {
+//        if (Gdx.app.getType() == ApplicationType.Desktop) {
             startGame = true;
             if(isServer) server.stop();
-        }
+//        }
         if (startGame) {
             GameScreen gameScreen = new GameScreen(game);
             if(isServer) {
-                gameScreen.startServer(ipAddresses.size() == 1);
+                gameScreen.startServer(false);
             }
             gameScreen.loadLevel("maps/retro-small.tmx", host);
             game.setScreen(gameScreen);

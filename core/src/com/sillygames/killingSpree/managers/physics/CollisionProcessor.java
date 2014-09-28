@@ -10,11 +10,10 @@ public class CollisionProcessor {
     
     public static boolean jumpOn(Body body1, Body body2) {
         if (body1.getUserData() instanceof ServerPlayer) {
-            if (body2.getUserData() instanceof EnemyCategory) {
-                body2.getUserData().dispose();
-                body1.setLinearVelocity(body1.getLinearVelocity().x,
-                         40);
-                body1.getUserData().addKill();
+            if (body2.getUserData() instanceof LivingCategory) {
+                body1.setLinearVelocity(body1.getLinearVelocity().x, 40);
+                if (((LivingCategory)body2.getUserData()).kill())
+                    body1.getUserData().addKill();
             }
         } else if (body1.getUserData() instanceof EnemyCategory) {
             if (body2.getUserData() instanceof ServerPlayer) {
@@ -26,8 +25,8 @@ public class CollisionProcessor {
             }
         } else if (body1.getUserData() instanceof NonExplodingWeaponCategory) {
             if (body2.getUserData() instanceof LivingCategory) {
-                body2.getUserData().dispose();
-                if (body2 != body1.getUserData().body) {
+                if (((LivingCategory)body2.getUserData()).kill()
+                    && body2 != body1.getUserData().body) {
                     ((NonExplodingWeaponCategory) body1.getUserData()).
                     getShooter().addKill();
                 }
@@ -40,8 +39,9 @@ public class CollisionProcessor {
     public static boolean jumpedOn(Body body1, Body body2) {
         if (body1.getUserData() instanceof EnemyCategory) {
             if (body2.getUserData() instanceof ServerPlayer) {
-                body2.getUserData().addKill();
-                body1.getUserData().dispose();
+                if (((LivingCategory)body1.getUserData()).kill())
+                    body2.getUserData().addKill();
+                body2.setLinearVelocity(body1.getLinearVelocity().x, 40);
             }
         }
         else if (body1.getUserData() instanceof ServerPlayer) {
@@ -54,8 +54,8 @@ public class CollisionProcessor {
             }
         } else if (body1.getUserData() instanceof NonExplodingWeaponCategory) {
             if (body2.getUserData() instanceof LivingCategory) {
-                body2.getUserData().dispose();
-                if (body2 != body1.getUserData().body) {
+                if (((LivingCategory)body2.getUserData()).kill()
+                        && body2 != body1.getUserData().body) {
                     ((NonExplodingWeaponCategory) body1.getUserData()).
                     getShooter().addKill();
                 }
@@ -67,7 +67,7 @@ public class CollisionProcessor {
     }
 
     public static boolean touchLeft(Body body1, Body body2) {
-        if (body1.getUserData() instanceof EnemyCategory) {
+        if (body1.getUserData() instanceof LivingCategory) {
             if (body2.getUserData() instanceof ServerPlayer) {
                 ((ServerPlayer)body2.getUserData()).kill();
             }
@@ -82,8 +82,8 @@ public class CollisionProcessor {
             }
         } else if (body1.getUserData() instanceof NonExplodingWeaponCategory) {
             if (body2.getUserData() instanceof LivingCategory) {
-                body2.getUserData().dispose();
-                if (body2 != body1.getUserData().body) {
+                if (((LivingCategory)body2.getUserData()).kill()
+                        && body2 != body1.getUserData().body) {
                     ((NonExplodingWeaponCategory) body1.getUserData()).
                     getShooter().addKill();
                 }
@@ -110,8 +110,8 @@ public class CollisionProcessor {
             }
         } else if (body1.getUserData() instanceof NonExplodingWeaponCategory) {
             if (body2.getUserData() instanceof LivingCategory) {
-                body2.getUserData().dispose();
-                if (body2 != body1.getUserData().body) {
+                if (((LivingCategory)body2.getUserData()).kill()
+                        && body2 != body1.getUserData().body) {
                     ((NonExplodingWeaponCategory) body1.getUserData()).
                     getShooter().addKill();
                 }

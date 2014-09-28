@@ -11,8 +11,10 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.sillygames.killingSpree.clientEntities.ClientBomb;
 import com.sillygames.killingSpree.clientEntities.ClientEntity;
+import com.sillygames.killingSpree.networking.messages.AudioMessage;
 import com.sillygames.killingSpree.networking.messages.GameStateMessage;
 import com.sillygames.killingSpree.pool.MessageObjectPool;
+import com.sillygames.killingSpree.sound.SFXPlayer;
 
 public class StateProcessor extends Listener{
 
@@ -25,8 +27,9 @@ public class StateProcessor extends Listener{
     AtomicBoolean wait;
     ConcurrentHashMap<Short, ClientEntity> world;
     public boolean disconnected;
+    private SFXPlayer audioPlayer;
     
-    public StateProcessor(Client client, ConcurrentHashMap<Short, ClientEntity> worldMap) {
+    public StateProcessor(Client client, ConcurrentHashMap<Short, ClientEntity> worldMap, SFXPlayer audioPlayer) {
         if (client != null) {
             this.client = client;
             client.addListener(this);
@@ -38,6 +41,7 @@ public class StateProcessor extends Listener{
         wait = new AtomicBoolean(false);
         this.world = worldMap;
         disconnected = false;
+        this.audioPlayer = audioPlayer;
     }
     
     @Override
@@ -55,6 +59,8 @@ public class StateProcessor extends Listener{
                 if (!(world.get(object) instanceof ClientBomb))
                     world.get(object).remove = true;
             }
+        } else if (object instanceof AudioMessage) {
+            audioPlayer.playAudioMessage((AudioMessage) object);
         }
         super.received(connection, object);
     }

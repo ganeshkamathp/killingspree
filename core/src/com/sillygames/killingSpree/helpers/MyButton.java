@@ -3,6 +3,7 @@ package com.sillygames.killingSpree.helpers;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.sillygames.killingSpree.controls.InputController;
 
@@ -34,10 +35,11 @@ public class MyButton {
     public void render(SpriteBatch batch, BitmapFont font, float delta){
         if (active) {
             font.setColor(1, 1, 1, 1);
+            font.draw(batch, text, x + MathUtils.random(0, 1), y + MathUtils.random(0, 1));
         } else {
             font.setColor(0.5f, 0.5f, 0.5f, 1);
+            font.draw(batch, text, x, y);
         }
-        font.draw(batch, text, x, y);
         slackTime += delta;
     }
 

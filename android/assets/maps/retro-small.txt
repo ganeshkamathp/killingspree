@@ -36,7 +36,10 @@ fly
 blob
 20 85 1
 0
+fly
+225 215
+0
 blob
 430 85 -1
 1000
-Finally you won!!!
+Restarting the level for more practice!!

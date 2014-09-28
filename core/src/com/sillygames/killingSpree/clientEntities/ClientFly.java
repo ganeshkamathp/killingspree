@@ -18,8 +18,8 @@ public class ClientFly extends ClientEntity {
     private float walkDuration;
     private boolean previousXFlip;
     
-    public ClientFly(short id, float x, float y) {
-        super(id, x, y);
+    public ClientFly(short id, float x, float y, WorldRenderer renderer) {
+        super(id, x, y, renderer);
         markForDispose = false;
         Texture texture = AssetLoader.instance.getTexture("sprites/fly.png");
         sprite = new Sprite(texture);
@@ -31,7 +31,7 @@ public class ClientFly extends ClientEntity {
 
     @Override
     public void render(float delta, SpriteBatch batch) {
-        if (extra == 1) {
+        if ((extra & 0x1) == 1) {
             walkDuration += delta;
             if (vX < -15f) {
                 sprite.setRegion(walk.getKeyFrame(walkDuration));

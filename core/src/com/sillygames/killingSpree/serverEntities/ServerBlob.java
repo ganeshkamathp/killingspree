@@ -56,7 +56,6 @@ public class ServerBlob extends ServerEntity implements EnemyCategory, LivingCat
             Body targetBody = Ray.findBody(world.worldManager.getWorld(),
                     body, new Vector2(Math.signum(velocityVector.x) * 5, 0), 40f);
             if (targetBody != null && targetBody.getUserData() instanceof ServerPlayer) {
-                Gdx.app.log(body.getPosition().toString(), targetBody.getPosition().toString());
                 body.setLinearVelocity(1.5f * velocityVector.x, velocityVector.y + 100);
             }
         }
@@ -90,15 +89,17 @@ public class ServerBlob extends ServerEntity implements EnemyCategory, LivingCat
         super.updateState(state);
         state.vX = body.getLinearVelocity().x;
         state.vY = body.getLinearVelocity().y;
-        state.extra = (byte) (spawnTime > 0.01f ? 0 : 1);
+        state.extra |= (short) (spawnTime > 0.01f ? 0 : 1);
     }
 
     @Override
     public boolean kill() {
         if (spawnTime < 0 && !body.toDestroy) {
             dispose();
+            world.audio.jumpedOn();
             return true;
         }
         return false;
     }
+
 }

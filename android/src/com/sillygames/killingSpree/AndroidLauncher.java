@@ -1,4 +1,4 @@
-package com.sillygames.killingSpree.android;
+package com.sillygames.killingSpree;
 
 import android.os.Bundle;
 import android.widget.Toast;
@@ -32,6 +32,5 @@ public class AndroidLauncher extends AndroidApplication implements PlatformServi
                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
             }
         });
-        
     }
 }

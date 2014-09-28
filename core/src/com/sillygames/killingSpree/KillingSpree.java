@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFont
 import com.sillygames.killingSpree.pool.AssetLoader;
 import com.sillygames.killingSpree.screens.GameScreen;
 import com.sillygames.killingSpree.screens.SplashScreen;
+import com.sillygames.killingSpree.sound.SFXPlayer;
 
 public class KillingSpree extends ApplicationAdapter {
 
@@ -33,6 +34,7 @@ public class KillingSpree extends ApplicationAdapter {
 	    
 	    AssetLoader.instance.loadAll();
 	    currentScreen = new SplashScreen(this);
+	    Gdx.audio.getClass();
 //	    GameScreen gameScreen = new GameScreen(this);
 //        gameScreen.startServer();
 //        gameScreen.loadLevel("maps/retro-small.tmx", "localhost");
@@ -42,7 +44,7 @@ public class KillingSpree extends ApplicationAdapter {
 	@Override
 	public void render () {
 	    float delta = Gdx.graphics.getDeltaTime();
-	    currentScreen.render(1/60f);
+	    currentScreen.render(delta);
 	}
 	
 	@Override

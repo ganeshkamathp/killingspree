@@ -54,7 +54,6 @@ public class Body {
     public Body(float x, float y, float width, float height) {
         this();
         rectangle = new Rectangle(x, y, width, height);
-        Gdx.app.log("body", rectangle.toString());
     }
 
     public Body(float x, float y, float w, float h, BodyType type) {
