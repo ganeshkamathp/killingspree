@@ -96,4 +96,9 @@ public class MyButton {
     public String getText() {
         return text;
     }
+    
+    public void setPosition(float x, float y) {
+        this.x = x;
+        this.y = y;
+    }
 }

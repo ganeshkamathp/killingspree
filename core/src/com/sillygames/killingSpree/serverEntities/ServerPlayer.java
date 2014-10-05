@@ -106,7 +106,7 @@ public class ServerPlayer extends ServerEntity implements LivingCategory {
         }
         if (Math.abs(x) ==1 && Math.abs(y) == 1) {
             x = Math.signum(x) * 0.707f;
-            y = Math.signum(y) * 0.707f;
+            y = 0;
         }
         directionX = x;
         directionY = y;

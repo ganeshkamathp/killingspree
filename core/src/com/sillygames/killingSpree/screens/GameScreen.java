@@ -70,7 +70,7 @@ public class GameScreen extends AbstractScreen {
         }
     }
     
-    public void loadLevel(String level, String host) {
+    public boolean loadLevel(String level, String host) {
         if (isServer) {
             world = new WorldManager(server);
             if (server == null)
@@ -84,12 +84,16 @@ public class GameScreen extends AbstractScreen {
                         Constants.GAME_TCP_PORT,
                         Constants.GAME_UDP_PORT);
             } catch (IOException e) {
+                game.platformServices.toast("Server not found");
                 e.printStackTrace();
+                game.setScreen(new ClientDiscoveryScreen(game));
+                return false;
             }
         }
         
         renderer = new WorldRenderer(world, client, game);
         renderer.loadLevel(level, isServer);
+        return true;
     }
 
     @Override

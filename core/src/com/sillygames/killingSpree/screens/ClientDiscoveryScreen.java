@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.TextInputListener;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -27,9 +28,11 @@ public class ClientDiscoveryScreen extends AbstractScreen {
     private MyButton currentButton;
     private MyButton backButton;
     private MyButton refreshButton;
+    private MyButton manualIpButton;
     private ArrayList<MyButton> ipAddresses;
     private boolean markForDispose;
     private Client client;
+    private boolean pressedIPButton;
     
     public ClientDiscoveryScreen(KillingSpree game) {
         super(game);
@@ -67,6 +70,7 @@ public class ClientDiscoveryScreen extends AbstractScreen {
         markForDispose = false;
         addAllButtons();
         addIpButtons();
+        pressedIPButton = false;
     }
 
     @Override
@@ -108,6 +112,31 @@ public class ClientDiscoveryScreen extends AbstractScreen {
             game.setScreen(new MainMenuScreen(game));
         } else if (currentButton == refreshButton) {
             addIpButtons();
+        } else if (currentButton == manualIpButton) {
+            if (pressedIPButton) {
+                return;
+            }
+            pressedIPButton = true;
+            
+            Gdx.input.getTextInput(new TextInputListener() {
+                
+                @Override
+                public void input(String text) {
+                    GameScreen gameScreen = new GameScreen(game);
+                    if (gameScreen.loadLevel("maps/retro-small.tmx", text)) {
+                        game.setScreen(gameScreen);
+                    } else {
+                        gameScreen.dispose();
+                    }
+                    pressedIPButton = false;
+                }
+                
+                @Override
+                public void canceled() {
+                    pressedIPButton = false;
+                }
+            }, "Enter IP", "");
+            
         } else {
             //FIXME
             String address = currentButton.getText();
@@ -159,15 +188,17 @@ public class ClientDiscoveryScreen extends AbstractScreen {
     private void addAllButtons() {
         refreshButton = addButton("Refresh", 300, 720);
         backButton = addButton("Back", 700, 720);
+        manualIpButton = addButton("Enter IP", 300, 580);
         currentButton = refreshButton;
         currentButton.setActive(true);
         refreshButton.setWest(backButton);
+        manualIpButton.setNorth(backButton);
+        manualIpButton.setNorth(refreshButton);
     }
     
     private void addIpButtons() {
         game.platformServices.shortToast("Searching for servers");
-        refreshButton.south = null;
-        backButton.south = null;
+        manualIpButton.north = null;
         ipAddresses.clear();
         MyButton previousButton = refreshButton;
         float y = 580;
@@ -184,6 +215,8 @@ public class ClientDiscoveryScreen extends AbstractScreen {
             previousButton = button;
             y -= 150;
         }
+        manualIpButton.setPosition(300, y);
+        manualIpButton.setNorth(previousButton);
         
     }
     

@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.sillygames.killingSpree.KillingSpree;
 
 public class SplashScreen extends AbstractScreen {
@@ -13,6 +14,7 @@ public class SplashScreen extends AbstractScreen {
     private SpriteBatch batch;
     private OrthographicCamera camera;
     private float totalTime = 0;
+    private FitViewport viewport;
 
     public SplashScreen(KillingSpree game) {
         super(game);
@@ -25,10 +27,10 @@ public class SplashScreen extends AbstractScreen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        font.draw(batch, "Killing", Gdx.graphics.getWidth()/2 - 450,
-                Gdx.graphics.getHeight() - 120);
-        font.draw(batch, "Spree", Gdx.graphics.getWidth()/2,
-                Gdx.graphics.getHeight() - 380);
+        font.draw(batch, "Killing", viewport.getWorldWidth()/2 - 450,
+                viewport.getWorldHeight() - 120);
+        font.draw(batch, "Spree", viewport.getWorldWidth() / 2,
+                viewport.getWorldHeight() - 380);
         batch.end();
         if (totalTime < 2f){
             totalTime += delta;
@@ -39,8 +41,7 @@ public class SplashScreen extends AbstractScreen {
 
     @Override
     public void resize(int width, int height) {
-        float aspectRatio = (float)width / height;
-        camera.setToOrtho(false, 720 * aspectRatio, 720);
+        viewport.update(width, height);
         camera.update();
     }
 
@@ -49,6 +50,8 @@ public class SplashScreen extends AbstractScreen {
         font = game.getFont(200);
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
+        viewport = new FitViewport(1280, 720, camera);
+        camera.setToOrtho(false, 1280, 720);
     }
 
     @Override
