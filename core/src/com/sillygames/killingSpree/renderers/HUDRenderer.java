@@ -18,15 +18,15 @@ public class HUDRenderer {
         bomb = new Sprite(AssetLoader.instance.
                 getTexture("sprites/bomb.png"));
         FreeTypeFontParameter parameter = new FreeTypeFontParameter();
-        parameter.size = 8;
+        parameter.size = 7;
         font = new FreeTypeFontGenerator
                 (Gdx.files.internal("fonts/game.ttf")).generateFont(parameter);
     }
     
-    public void render(SpriteBatch batch, float x, float y, short extra) {
+    public void render(SpriteBatch batch, float x, float y, short extra, String name) {
         bomb.setSize(5, 5);
         int totalBombs = (extra >> 1) & 0x7;
-        String score = Integer.toString((extra >> 4));
+        String score = name + ":" + Integer.toString((extra >> 4));
         float startX = x + ((ServerPlayer.WIDTH + 6f) / 2)
                 - (font.getBounds(score).width/2);
         font.draw(batch, score, startX, y + 35);

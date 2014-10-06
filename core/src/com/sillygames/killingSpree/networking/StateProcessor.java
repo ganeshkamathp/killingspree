@@ -9,10 +9,13 @@ import com.badlogic.gdx.Gdx;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import com.sillygames.killingSpree.PlatformServices;
 import com.sillygames.killingSpree.clientEntities.ClientBomb;
 import com.sillygames.killingSpree.clientEntities.ClientEntity;
 import com.sillygames.killingSpree.networking.messages.AudioMessage;
 import com.sillygames.killingSpree.networking.messages.GameStateMessage;
+import com.sillygames.killingSpree.networking.messages.PlayerNamesMessage;
+import com.sillygames.killingSpree.networking.messages.ServerStatusMessage;
 import com.sillygames.killingSpree.pool.MessageObjectPool;
 import com.sillygames.killingSpree.sound.SFXPlayer;
 
@@ -28,12 +31,17 @@ public class StateProcessor extends Listener{
     ConcurrentHashMap<Short, ClientEntity> world;
     public boolean disconnected;
     private SFXPlayer audioPlayer;
+    public PlayerNamesMessage playerNames;
+    public PlatformServices toaster;
     
-    public StateProcessor(Client client, ConcurrentHashMap<Short, ClientEntity> worldMap, SFXPlayer audioPlayer) {
+    public StateProcessor(Client client, ConcurrentHashMap<Short, ClientEntity> worldMap,
+            SFXPlayer audioPlayer, PlatformServices toaster) {
         if (client != null) {
             this.client = client;
             client.addListener(this);
         }
+        this.toaster = toaster;
+        
         nextState = MessageObjectPool.instance.
                 gameStateMessagePool.obtain();
         nextState.time = 0;
@@ -42,6 +50,7 @@ public class StateProcessor extends Listener{
         this.world = worldMap;
         disconnected = false;
         this.audioPlayer = audioPlayer;
+        playerNames = new PlayerNamesMessage();
     }
     
     @Override
@@ -61,6 +70,14 @@ public class StateProcessor extends Listener{
             }
         } else if (object instanceof AudioMessage) {
             audioPlayer.playAudioMessage((AudioMessage) object);
+        } else if (object instanceof PlayerNamesMessage) {
+            this.playerNames = (PlayerNamesMessage) object;
+        } else if (object instanceof ServerStatusMessage) {
+            ServerStatusMessage message = (ServerStatusMessage) object;
+            toaster.toast(message.toastText);
+            disconnected = true;
+        } else if (object instanceof String) {
+            toaster.toast((String) object);
         }
         super.received(connection, object);
     }

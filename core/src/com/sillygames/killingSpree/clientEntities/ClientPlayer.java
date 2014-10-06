@@ -83,7 +83,8 @@ public class ClientPlayer extends ClientEntity{
        
         drawAll(sprite, batch, x, y);
         
-        renderer.hudRenderer.render(batch, x, y, extra);
+        renderer.hudRenderer.render(batch, x, y, extra, renderer.stateProcessor.
+                playerNames.players.get(id));
         
         x = position.x - gunSprite.getWidth() / 2;
         y = position.y - gunSprite.getHeight() / 2 + ServerPlayer.YOFFSET;

@@ -21,7 +21,12 @@ import com.sillygames.killingSpree.networking.messages.AudioMessage;
 import com.sillygames.killingSpree.networking.messages.ControlsMessage;
 import com.sillygames.killingSpree.networking.messages.EntityState;
 import com.sillygames.killingSpree.networking.messages.GameStateMessage;
+import com.sillygames.killingSpree.networking.messages.ClientDetailsMessage;
+import com.sillygames.killingSpree.networking.messages.PlayerNamesMessage;
+import com.sillygames.killingSpree.networking.messages.ServerStatusMessage;
+import com.sillygames.killingSpree.networking.messages.ServerStatusMessage.Status;
 import com.sillygames.killingSpree.pool.MessageObjectPool;
+import com.sillygames.killingSpree.screens.settings.Constants;
 import com.sillygames.killingSpree.serverEntities.ServerBlob;
 import com.sillygames.killingSpree.serverEntities.ServerEntity;
 import com.sillygames.killingSpree.serverEntities.ServerFly;
@@ -179,28 +184,36 @@ public class WorldManager{
     }
 
     private class WorldManagerServerListener extends Listener {
+        
         @Override
         public void connected(Connection connection) {
-            if (server != null)
-                server.sendToTCP(connection.getID(), "start");
+//            if (server != null)
+//                server.sendToTCP(connection.getID(), "start");
         }
         
         @Override
         public void received(Connection connection, Object object) {
-            if (object instanceof ControlsMessage) {
-                try {
+            try {
+                if (object instanceof ControlsMessage) {
                     playerList.get(connection.getID()).
                     setCurrentControls((ControlsMessage) object);
                 }
-                catch(Exception e) {
-                    if (server != null)
-                        server.sendToTCP(connection.getID(), "start");
-                    ServerPlayer player = new ServerPlayer(id++, playerPositions.get(i).x,
-                            playerPositions.get(i).y, worldBodyUtils);
-                    i++;
-                    i %= playerPositions.size();
-                    playerList.put(connection.getID(), player);
-                    entities.add(player);
+                if (object instanceof ClientDetailsMessage) {
+                    updateClientDetails(connection, object);
+                }
+            }
+            catch(Exception e) {
+//                if (server != null) {
+//                    server.sendToTCP(connection.getID(), "start");
+//                }
+                ServerPlayer player = new ServerPlayer(id++, playerPositions.get(i).x,
+                        playerPositions.get(i).y, worldBodyUtils);
+                i++;
+                i %= playerPositions.size();
+                playerList.put(connection.getID(), player);
+                entities.add(player);
+                if (object instanceof ClientDetailsMessage) {
+                    updateClientDetails(connection, object);
                 }
             }
         }
@@ -221,6 +234,32 @@ public class WorldManager{
         }
     }
 
+    private void updateClientDetails(Connection connection, Object object) {
+        int version = ((ClientDetailsMessage)object).protocolVersion;
+        if (version != Constants.PROTOCOL_VERSION) {
+            ServerStatusMessage message = new ServerStatusMessage();
+            message.status = Status.DISCONNECT;
+            if (version > Constants.PROTOCOL_VERSION) {
+                message.toastText = "Please update server";
+            } else if (version < Constants.PROTOCOL_VERSION) {
+                message.toastText = "Please update client";
+            }
+            server.sendToTCP(connection.getID(), message);
+            return;
+        }
+        
+        playerList.get(connection.getID()).
+        setName(((ClientDetailsMessage) object).name);
+        PlayerNamesMessage players = new PlayerNamesMessage();
+        for (ServerPlayer tempPlayer: playerList.values()) {
+            players.players.put(tempPlayer.id, tempPlayer.getName());
+        }
+        if (server != null)
+            server.sendToAllTCP(players);
+        addOutgoingEvent(MessageObjectPool.instance.eventPool.obtain().
+                set(State.RECEIVED, players));
+    }
+    
     private void processEvents(Listener listener, ArrayList<Event> queue) {
         for (Event event: queue) {
             if (event.state == State.CONNECTED) {

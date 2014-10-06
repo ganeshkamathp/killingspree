@@ -10,6 +10,7 @@ import com.sillygames.killingSpree.KillingSpree;
 import com.sillygames.killingSpree.managers.WorldManager;
 import com.sillygames.killingSpree.managers.WorldRenderer;
 import com.sillygames.killingSpree.networking.NetworkRegisterer;
+import com.sillygames.killingSpree.networking.messages.ClientDetailsMessage;
 import com.sillygames.killingSpree.screens.settings.Constants;
 
 public class GameScreen extends AbstractScreen {
@@ -70,7 +71,7 @@ public class GameScreen extends AbstractScreen {
         }
     }
     
-    public boolean loadLevel(String level, String host) {
+    public boolean loadLevel(String level, String host, String name) {
         if (isServer) {
             world = new WorldManager(server);
             if (server == null)
@@ -92,7 +93,7 @@ public class GameScreen extends AbstractScreen {
         }
         
         renderer = new WorldRenderer(world, client, game);
-        renderer.loadLevel(level, isServer);
+        renderer.loadLevel(level, isServer, name);
         return true;
     }
 

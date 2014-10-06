@@ -34,12 +34,14 @@ import com.sillygames.killingSpree.managers.physics.World;
 import com.sillygames.killingSpree.managers.physics.WorldDebugRenderer;
 import com.sillygames.killingSpree.networking.ControlsSender;
 import com.sillygames.killingSpree.networking.StateProcessor;
+import com.sillygames.killingSpree.networking.messages.ClientDetailsMessage;
 import com.sillygames.killingSpree.networking.messages.ControlsMessage;
 import com.sillygames.killingSpree.networking.messages.EntityState;
 import com.sillygames.killingSpree.networking.messages.GameStateMessage;
 import com.sillygames.killingSpree.pool.MessageObjectPool;
 import com.sillygames.killingSpree.renderers.HUDRenderer;
 import com.sillygames.killingSpree.screens.MainMenuScreen;
+import com.sillygames.killingSpree.screens.settings.Constants;
 import com.sillygames.killingSpree.sound.SFXPlayer;
 
 public class WorldRenderer {
@@ -71,12 +73,14 @@ public class WorldRenderer {
     private KillingSpree game;
     public SFXPlayer audioPlayer;
     public HUDRenderer hudRenderer;
+    private byte previousButtonPresses;
     
     public WorldRenderer(WorldManager worldManager, Client client, KillingSpree game) {
         worldMap = new ConcurrentHashMap<Short, ClientEntity>();
         this.worldManager = worldManager;
         audioPlayer = new SFXPlayer();
-        stateProcessor = new StateProcessor(client, worldMap, audioPlayer);
+        stateProcessor = new StateProcessor(client, worldMap, audioPlayer,
+                game.platformServices);
         if (worldManager != null) {
             debugRenderer = new WorldDebugRenderer(worldManager.getWorld());
             worldManager.setOutgoingEventListener(stateProcessor);
@@ -94,7 +98,7 @@ public class WorldRenderer {
         this.game = game;
     }
 
-    public void loadLevel(String level, boolean isServer) {
+    public void loadLevel(String level, boolean isServer, String name) {
         this.isServer = isServer;
         map = new TmxMapLoader().load(level);
         TiledMapTileLayer layer = (TiledMapTileLayer) map.
@@ -103,17 +107,28 @@ public class WorldRenderer {
         VIEWPORT_HEIGHT = (int) (layer.getTileHeight() * layer.getHeight());
         viewport = new FitViewport(VIEWPORT_WIDTH, VIEWPORT_HEIGHT, camera);
         renderer = new OrthogonalTiledMapRenderer(map);
-
+        name = name.trim();
+        if (name.length() == 0)
+            name = "noname";
+        if (name.length() >= 10){
+            name = name.substring(0, 10);
+        }
+        ClientDetailsMessage clientDetails = new ClientDetailsMessage();
+        clientDetails.name = name;
+        clientDetails.protocolVersion = Constants.PROTOCOL_VERSION;
         if (isServer) {
             MapLayer collision =  map.
                     getLayers().get("collision");
             for(MapObject object: collision.getObjects()) {
                 worldManager.createWorldObject(object);
             }
+            worldManager.addIncomingEvent(MessageObjectPool.instance.
+                    eventPool.obtain().set(State.RECEIVED, clientDetails));
+        } else {
+            client.sendTCP(clientDetails);
         }
         controls = new onScreenControls();
-        Gdx.app.log("viewport", Float.toString(VIEWPORT_WIDTH)
-                + Float.toString(VIEWPORT_HEIGHT));
+        
     }
 
     @SuppressWarnings("unused")
@@ -231,14 +246,17 @@ public class WorldRenderer {
     }
 
     private void processControls() {
-
+        
         ControlsMessage message = controlsSender.sendControls(controls);
         
-        if(isServer) {
-            worldManager.addIncomingEvent(MessageObjectPool.instance.
-                    eventPool.obtain().set(State.RECEIVED, message));
-        } else {
-            client.sendUDP(message);
+        if (previousButtonPresses != message.buttonPresses) {
+            if(isServer) {
+                worldManager.addIncomingEvent(MessageObjectPool.instance.
+                        eventPool.obtain().set(State.RECEIVED, message));
+            } else {
+                client.sendUDP(message);
+            }
+            previousButtonPresses = message.buttonPresses;
         }
         
         if (controls.closeButton()) {
@@ -258,6 +276,9 @@ public class WorldRenderer {
     }
 
     public void dispose() {
+        if (client != null) {
+            client.stop();
+        }
         batch.dispose();
         hudRenderer.dispose();
         audioPlayer.dispose();

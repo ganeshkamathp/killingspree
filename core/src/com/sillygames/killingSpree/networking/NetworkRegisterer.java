@@ -1,6 +1,7 @@
 package com.sillygames.killingSpree.networking;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.objenesis.instantiator.ObjectInstantiator;
 
@@ -9,10 +10,13 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Registration;
 import com.esotericsoftware.kryonet.EndPoint;
 import com.sillygames.killingSpree.networking.messages.AudioMessage;
+import com.sillygames.killingSpree.networking.messages.ClientDetailsMessage;
 import com.sillygames.killingSpree.networking.messages.ConnectMessage;
 import com.sillygames.killingSpree.networking.messages.ControlsMessage;
 import com.sillygames.killingSpree.networking.messages.EntityState;
 import com.sillygames.killingSpree.networking.messages.GameStateMessage;
+import com.sillygames.killingSpree.networking.messages.PlayerNamesMessage;
+import com.sillygames.killingSpree.networking.messages.ServerStatusMessage;
 import com.sillygames.killingSpree.pool.MessageObjectPool;
 
 public class NetworkRegisterer {
@@ -72,9 +76,14 @@ public class NetworkRegisterer {
             
         });
         
+        kryo.register(PlayerNamesMessage.class);
+        kryo.register(ClientDetailsMessage.class);
+        kryo.register(ServerStatusMessage.class);
+        kryo.register(ServerStatusMessage.Status.class);
         kryo.register(ArrayList.class);
         kryo.register(Vector2.class);
         kryo.register(String.class);
+        kryo.register(HashMap.class);
     }
     
 }

@@ -28,6 +28,7 @@ public class ServerPlayer extends ServerEntity implements LivingCategory {
     public byte score;
     private byte totalBombs;
     private float addBombTimer;
+    private String name;
     
     public ServerPlayer(short id, float x, float y, WorldBodyUtils world) {
         super(id, x, y, world);
@@ -46,6 +47,7 @@ public class ServerPlayer extends ServerEntity implements LivingCategory {
         score = 0;
         totalBombs = 3;
         addBombTimer = 0;
+        name = "";
     }
     
     @Override
@@ -187,5 +189,19 @@ public class ServerPlayer extends ServerEntity implements LivingCategory {
     @Override
     public void addKill() {
         score++;
-    }   
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    public String getName() {
+        return name;
+    }
+    
+    @Override
+    public void reduceKill() {
+        score--;
+    }
+    
 }

@@ -6,6 +6,8 @@ import com.sillygames.killingSpree.managers.physics.Body.BodyType;
 
 public class Ray {
     
+    private final static Vector2 temp = new Vector2();
+
     public static Body findBody(World world, Body srcBody,
             Vector2 step, float length, boolean staticOnly) {
         Vector2 start = srcBody.getPosition();
@@ -26,7 +28,7 @@ public class Ray {
             if (world.bodies.get(i) == srcBody) {
                 continue;
             }
-            Vector2 temp = new Vector2(start);
+            temp .set(start);
             float currentLength = temp.dst2(start);
             while (currentLength < length && currentLength < bestLength) {
                 if(world.bodies.get(i).rectangle.contains((temp.x + 

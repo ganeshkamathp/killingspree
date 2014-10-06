@@ -2,6 +2,7 @@ package com.sillygames.killingSpree.controls;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -164,7 +165,15 @@ public class onScreenControls extends InputController {
     }
 
     public void resize() {
-        float buttonSize = BUTTON_SIZE * (float) Gdx.graphics.getWidth() / 1280f;
+        Preferences prefs = Gdx.app.getPreferences("settings");
+        int scaling = prefs.getInteger("scaling");
+        if (scaling <= 30 || scaling >= 150) {
+            scaling = 100;
+            prefs.putInteger("scaling", 100);
+            prefs.flush();
+        }
+        float buttonSize = (BUTTON_SIZE * (float) Gdx.graphics.getWidth() *
+                scaling) / (1280f * 100f);
         shootButton.setBounds(Gdx.graphics.getWidth() - buttonSize * 1.1f,
                 buttonSize, buttonSize, buttonSize);
         jumpButton.setBounds(Gdx.graphics.getWidth() - 2 * buttonSize, 10,

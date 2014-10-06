@@ -15,7 +15,7 @@ import com.sillygames.killingSpree.KillingSpree;
 import com.sillygames.killingSpree.controls.InputController;
 import com.sillygames.killingSpree.helpers.MyButton;
 
-public class MainMenuScreen extends AbstractScreen {
+public class OptionsScreen extends AbstractScreen {
 
     private BitmapFont font;
     private SpriteBatch batch;
@@ -23,12 +23,12 @@ public class MainMenuScreen extends AbstractScreen {
     private FitViewport viewport;
     private ArrayList<MyButton> buttons;
     private MyButton currentButton;
-    private MyButton startGameButton;
-    private MyButton joinGameButton;
-    private MyButton practiceButton;
-    private MyButton optionsButton;
+    private MyButton backButton;
+    private MyButton changeNameButton;
+    private MyButton setControlsScaleButton;
+    private boolean buttonPressed;
     
-    public MainMenuScreen(KillingSpree game) {
+    public OptionsScreen(KillingSpree game) {
         super(game);
         show();
     }
@@ -54,23 +54,7 @@ public class MainMenuScreen extends AbstractScreen {
         camera.setToOrtho(false, 1280, 720);
         buttons = new ArrayList<MyButton>();
         addAllButtons();
-        final Preferences prefs = Gdx.app.getPreferences("profile");
-        String name = prefs.getString("name");
-        name = name.trim();
-        if (name.length() == 0) {
-            Gdx.input.getTextInput(new TextInputListener() {
-                
-                @Override
-                public void input(String text) {
-                    prefs.putString("name", text);
-                    prefs.flush();
-                }
-                
-                @Override
-                public void canceled() {
-                }
-            }, "Enter name", "");
-        }
+        buttonPressed = false;
     }
 
     @Override
@@ -103,20 +87,50 @@ public class MainMenuScreen extends AbstractScreen {
     }
     
     private void processButton() {
-        buttons.clear();
-        if (currentButton == startGameButton) {
-//            LobbyScreen lobbyScreen = new LobbyScreen(game);
-//            lobbyScreen.setServer(true);
-//            game.setScreen(lobbyScreen);
-            startServer(false);
-        } else if (currentButton == joinGameButton) {
-            ClientDiscoveryScreen clientDiscoveryScreen = 
-                    new ClientDiscoveryScreen(game);
-            game.setScreen(clientDiscoveryScreen);
-        } else if (currentButton == practiceButton) {
-            startServer(true);
-        } else if (currentButton == optionsButton) {
-            game.setScreen(new OptionsScreen(game));
+        if (buttonPressed)
+            return;
+        if (currentButton == changeNameButton) {
+            final Preferences prefs = Gdx.app.getPreferences("profile");
+            buttonPressed = true;
+            Gdx.input.getTextInput(new TextInputListener() {
+                
+                @Override
+                public void input(String text) {
+                    prefs.putString("name", text);
+                    prefs.flush();
+                    buttonPressed = false;
+                }
+                
+                @Override
+                public void canceled() {
+                    buttonPressed = false;
+                }
+            }, "Enter your name", prefs.getString("name"));
+        } else if (currentButton == setControlsScaleButton) {
+            final Preferences prefs = Gdx.app.getPreferences("settings");
+            buttonPressed = true;
+            Gdx.input.getTextInput(new TextInputListener() {
+                
+                @Override
+                public void input(String text) {
+                    try {
+                        int scaling = Integer.parseInt(text);
+                        prefs.putInteger("scaling", scaling);
+                        prefs.flush();
+                    } catch (Exception e) {
+                        game.platformServices.toast("Please enter a valid integer");
+                    }
+                    buttonPressed = false;
+                }
+                
+                @Override
+                public void canceled() {
+                    buttonPressed = false;
+                }
+            }, "Enter scaling percentage for onscreen controls",
+            Integer.toString(prefs.getInteger("scaling")));
+        } else if (currentButton == backButton) {
+            game.setScreen(new MainMenuScreen(game));
         }
     }
 
@@ -145,7 +159,7 @@ public class MainMenuScreen extends AbstractScreen {
     }
     
     private void renderButtons(float delta) {
-        Gdx.gl.glClearColor(0, 0, 0, 0);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
@@ -156,26 +170,13 @@ public class MainMenuScreen extends AbstractScreen {
     }
     
     private void addAllButtons() {
-        startGameButton = addButton("Start game", 100, 750);
-        joinGameButton = addButton("Join game", 100, 560);
-        practiceButton = addButton("Solo practice", 100, 370);
-        optionsButton = addButton("Options", 100, 180);
-        startGameButton.setActive(true);
-        currentButton = startGameButton;
-        joinGameButton.setNorth(startGameButton);
-        practiceButton.setNorth(joinGameButton);
-        practiceButton.setSouth(optionsButton);
-        startGameButton.setNorth(optionsButton);
+        changeNameButton = addButton("change name", 100, 650);
+        setControlsScaleButton  = addButton("set buttons scale", 100, 450);
+        backButton = addButton("back", 100, 250);
+        changeNameButton.setActive(true);
+        currentButton = changeNameButton;
+        setControlsScaleButton.setNorth(changeNameButton);
+        backButton.setNorth(setControlsScaleButton);
     }
     
-    private void startServer(boolean lonely) {
-        Preferences prefs = Gdx.app.getPreferences("profile");
-        GameScreen gameScreen = new GameScreen(game);
-        gameScreen.startServer(lonely);
-        String name = prefs.getString("name");
-        gameScreen.loadLevel("maps/retro-small.tmx", "localhost",
-                name);
-        game.setScreen(gameScreen);
-    }
-
 }

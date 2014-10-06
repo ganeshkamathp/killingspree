@@ -19,6 +19,7 @@ public class ServerArrow extends ServerEntity implements NonExplodingWeaponCateg
     private Vector2 target;
 
     public float gravityTime;
+    private Vector2 tempVector;
     
     public ServerArrow(short id, float x, float y, WorldBodyUtils world) {
         super(id, x, y, world);
@@ -29,6 +30,7 @@ public class ServerArrow extends ServerEntity implements NonExplodingWeaponCateg
         body.setGravityScale(0.01f);
         body.setUserData(this);
         gravityTime = 0.5f;
+        tempVector = new Vector2();
     }
     
     @Override
@@ -37,12 +39,12 @@ public class ServerArrow extends ServerEntity implements NonExplodingWeaponCateg
         Vector2 velocityVector = body.getLinearVelocity();
         position.set(body.getPosition());
         Body targetBody = Ray.findBody(world.worldManager.getWorld(),
-                body, new Vector2(Math.signum(velocityVector.x), 0), 200f);
+                body, tempVector.set(Math.signum(velocityVector.x), 0), 200f);
         position.set(body.getPosition());
 //        Gdx.app.log(body.getPosition().toString(), target.toString());
         if (target != null) {
             Vector2 currentVelocity = body.getLinearVelocity();
-            Vector2 targetVelocity = new Vector2(target);
+            Vector2 targetVelocity = tempVector.set(target);
             targetVelocity.sub(position);
             targetVelocity.scl(1/targetVelocity.x);
             targetVelocity.scl(currentVelocity.x);

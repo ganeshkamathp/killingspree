@@ -154,7 +154,7 @@ public class LobbyScreen extends AbstractScreen {
             if(isServer) {
                 gameScreen.startServer(false);
             }
-            gameScreen.loadLevel("maps/retro-small.tmx", host);
+            gameScreen.loadLevel("maps/retro-small.tmx", host, null);
             game.setScreen(gameScreen);
             return;
         }

@@ -20,6 +20,7 @@ public class ServerBlob extends ServerEntity implements EnemyCategory, LivingCat
     public static final float YOFFSET = 1f;
     private float velocity;
     private float spawnTime;
+    private Vector2 tempVector;
     
     public ServerBlob(short id, float x, float y, WorldBodyUtils world) {
         super(id, x, y, world);
@@ -32,6 +33,7 @@ public class ServerBlob extends ServerEntity implements EnemyCategory, LivingCat
         body.setUserData(this);
         spawnTime = 0.1f;
         body.category = CollisionCategory.NONE;
+        tempVector = new Vector2();
     }
     
     public void setDirection(float direction) {
@@ -54,13 +56,13 @@ public class ServerBlob extends ServerEntity implements EnemyCategory, LivingCat
         position.set(body.getPosition());
         if (body.grounded) {
             Body targetBody = Ray.findBody(world.worldManager.getWorld(),
-                    body, new Vector2(Math.signum(velocityVector.x) * 5, 0), 40f);
+                    body, tempVector.set(Math.signum(velocityVector.x) * 5, 0), 40f);
             if (targetBody != null && targetBody.getUserData() instanceof ServerPlayer) {
                 body.setLinearVelocity(1.5f * velocityVector.x, velocityVector.y + 100);
             }
         }
         
-        velocityVector = new Vector2(body.getLinearVelocity());
+        velocityVector = tempVector.set(body.getLinearVelocity());
         if(Math.abs(velocityVector.x) < 40f) {
             velocity *= -1;
             velocityVector.x = velocity;

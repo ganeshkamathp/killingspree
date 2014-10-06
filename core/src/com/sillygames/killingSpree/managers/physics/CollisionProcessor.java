@@ -4,6 +4,7 @@ import com.sillygames.killingSpree.categories.EnemyCategory;
 import com.sillygames.killingSpree.categories.ExplodingWeaponCategory;
 import com.sillygames.killingSpree.categories.LivingCategory;
 import com.sillygames.killingSpree.categories.NonExplodingWeaponCategory;
+import com.sillygames.killingSpree.managers.physics.Body.BodyType;
 import com.sillygames.killingSpree.serverEntities.ServerPlayer;
 
 public class CollisionProcessor {
@@ -19,20 +20,9 @@ public class CollisionProcessor {
             if (body2.getUserData() instanceof ServerPlayer) {
                 ((ServerPlayer)body2.getUserData()).kill();
             }
-        } else if (body1.getUserData() instanceof ExplodingWeaponCategory) {
-            if (body2.getUserData() instanceof LivingCategory) {
-                ((ExplodingWeaponCategory) body1.getUserData()).explode();
-            }
-        } else if (body1.getUserData() instanceof NonExplodingWeaponCategory) {
-            if (body2.getUserData() instanceof LivingCategory) {
-                if (((LivingCategory)body2.getUserData()).kill()
-                    && body2 != body1.getUserData().body) {
-                    ((NonExplodingWeaponCategory) body1.getUserData()).
-                    getShooter().addKill();
-                }
-            }
-            body1.getUserData().dispose();
-        }
+        } 
+        processWeapons(body1, body2);
+        processWeapons(body2, body1);
         return false;
     }
 
@@ -43,25 +33,16 @@ public class CollisionProcessor {
                     body2.getUserData().addKill();
                 body2.setLinearVelocity(body1.getLinearVelocity().x, 40);
             }
-        }
-        else if (body1.getUserData() instanceof ServerPlayer) {
+        } else if (body1.getUserData() instanceof ServerPlayer) {
             if (body2.getUserData() instanceof EnemyCategory) {
                 ((ServerPlayer)body1.getUserData()).kill();
+            } else if (body2.getUserData() instanceof ServerPlayer) {
+                ((ServerPlayer)body1.getUserData()).kill();
+                ((ServerPlayer)body2.getUserData()).addKill();
             }
-        } else if (body1.getUserData() instanceof ExplodingWeaponCategory) {
-            if (body2.getUserData() instanceof LivingCategory) {
-                ((ExplodingWeaponCategory) body1.getUserData()).explode();
-            }
-        } else if (body1.getUserData() instanceof NonExplodingWeaponCategory) {
-            if (body2.getUserData() instanceof LivingCategory) {
-                if (((LivingCategory)body2.getUserData()).kill()
-                        && body2 != body1.getUserData().body) {
-                    ((NonExplodingWeaponCategory) body1.getUserData()).
-                    getShooter().addKill();
-                }
-            }
-            body1.getUserData().dispose();
         }
+        processWeapons(body1, body2);
+        processWeapons(body2, body1);
         return false;
         
     }
@@ -71,25 +52,13 @@ public class CollisionProcessor {
             if (body2.getUserData() instanceof ServerPlayer) {
                 ((ServerPlayer)body2.getUserData()).kill();
             }
-        }
-        else if (body1.getUserData() instanceof ServerPlayer) {
+        } else if (body1.getUserData() instanceof ServerPlayer) {
             if (body2.getUserData() instanceof EnemyCategory) {
                 ((ServerPlayer)body1.getUserData()).kill();
             }
-        } else if (body1.getUserData() instanceof ExplodingWeaponCategory) {
-            if (body2.getUserData() instanceof LivingCategory) {
-                ((ExplodingWeaponCategory) body1.getUserData()).explode();
-            }
-        } else if (body1.getUserData() instanceof NonExplodingWeaponCategory) {
-            if (body2.getUserData() instanceof LivingCategory) {
-                if (((LivingCategory)body2.getUserData()).kill()
-                        && body2 != body1.getUserData().body) {
-                    ((NonExplodingWeaponCategory) body1.getUserData()).
-                    getShooter().addKill();
-                }
-            }
-            body1.getUserData().dispose();
         }
+        processWeapons(body1, body2);
+        processWeapons(body2, body1);
         return false;
         
     }
@@ -104,21 +73,27 @@ public class CollisionProcessor {
             if (body2.getUserData() instanceof EnemyCategory) {
                 ((ServerPlayer)body1.getUserData()).kill();
             }
-        } else if (body1.getUserData() instanceof ExplodingWeaponCategory) {
-            if (body2.getUserData() instanceof LivingCategory) {
+        }
+        processWeapons(body1, body2);
+        processWeapons(body2, body1);
+        return false;
+    }
+    
+    public static void processWeapons(Body body1, Body body2){
+        if (body1.getUserData() instanceof ExplodingWeaponCategory) {
+            if (body2.bodyType == BodyType.DynamicBody) {
                 ((ExplodingWeaponCategory) body1.getUserData()).explode();
             }
         } else if (body1.getUserData() instanceof NonExplodingWeaponCategory) {
             if (body2.getUserData() instanceof LivingCategory) {
                 if (((LivingCategory)body2.getUserData()).kill()
-                        && body2 != body1.getUserData().body) {
+                    && body2 != body1.getUserData().body) {
                     ((NonExplodingWeaponCategory) body1.getUserData()).
                     getShooter().addKill();
                 }
             }
             body1.getUserData().dispose();
         }
-        return false;
     }
 
 }

@@ -44,4 +44,8 @@ public abstract class ServerEntity {
         return false;
     }
 
+    public void reduceKill() {
+        
+    }
+
 }

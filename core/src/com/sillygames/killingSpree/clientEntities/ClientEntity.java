@@ -18,10 +18,12 @@ public abstract class ClientEntity {
     protected float vX, vY;
     protected short extra;
     protected WorldRenderer renderer;
+    private Vector2 tempVector;
     
     public ClientEntity(short id, float x, float y, WorldRenderer renderer){
         position = new Vector2(x, y);
         previousPosition = new Vector2(x, y);
+        tempVector = new Vector2();
         currentState = new EntityState();
         this.id = id;
         destroy = false;
@@ -50,10 +52,12 @@ public abstract class ClientEntity {
             position.y += WorldRenderer.VIEWPORT_HEIGHT / 10;
         }
         
-        if (position.dst2(new Vector2(nextState.x, nextState.y)) > 60) {
-            position.set(nextState.x, nextState.y);
+        tempVector.set((float)nextState.x, (float)nextState.y);
+        
+        if (position.dst2(tempVector) > 60) {
+            position.set(tempVector);
         } else {
-            position.lerp(new Vector2((float)nextState.x, (float)nextState.y), alpha);
+            position.lerp(tempVector, alpha);
         }
         angle = nextState.angle;
         vX = nextState.vX;

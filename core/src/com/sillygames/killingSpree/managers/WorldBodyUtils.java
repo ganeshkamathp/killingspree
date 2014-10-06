@@ -28,6 +28,7 @@ public class WorldBodyUtils {
     private Circle circle;
     public AudioMessage audio;
     private World world;
+    private Vector2 tempPlayerPosition;
     
     public WorldBodyUtils(WorldManager worldManager) {
         circle = new Circle();
@@ -35,6 +36,7 @@ public class WorldBodyUtils {
         entities = new ArrayList<ServerEntity>();
         audio = worldManager.audio;
         this.world = worldManager.getWorld();
+        tempPlayerPosition = new Vector2();
     }
     
     public Body addBox(float w, float h, float x, float y, BodyType type){
@@ -117,20 +119,20 @@ public class WorldBodyUtils {
         for (ServerPlayer player: worldManager.playerList.values()) {
             Vector2 position = player.body.getPosition();
             if (point.dst2(position.x, position.y) < distance) {
-                playersPosition.add(new Vector2(position.x, position.y));
+                playersPosition.add(tempPlayerPosition.set(position.x, position.y));
             }
             else if (point.dst2(position.x + WorldRenderer.VIEWPORT_WIDTH, position.y) < distance) {
-                playersPosition.add(new Vector2(position.x + WorldRenderer.VIEWPORT_WIDTH, position.y));
+                playersPosition.add(tempPlayerPosition.set(position.x + WorldRenderer.VIEWPORT_WIDTH, position.y));
             }
             else if (point.dst2(position.x - WorldRenderer.VIEWPORT_WIDTH, position.y) < distance) {
-                playersPosition.add(new Vector2(position.x - WorldRenderer.VIEWPORT_WIDTH, position.y));
+                playersPosition.add(tempPlayerPosition.set(position.x - WorldRenderer.VIEWPORT_WIDTH, position.y));
                 
             }
             else if (point.dst2(position.x, position.y + WorldRenderer.VIEWPORT_HEIGHT) < distance) {
-                playersPosition.add(new Vector2(position.x, position.y + WorldRenderer.VIEWPORT_HEIGHT));
+                playersPosition.add(tempPlayerPosition.set(position.x, position.y + WorldRenderer.VIEWPORT_HEIGHT));
             }
             else if (point.dst2(position.x, position.y - WorldRenderer.VIEWPORT_HEIGHT) < distance) {
-                playersPosition.add(new Vector2(position.x, position.y - WorldRenderer.VIEWPORT_HEIGHT));
+                playersPosition.add(tempPlayerPosition.set(position.x, position.y - WorldRenderer.VIEWPORT_HEIGHT));
             }
         }
         return playersPosition;
@@ -156,6 +158,9 @@ public class WorldBodyUtils {
                         if (((LivingCategory)entity.body.getUserData()).kill()) {
                             if (bomb.bomber != entity.body.getUserData())
                                 bomb.bomber.addKill();
+                            else {
+                                bomb.bomber.reduceKill();
+                            }
                         }
                     }
                 }

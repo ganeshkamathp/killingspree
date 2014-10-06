@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Input.TextInputListener;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -32,7 +33,7 @@ public class ClientDiscoveryScreen extends AbstractScreen {
     private ArrayList<MyButton> ipAddresses;
     private boolean markForDispose;
     private Client client;
-    private boolean pressedIPButton;
+    private boolean pressedButton;
     
     public ClientDiscoveryScreen(KillingSpree game) {
         super(game);
@@ -70,7 +71,7 @@ public class ClientDiscoveryScreen extends AbstractScreen {
         markForDispose = false;
         addAllButtons();
         addIpButtons();
-        pressedIPButton = false;
+        pressedButton = false;
     }
 
     @Override
@@ -113,41 +114,29 @@ public class ClientDiscoveryScreen extends AbstractScreen {
         } else if (currentButton == refreshButton) {
             addIpButtons();
         } else if (currentButton == manualIpButton) {
-            if (pressedIPButton) {
+            if (pressedButton) {
                 return;
             }
-            pressedIPButton = true;
+            pressedButton = true;
             
             Gdx.input.getTextInput(new TextInputListener() {
                 
                 @Override
                 public void input(String text) {
-                    GameScreen gameScreen = new GameScreen(game);
-                    if (gameScreen.loadLevel("maps/retro-small.tmx", text)) {
-                        game.setScreen(gameScreen);
-                    } else {
-                        gameScreen.dispose();
-                    }
-                    pressedIPButton = false;
+                    joinGame(text);
                 }
                 
                 @Override
                 public void canceled() {
-                    pressedIPButton = false;
+                    pressedButton = false;
                 }
             }, "Enter IP", "");
             
         } else {
-            //FIXME
-            String address = currentButton.getText();
-//            LobbyScreen lobbyScreen = new LobbyScreen(game);
-//            lobbyScreen.setHost(address);
-//            lobbyScreen.setServer(false);
-//            game.setScreen(lobbyScreen);
-            GameScreen gameScreen = new GameScreen(game);
-            gameScreen.loadLevel("maps/retro-small.tmx", address);
-            game.setScreen(gameScreen);
-            
+            if (!pressedButton) {
+                pressedButton = true;
+                joinGame(currentButton.getText());
+            }
         }
     }
     
@@ -220,5 +209,21 @@ public class ClientDiscoveryScreen extends AbstractScreen {
         
     }
     
+    private void joinGame (final String host) {
+        // FIXME
+//            LobbyScreen lobbyScreen = new LobbyScreen(game);
+//            lobbyScreen.setHost(address);
+//            lobbyScreen.setServer(false);
+//            game.setScreen(lobbyScreen);
+            GameScreen gameScreen = new GameScreen(game);
+            final Preferences prefs = Gdx.app.getPreferences("profile");
+            if (gameScreen.loadLevel("maps/retro-small.tmx", host, 
+                    prefs.getString("name"))) {
+                game.setScreen(gameScreen);
+            } else {
+                gameScreen.dispose();
+            }
+        
+    }
 
 }
