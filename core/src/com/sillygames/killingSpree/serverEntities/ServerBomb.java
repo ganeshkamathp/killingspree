@@ -65,6 +65,9 @@ public class ServerBomb extends ServerEntity implements ExplodingWeaponCategory 
 
     @Override
     public void explode() {
+        if (body.toDestroy) {
+            return;
+        }
         world.audio.explode();
         Vector2 position = body.getPosition();
         world.destroyEntities(this, 35, position);

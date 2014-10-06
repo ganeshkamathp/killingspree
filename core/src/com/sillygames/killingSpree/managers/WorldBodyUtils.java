@@ -142,7 +142,7 @@ public class WorldBodyUtils {
         Body body = bomb.body;
         circle.set(position, radius);
         for (ServerEntity entity: worldManager.entities) {
-            if (entity.body == body) {
+            if (entity.body == body || entity.body.toDestroy) {
                 continue;
             }
             if (Intersector.overlaps(circle, entity.body.rectangle)) {

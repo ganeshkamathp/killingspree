@@ -82,9 +82,13 @@ public class CollisionProcessor {
     public static void processWeapons(Body body1, Body body2){
         if (body1.getUserData() instanceof ExplodingWeaponCategory) {
             if (body2.bodyType == BodyType.DynamicBody) {
+                if (body1.toDestroy)
+                    return;
                 ((ExplodingWeaponCategory) body1.getUserData()).explode();
             }
         } else if (body1.getUserData() instanceof NonExplodingWeaponCategory) {
+            if (body2.toDestroy)
+                return;
             if (body2.getUserData() instanceof LivingCategory) {
                 if (((LivingCategory)body2.getUserData()).kill()
                     && body2 != body1.getUserData().body) {
