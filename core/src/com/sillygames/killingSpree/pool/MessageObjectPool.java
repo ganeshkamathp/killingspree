@@ -35,7 +35,6 @@ public class MessageObjectPool {
             }
             
         };
-        controlsMessagePool.setMax(512);
         
         entityStatePool = new Pool<EntityState>() {
 

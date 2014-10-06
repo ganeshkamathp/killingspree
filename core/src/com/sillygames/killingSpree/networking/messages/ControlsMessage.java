@@ -1,6 +1,8 @@
 package com.sillygames.killingSpree.networking.messages;
 
-public class ControlsMessage{
+import com.sillygames.killingSpree.pool.Poolable;
+
+public class ControlsMessage implements Poolable{
     // left | right | up | down | jump | shoot
     public byte buttonPresses = 0;
     
@@ -30,5 +32,10 @@ public class ControlsMessage{
     
     public boolean throwBomb() {
         return (buttonPresses & 0x40) > 0; 
+    }
+
+    @Override
+    public void reset() {
+        buttonPresses = 0;
     }
 }

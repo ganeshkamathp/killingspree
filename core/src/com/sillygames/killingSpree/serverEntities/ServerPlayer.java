@@ -148,7 +148,7 @@ public class ServerPlayer extends ServerEntity implements LivingCategory {
     }
 
     public void setCurrentControls(ControlsMessage currentControls) {
-        this.currentControls = currentControls;
+        this.currentControls.buttonPresses = currentControls.buttonPresses;
     }
     
     @Override

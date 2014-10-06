@@ -147,7 +147,7 @@ public class WorldManager{
 
         gameStateMessage.time = TimeUtils.nanoTime();
         if (server != null) {
-            server.sendToAllUDP(gameStateMessage);
+            server.sendToAllTCP(gameStateMessage);
             if (audio.audio != 0) {
                 server.sendToAllUDP(audio);
             }

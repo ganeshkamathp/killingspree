@@ -114,7 +114,8 @@ public class GameScreen extends AbstractScreen {
         if (isServer) {
             world.dispose();
         }
-        renderer.dispose();
+        if (renderer != null)
+            renderer.dispose();
         
     }
 
