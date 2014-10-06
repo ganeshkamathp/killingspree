@@ -48,7 +48,7 @@ public class CollisionProcessor {
     }
 
     public static boolean touchLeft(Body body1, Body body2) {
-        if (body1.getUserData() instanceof LivingCategory) {
+        if (body1.getUserData() instanceof EnemyCategory) {
             if (body2.getUserData() instanceof ServerPlayer) {
                 ((ServerPlayer)body2.getUserData()).kill();
             }
